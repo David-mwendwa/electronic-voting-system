@@ -6,20 +6,20 @@ import {
   updateElection,
   deleteElection,
 } from '../controllers/electionController.js';
-
+import { authenticate, authorizeRoles } from '../middleware/auth.js';
 const router = express.Router();
 
 // Get all elections
 router.route('/').get(getElections);
 
 // Create election (admin only)
-router.route('/').post(createElection);
+router.route('/').post(authenticate, authorizeRoles('admin'), createElection);
 
 // Get, update, and delete single election
 router
   .route('/:id')
   .get(getElection)
-  .put(updateElection)
-  .delete(deleteElection);
+  .patch(authenticate, authorizeRoles('admin'), updateElection)
+  .delete(authenticate, authorizeRoles('admin'), deleteElection);
 
 export default router;

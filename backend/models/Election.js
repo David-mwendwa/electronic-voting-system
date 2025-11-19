@@ -31,16 +31,13 @@ const electionSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: [true, 'Please provide election description'],
       trim: true,
     },
     startDate: {
       type: Date,
-      required: [true, 'Please provide start date'],
     },
     endDate: {
       type: Date,
-      required: [true, 'Please provide end date'],
     },
     status: {
       type: String,

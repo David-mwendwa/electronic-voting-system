@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { BadRequestError } from '../errors/customErrors.js';
 
 const candidateSchema = new mongoose.Schema(
   {
@@ -84,15 +85,131 @@ electionSchema.virtual('isActive').get(function () {
   );
 });
 
-// Pre-save middleware to update status based on dates
-electionSchema.pre('save', function (next) {
+// Pre-save middleware to validate and update status
+electionSchema.pre('save', async function (next) {
   const now = new Date();
-  if (this.startDate <= now && this.endDate >= now && this.status === 'draft') {
-    this.status = 'active';
-  } else if (now > this.endDate && this.status === 'active') {
-    this.status = 'completed';
+
+  // Basic date range validation when both dates are present
+  if (this.startDate && this.endDate && this.startDate >= this.endDate) {
+    return next(new BadRequestError('Start date must be before end date'));
   }
+
+  // Skip if this is a new document (let createElection handle initial status)
+  if (this.isNew) {
+    return next();
+  }
+
+  // If status is being modified manually, only allow cancelling
+  if (this.isModified('status')) {
+    const originalDoc = await this.constructor.findById(this._id);
+    if (originalDoc) {
+      const oldStatus = originalDoc.status;
+      const newStatus = this.status;
+
+      // Admins are only allowed to change status to 'cancelled' manually
+      if (newStatus !== oldStatus && newStatus !== 'cancelled') {
+        return next(
+          new BadRequestError(
+            'Status can only be changed to cancelled manually; other states are computed from dates'
+          )
+        );
+      }
+    }
+  }
+
+  // Auto-update status based on dates if not explicitly set
+  if (!this.isModified('status') && this.startDate && this.endDate) {
+    if (this.status !== 'cancelled') {
+      let nextStatus = this.status;
+
+      // Compute the ideal status from dates
+      if (now < this.startDate) {
+        nextStatus = 'upcoming';
+      } else if (now >= this.startDate && now <= this.endDate) {
+        nextStatus = 'active';
+      } else if (now > this.endDate) {
+        nextStatus = 'completed';
+      }
+
+      // If the computed status is different, validate the transition
+      if (nextStatus !== this.status) {
+        const oldStatus = this.status;
+
+        // Allowed transitions for date-driven changes
+        const autoTransitions = {
+          draft: ['upcoming', 'active', 'completed'],
+          upcoming: ['active'], // do not skip straight to completed
+          active: ['completed'],
+          completed: [], // completed is terminal for auto logic
+          cancelled: [],
+        };
+
+        if (!autoTransitions[oldStatus]?.includes(nextStatus)) {
+          return next(
+            new BadRequestError(
+              `Invalid status transition from ${oldStatus} to ${nextStatus}`
+            )
+          );
+        }
+
+        this.status = nextStatus;
+      }
+    }
+  }
+
+  // Validate required fields when not in draft
+  if (this.status !== 'draft') {
+    if (!this.title || !this.description || !this.startDate || !this.endDate) {
+      return next(
+        new BadRequestError(
+          'Title, description, start date, and end date are required to publish an election'
+        )
+      );
+    }
+    if (this.candidates.length < 2) {
+      return next(
+        new BadRequestError(
+          'At least 2 candidates are required to publish an election'
+        )
+      );
+    }
+  }
+
   next();
 });
+
+// Method to update status based on current time
+// This can be called by a scheduled job to update statuses in bulk
+electionSchema.statics.updateElectionStatuses = async function () {
+  const now = new Date();
+
+  // Update active elections that have ended
+  await this.updateMany(
+    {
+      status: 'active',
+      endDate: { $lt: now },
+    },
+    { $set: { status: 'completed' } }
+  );
+
+  // Update upcoming elections that have started
+  await this.updateMany(
+    {
+      status: 'upcoming',
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    },
+    { $set: { status: 'active' } }
+  );
+
+  // Update draft/upcoming elections that have already ended (shouldn't happen but just in case)
+  await this.updateMany(
+    {
+      status: { $in: ['draft', 'upcoming'] },
+      endDate: { $lt: now },
+    },
+    { $set: { status: 'completed' } }
+  );
+};
 
 export default mongoose.model('Election', electionSchema);

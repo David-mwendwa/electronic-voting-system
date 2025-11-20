@@ -141,14 +141,19 @@ const updateOne = (Model) => async (req, res, next) => {
 /**
  * Delete document by id
  * @param {*} Model mongoose data model
- * @returns null
+ * @returns confirmation message
  */
 const deleteOne = (Model) => async (req, res, next) => {
   const documentId = req.params.id || req.query.id;
   const doc = await Model.findByIdAndDelete(documentId);
   if (!doc)
     throw new NotFoundError(`No document found with that ID: ${documentId}`);
-  res.status(204).json({ success: true, data: null });
+
+  res.status(200).json({
+    success: true,
+    message: 'Resource deleted successfully',
+    data: null,
+  });
 };
 
 export { APIFeatures, getMany, getOne, createOne, updateOne, deleteOne };

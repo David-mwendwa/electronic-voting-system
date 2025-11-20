@@ -5,6 +5,7 @@ import {
   updateCandidate,
   removeCandidate,
 } from '../controllers/candidateController.js';
+import { authenticate, authorizeRoles } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -12,12 +13,14 @@ const router = express.Router();
 router.route('/election/:electionId').get(getCandidates);
 
 // Add candidate to election (admin only)
-router.route('/election/:electionId').post(addCandidate);
+router
+  .route('/election/:electionId')
+  .post(authenticate, authorizeRoles('admin'), addCandidate);
 
 // Update and remove candidate (admin only)
 router
   .route('/election/:electionId/:candidateId')
-  .put(updateCandidate)
-  .delete(removeCandidate);
+  .patch(authenticate, authorizeRoles('admin'), updateCandidate)
+  .delete(authenticate, authorizeRoles('admin'), removeCandidate);
 
 export default router;

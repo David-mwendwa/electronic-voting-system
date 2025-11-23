@@ -1,4 +1,4 @@
-# Electronic Voting System
+# Electronic Voting System (EVS)
 
 A secure and transparent electronic voting platform built with React, Node.js, and Express.
 

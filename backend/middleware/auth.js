@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';;
+import jwt from 'jsonwebtoken';
 import {
   UnauthenticatedError,
   ForbiddenError,
@@ -44,4 +44,3 @@ export const authorizeRoles = (...roles) => {
     next();
   };
 };
-

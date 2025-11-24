@@ -1,10 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useElection } from '../context/ElectionContext';
-import { FiX, FiCheckCircle } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
+import { FiX, FiCheckCircle, FiLogIn } from 'react-icons/fi';
+import Login from '../components/auth/Login';
+import Register from '../components/auth/Register';
 
 const Home = () => {
   const [showElectionModal, setShowElectionModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { elections } = useElection();
 
@@ -14,9 +20,38 @@ const Home = () => {
   );
 
   const handleElectionSelect = (electionId) => {
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
     setShowElectionModal(false);
     navigate(`/vote/${electionId}`);
   };
+
+  // Modal handlers
+  const handleCloseLoginModal = () => {
+    setShowLoginModal(false);
+  };
+
+  const handleShowRegister = () => {
+    setShowLoginModal(false);
+    setShowRegisterModal(true);
+  };
+
+  const handleShowLogin = () => {
+    setShowRegisterModal(false);
+    setShowLoginModal(true);
+  };
+
+  const handleCloseRegisterModal = () => {
+    setShowRegisterModal(false);
+  };
+
+  const handleRegisterSuccess = () => {
+    setShowRegisterModal(false);
+    // Show success message or redirect
+  };
+
   const features = [
     {
       icon: (
@@ -80,7 +115,49 @@ const Home = () => {
   ];
 
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen bg-gray-50'>
+      {/* Login Modal */}
+      {showLoginModal && (
+        <div className='fixed z-50 inset-0 overflow-y-auto'>
+          <div className='flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0'>
+            <div
+              className='fixed inset-0 transition-opacity'
+              aria-hidden='true'>
+              <div className='absolute inset-0 bg-gray-500 opacity-75'></div>
+            </div>
+            <span
+              className='hidden sm:inline-block sm:align-middle sm:h-screen'
+              aria-hidden='true'>
+              &#8203;
+            </span>
+            <Login
+              onClose={handleCloseLoginModal}
+              onSwitchToRegister={handleShowRegister}
+            />
+          </div>
+        </div>
+      )}
+      {showRegisterModal && (
+        <div className='fixed z-50 inset-0 overflow-y-auto'>
+          <div className='flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0'>
+            <div
+              className='fixed inset-0 transition-opacity'
+              aria-hidden='true'>
+              <div className='absolute inset-0 bg-gray-500 opacity-75'></div>
+            </div>
+            <span
+              className='hidden sm:inline-block sm:align-middle sm:h-screen'
+              aria-hidden='true'>
+              &#8203;
+            </span>
+            <Register
+              onClose={handleCloseRegisterModal}
+              onSwitchToLogin={handleShowLogin}
+              onRegisterSuccess={handleRegisterSuccess}
+            />
+          </div>
+        </div>
+      )}
       {/* Hero Section */}
       <div className='relative overflow-hidden bg-gradient-to-b from-gray-50 to-white'>
         <div className='py-16 md:py-20 lg:py-24'>
@@ -89,6 +166,7 @@ const Home = () => {
               <span className='block'>Secure, Transparent</span>
               <span className='text-primary-600'>Voting Solutions</span>
             </h1>
+
             <p className='mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl'>
               Empowering organizations with blockchain-based voting systems that
               are secure, transparent, and accessible from anywhere.
@@ -100,7 +178,13 @@ const Home = () => {
 
                 {/* Main button */}
                 <button
-                  onClick={() => setShowElectionModal(true)}
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      setShowLoginModal(true);
+                    } else {
+                      setShowElectionModal(true);
+                    }
+                  }}
                   className='relative w-full sm:w-auto flex items-center justify-center gap-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-lg px-8 py-3.5 border-2 border-primary-400/30 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-[1.02] transition-all duration-300 hover:from-primary-600 hover:to-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-400/20 focus:ring-offset-2 focus:ring-offset-white active:scale-95'>
                   <span className='relative flex items-center justify-center'>
                     <svg
@@ -123,7 +207,9 @@ const Home = () => {
                     <span className='absolute inset-0 w-full h-full bg-white/10 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300'></span>
                   </span>
                   <span className='font-semibold tracking-wide relative'>
-                    <span className='relative z-10'>Vote Now</span>
+                    <span className='relative z-10'>
+                      {isAuthenticated ? 'Vote Now' : 'Login to Vote'}
+                    </span>
                     <span className='absolute -bottom-1 left-0 w-full h-0.5 bg-white/40 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left'></span>
                   </span>
                 </button>

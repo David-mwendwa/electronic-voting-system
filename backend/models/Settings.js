@@ -10,30 +10,26 @@ const settingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    // Add more settings as needed
     updatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       required: true,
     },
   },
   {
     timestamps: true,
-    // Only allow one settings document
+    // Ensure there's only one settings document
     minimize: false,
-    versionKey: false,
   }
 );
 
-// Ensure there's only one settings document
+// Static method to get or create settings
 settingsSchema.statics.getSettings = async function () {
-  let settings = await this.findOne({});
+  let settings = await this.findOne();
   if (!settings) {
-    // Create a new settings document with a valid ObjectId
     settings = await this.create({
       maintenanceMode: false,
       registrationEnabled: true,
-      updatedBy: new mongoose.Types.ObjectId(), // Create a new ObjectId for initial setup
+      updatedBy: 'system',
     });
   }
   return settings;

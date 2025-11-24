@@ -101,12 +101,12 @@ app.use(xss()); // sanitize data against XSS
 app.use(mongoSanitize()); // sanitize data against NoSQL query injection i.e email: {$gt: ""}
 app.use(hpp({ whitelist: [''] })); // prevent parameter pollution i.e sort=duration&sort=price - accepts params
 
-// use routes
+// Mount routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/elections', electionRouter);
 app.use('/api/v1/candidates', candidateRouter);
-app.use('/api/v1/votes', voterRouter);
+app.use('/api/v1/voters', voterRouter);
 app.use('/api/v1/settings', settingsRouter);
 
 // use error middleware

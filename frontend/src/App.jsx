@@ -19,6 +19,7 @@ import ElectionDetails from './pages/ElectionDetails.jsx';
 import { ElectionProvider } from './context/ElectionContext.jsx';
 import { VoterProvider } from './context/VoterContext.jsx';
 import { SettingsProvider, useSettings } from './context/SettingsContext.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
 
 // Component to handle maintenance mode redirection
 const MaintenanceRedirect = () => {
@@ -117,34 +118,42 @@ function App() {
   return (
     <Router>
       <SettingsProvider>
-        <ElectionProvider>
-          <VoterProvider>
-            <MaintenanceRedirect />
-            <div className='min-h-screen bg-gray-50 flex flex-col'>
-              <Navbar />
-              <main className='flex-1 pt-16 w-full'>
-                <div className='w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-                  <Routes>
-                    <Route path='/maintenance' element={<MaintenancePage />} />
-                    <Route path='/' element={<Home />} />
-                    <Route path='/how-it-works' element={<HowItWorks />} />
-                    <Route path='/create' element={<CreateElection />} />
-                    <Route path='/vote/:electionId' element={<Vote />} />
-                    <Route path='/results/:electionId' element={<Results />} />
-                    <Route path='/admin' element={<Admin />}>
+        <AuthProvider>
+          <ElectionProvider>
+            <VoterProvider>
+              <div className='min-h-screen bg-gray-50 flex flex-col'>
+                <Navbar />
+                <MaintenanceRedirect />
+                <main className='flex-1 pt-8 md:pt-12'>
+                  <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
+                    <Routes>
                       <Route
-                        path='elections/:id'
-                        element={<ElectionDetails />}
+                        path='/maintenance'
+                        element={<MaintenancePage />}
                       />
-                    </Route>
-                    <Route path='/admin/*' element={<Admin />} />
-                  </Routes>
-                </div>
-              </main>
-              <ToastContainer position='top-right' autoClose={3000} />
-            </div>
-          </VoterProvider>
-        </ElectionProvider>
+                      <Route path='/' element={<Home />} />
+                      <Route path='/how-it-works' element={<HowItWorks />} />
+                      <Route path='/create' element={<CreateElection />} />
+                      <Route path='/vote/:electionId' element={<Vote />} />
+                      <Route
+                        path='/results/:electionId'
+                        element={<Results />}
+                      />
+                      <Route path='/admin' element={<Admin />}>
+                        <Route
+                          path='elections/:id'
+                          element={<ElectionDetails />}
+                        />
+                      </Route>
+                      <Route path='/admin/*' element={<Admin />} />
+                    </Routes>
+                  </div>
+                </main>
+                <ToastContainer position='top-right' autoClose={3000} />
+              </div>
+            </VoterProvider>
+          </ElectionProvider>
+        </AuthProvider>
       </SettingsProvider>
     </Router>
   );

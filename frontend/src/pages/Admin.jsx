@@ -451,8 +451,8 @@ const DashboardContent = ({ stats, recentActivity, isLoading }) => {
                         stat.changeType === 'increase'
                           ? 'text-green-600'
                           : stat.changeType === 'decrease'
-                          ? 'text-red-600'
-                          : 'text-gray-500'
+                            ? 'text-red-600'
+                            : 'text-gray-500'
                       }`}>
                       {stat.change}
                     </span>
@@ -805,8 +805,8 @@ const ElectionsContent = () => {
                           {typeof election.totalVoters === 'number'
                             ? election.totalVoters
                             : Array.isArray(election.voters)
-                            ? election.voters.length
-                            : election.voters || 0}{' '}
+                              ? election.voters.length
+                              : election.voters || 0}{' '}
                           voters
                         </span>
                       </div>

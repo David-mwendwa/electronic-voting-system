@@ -1,5 +1,6 @@
 import Election from '../models/Election.js';
-import { NotFoundError } from '../errors/customErrors.js';
+import Settings from '../models/Settings.js';
+import { BadRequestError, NotFoundError } from '../errors/customErrors.js';
 
 // Get all candidates for an election
 export const getCandidates = async (req, res) => {
@@ -12,6 +13,12 @@ export const getCandidates = async (req, res) => {
 
 // Add candidate to election (admin only)
 export const addCandidate = async (req, res) => {
+  // Check if registration is enabled
+  const settings = await Settings.getSettings();
+  if (!settings.registrationEnabled) {
+    throw new BadRequestError('Candidate registration is currently disabled');
+  }
+
   const election = await Election.findById(req.params.electionId);
   if (!election) {
     throw new NotFoundError('Election not found');

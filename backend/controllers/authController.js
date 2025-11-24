@@ -1,13 +1,20 @@
 import User from '../models/User.js';
+import Settings from '../models/Settings.js';
 import { sendToken } from '../utils/jwt.js';
 import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
 
 // Register user (POST /auth/register)
 export const register = async (req, res, next) => {
+  // Check if registration is enabled
+  const settings = await Settings.getSettings();
+  if (!settings.registrationEnabled) {
+    throw new BadRequestError('User registration is currently disabled');
+  }
+
   const { name, email, password, passwordConfirm } = req.body;
   const userExists = await User.findOne({ email });
   if (userExists) {
-    throw new BadRequestError('email already taken');
+    throw new BadRequestError('Email already taken');
   }
 
   const user = await User.create({

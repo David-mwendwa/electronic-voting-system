@@ -26,6 +26,7 @@ import userRouter from './routes/userRoutes.js';
 import electionRouter from './routes/electionRoutes.js';
 import candidateRouter from './routes/candidateRoutes.js';
 import voterRouter from './routes/voterRoutes.js';
+import settingsRouter from './routes/settingsRoutes.js';
 
 const app = express();
 
@@ -95,6 +96,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/elections', electionRouter);
 app.use('/api/v1/candidates', candidateRouter);
 app.use('/api/v1/votes', voterRouter);
+app.use('/api/v1/settings', settingsRouter);
 
 // use error middleware
 app.use(notFoundMiddleware);

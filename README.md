@@ -7,9 +7,11 @@ A secure and transparent electronic voting platform built with React, Node.js, a
 - User authentication and authorization
 - Secure voting system
 - Real-time results and analytics
-- Admin dashboard
-- Voter management
+- Admin dashboard with settings management
+- Voter and candidate management
 - Election creation and management
+- System-wide settings control (maintenance mode, registration toggle)
+- Role-based access control
 
 ## 🛠️ Tech Stack
 

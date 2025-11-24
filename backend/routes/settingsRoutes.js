@@ -9,7 +9,7 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(authenticate, getSettings)
-  .patch(authenticate, authorizeRoles('admin'), updateSettings);
+  .get(getSettings) // Public access
+  .patch(authenticate, authorizeRoles('admin'), updateSettings); // Admin only
 
 export default router;

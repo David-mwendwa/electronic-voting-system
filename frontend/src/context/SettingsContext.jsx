@@ -1,4 +1,14 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
+import {
+  getSettings,
+  updateSettings as updateSettingsApi,
+} from '../api/settingsService';
 
 const SettingsContext = createContext();
 
@@ -7,75 +17,91 @@ export const SettingsProvider = ({ children }) => {
     maintenanceMode: false,
     registrationEnabled: true,
     isLoading: true,
+    error: null,
   });
 
-  // Load settings from localStorage on initial render
-  useEffect(() => {
-    const loadSettings = () => {
-      try {
-        const savedSettings = localStorage.getItem('appSettings');
-        if (savedSettings) {
-          setSettings((prev) => ({
-            ...JSON.parse(savedSettings),
-            isLoading: false,
-          }));
-        } else {
-          setSettings((prev) => ({
-            ...prev,
-            isLoading: false,
-          }));
-        }
-      } catch (error) {
-        console.error('Failed to load settings:', error);
-        setSettings((prev) => ({
-          ...prev,
-          isLoading: false,
-        }));
-      }
-    };
-
-    loadSettings();
+  // Load settings from backend on initial render
+  const fetchSettings = useCallback(async () => {
+    try {
+      const data = await getSettings();
+      setSettings((prev) => ({
+        ...prev,
+        ...data,
+        isLoading: false,
+        error: null,
+      }));
+    } catch (error) {
+      console.error('Failed to fetch settings:', error);
+      setSettings((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: error.message || 'Failed to load settings',
+      }));
+    }
   }, []);
 
-  // Save settings to localStorage when they change
   useEffect(() => {
-    if (!settings.isLoading) {
-      try {
-        localStorage.setItem(
-          'appSettings',
-          JSON.stringify({
-            maintenanceMode: settings.maintenanceMode,
-            registrationEnabled: settings.registrationEnabled,
-          })
-        );
-      } catch (error) {
-        console.error('Failed to save settings:', error);
-      }
+    fetchSettings();
+  }, [fetchSettings]);
+
+  // Update settings in backend
+  const updateSettings = async (updates) => {
+    try {
+      setSettings((prev) => ({ ...prev, isLoading: true, error: null }));
+      const updatedSettings = await updateSettingsApi(updates);
+      setSettings((prev) => ({
+        ...prev,
+        ...updatedSettings,
+        isLoading: false,
+      }));
+      return updatedSettings;
+    } catch (error) {
+      console.error('Failed to update settings:', error);
+      setSettings((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: error.response?.data?.message || 'Failed to update settings',
+      }));
+      throw error;
     }
-  }, [
-    settings.maintenanceMode,
-    settings.registrationEnabled,
-    settings.isLoading,
-  ]);
+  };
 
   const toggleMaintenanceMode = async () => {
+    const newValue = !settings.maintenanceMode;
     setSettings((prev) => ({
       ...prev,
-      maintenanceMode: !prev.maintenanceMode,
+      maintenanceMode: newValue,
     }));
 
-    // In a real app, you would also update the backend here
-    // await api.updateSettings({ maintenanceMode: !settings.maintenanceMode });
+    try {
+      await updateSettings({ maintenanceMode: newValue });
+    } catch (error) {
+      // Revert on error
+      setSettings((prev) => ({
+        ...prev,
+        maintenanceMode: !newValue,
+      }));
+      throw error;
+    }
   };
 
   const toggleRegistration = async () => {
+    const newValue = !settings.registrationEnabled;
     setSettings((prev) => ({
       ...prev,
-      registrationEnabled: !prev.registrationEnabled,
+      registrationEnabled: newValue,
     }));
 
-    // In a real app, you would also update the backend here
-    // await api.updateSettings({ registrationEnabled: !settings.registrationEnabled });
+    try {
+      await updateSettings({ registrationEnabled: newValue });
+    } catch (error) {
+      // Revert on error
+      setSettings((prev) => ({
+        ...prev,
+        registrationEnabled: !newValue,
+      }));
+      throw error;
+    }
   };
 
   return (

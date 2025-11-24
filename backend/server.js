@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import express from 'express';
+import cors from 'cors';
 
 // import extra security packages
 import helmet from 'helmet';
@@ -29,6 +30,16 @@ import voterRouter from './routes/voterRoutes.js';
 import settingsRouter from './routes/settingsRoutes.js';
 
 const app = express();
+
+// Enable CORS
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 // handle unhandled errors that occur in synchronous code i.e undefined value
 process.on('uncaughtException', (err) => {

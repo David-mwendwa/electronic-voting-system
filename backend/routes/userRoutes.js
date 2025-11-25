@@ -11,16 +11,21 @@ import {
 } from '../controllers/userController.js';
 import { authenticate, authorizeRoles } from '../middleware/auth.js';
 
-/******************[ USER ROUTES ]******************/
+/******************[ AUTHENTICATED USER ROUTES ]******************/
 router.route('/logout').get(logout);
 router.route('/me').patch(authenticate, updateMe);
 
 /******************[ ADMIN ROUTES ]******************/
-router.route('/').get(authenticate, authorizeRoles('admin'), getUsers);
+// Sysadmin can manage all users, admin can only view
+router
+  .route('/')
+  .get(authenticate, authorizeRoles(['admin', 'sysadmin']), getUsers);
+
+/******************[ SYSADMIN ROUTES ]******************/
 router
   .route('/:id')
-  .get(authenticate, authorizeRoles('admin'), getUser)
-  .patch(authenticate, authorizeRoles('admin'), updateUser)
-  .delete(authenticate, authorizeRoles('admin'), deleteUser);
+  .get(authenticate, authorizeRoles(['admin', 'sysadmin']), getUser)
+  .patch(authenticate, authorizeRoles(['sysadmin']), updateUser)
+  .delete(authenticate, authorizeRoles(['sysadmin']), deleteUser);
 
 export default router;

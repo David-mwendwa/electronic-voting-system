@@ -11,25 +11,30 @@ import {
 import { authenticate, authorizeRoles } from '../middleware/auth.js';
 const router = express.Router();
 
-// Base route for all elections
+/******************[ PUBLIC ROUTES ]******************/
+// Anyone can view elections and their status
+router.route('/').get(getElections);
+router.route('/status/:status').get(getElectionsByStatus);
+router.route('/:id').get(getElection);
+
+/******************[ ADMIN ROUTES ]******************/
+// Both admin and sysadmin can manage elections
+const adminRoles = ['admin', 'sysadmin'];
+
+// Create new election
 router
   .route('/')
-  .get(getElections)
-  .post(authenticate, authorizeRoles('admin'), createElection);
+  .post(authenticate, authorizeRoles(adminRoles), createElection);
 
-// Status-based routes
-router.route('/status/:status').get(getElectionsByStatus);
-
-// Single election operations
+// Update and delete election
 router
   .route('/:id')
-  .get(getElection)
-  .patch(authenticate, authorizeRoles('admin'), updateElection)
-  .delete(authenticate, authorizeRoles('admin'), deleteElection);
+  .patch(authenticate, authorizeRoles(adminRoles), updateElection)
+  .delete(authenticate, authorizeRoles(adminRoles), deleteElection);
 
-// Status update for specific election
+// Update election status
 router
   .route('/:id/status')
-  .patch(authenticate, authorizeRoles('admin'), updateElectionStatus);
+  .patch(authenticate, authorizeRoles(adminRoles), updateElectionStatus);
 
 export default router;

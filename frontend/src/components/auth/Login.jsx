@@ -25,22 +25,25 @@ const Login = ({ onClose, onSwitchToRegister }) => {
   // Test credentials for different user roles
   const testCredentials = [
     {
-      role: 'System Administrator',
+      name: 'System Administrator',
+      email: 'sysadmin@evs.com',
+      password: 'sysadmin123',
+      description: 'Full access to all system features and settings.',
+      role: 'sysadmin',
+    },
+    {
+      name: 'Administrator',
       email: 'admin@evs.com',
       password: 'admin123',
-      description: 'Full access to all system features and settings.',
-    },
-    {
-      role: 'Election Official',
-      email: 'official@evs.com',
-      password: 'official123',
       description: 'Manage elections, candidates, and view results.',
+      role: 'admin',
     },
     {
-      role: 'Voter',
+      name: 'Voter',
       email: 'voter@evs.com',
       password: 'voter123',
       description: 'View active elections and cast your vote.',
+      role: 'user',
     },
   ];
 
@@ -346,7 +349,7 @@ const Login = ({ onClose, onSwitchToRegister }) => {
                       }
                       className='p-2 text-sm bg-white rounded border border-gray-200 hover:border-primary-300 hover:bg-primary-50 cursor-pointer transition-colors'>
                       <div className='font-medium text-gray-900'>
-                        {account.role}
+                        {account.name}
                       </div>
                       <div className='text-xs text-gray-500'>
                         {account.email} / {account.password}

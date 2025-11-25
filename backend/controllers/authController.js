@@ -22,6 +22,7 @@ export const register = async (req, res, next) => {
     email,
     password,
     passwordConfirm,
+    description: req.body.description || '',
   });
   sendToken(user, 200, res);
 };

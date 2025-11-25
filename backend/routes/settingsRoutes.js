@@ -10,6 +10,6 @@ const router = express.Router();
 router
   .route('/')
   .get(getSettings) // Public access
-  .patch(authenticate, authorizeRoles('admin'), updateSettings); // Admin only
+  .patch(authenticate, authorizeRoles(['sysadmin']), updateSettings); // Sysadmin only
 
 export default router;

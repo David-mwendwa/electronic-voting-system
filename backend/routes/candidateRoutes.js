@@ -9,18 +9,23 @@ import { authenticate, authorizeRoles } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Get all candidates for an election
+/******************[ PUBLIC ROUTES ]******************/
+// Anyone can view candidates
 router.route('/election/:electionId').get(getCandidates);
 
-// Add candidate to election (admin only)
+/******************[ ADMIN ROUTES ]******************/
+// Both admin and sysadmin can manage candidates
+const adminRoles = ['admin', 'sysadmin'];
+
+// Add candidate to election
 router
   .route('/election/:electionId')
-  .post(authenticate, authorizeRoles('admin'), addCandidate);
+  .post(authenticate, authorizeRoles(adminRoles), addCandidate);
 
-// Update and remove candidate (admin only)
+// Update and remove candidate
 router
   .route('/election/:electionId/:candidateId')
-  .patch(authenticate, authorizeRoles('admin'), updateCandidate)
-  .delete(authenticate, authorizeRoles('admin'), removeCandidate);
+  .patch(authenticate, authorizeRoles(adminRoles), updateCandidate)
+  .delete(authenticate, authorizeRoles(adminRoles), removeCandidate);
 
 export default router;

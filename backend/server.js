@@ -1,105 +1,39 @@
-import path, { dirname } from 'path';
-import { fileURLToPath } from 'url';
-const __dirname = dirname(fileURLToPath(import.meta.url)); // required when using es6 module type
-import 'express-async-errors';
-import 'dotenv/config.js';
-import mongoose from 'mongoose';
-import morgan from 'morgan';
-import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
 import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import cors from 'cors';
-
-// import extra security packages
-import helmet from 'helmet';
-import xss from 'xss-clean';
-import mongoSanitize from 'express-mongo-sanitize';
-import rateLimit from 'express-rate-limit';
-import hpp from 'hpp';
-
-// import middleware
+import morgan from 'morgan';
 import errorHandlerMiddleware from './middleware/errorHandler.js';
 import notFoundMiddleware from './middleware/notFound.js';
 
-// import routes
+// Load environment variables
+dotenv.config();
+
+// Create Express app
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Logging in development
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+// Health check endpoint
+app.get('/api/v1/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Import routes
 import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import electionRouter from './routes/electionRoutes.js';
 import candidateRouter from './routes/candidateRoutes.js';
 import voterRouter from './routes/voterRoutes.js';
 import settingsRouter from './routes/settingsRoutes.js';
-
-const app = express();
-
-// Enable CORS
-app.use(
-  cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
-
-// handle unhandled errors that occur in synchronous code i.e undefined value
-process.on('uncaughtException', (err) => {
-  console.log(`UNCAUGHT EXCEPTION! SHUTTING DOWN...`);
-  console.log(err.name, err.message);
-  process.exit(1);
-});
-
-app.use(helmet());
-
-app.use(cookieParser());
-if (!/production/i.test(process.env.NODE_ENV)) {
-  app.use(morgan('dev'));
-}
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// render index page after executing 'npm run build-client'
-if (/production/i.test(process.env.NODE_ENV)) {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-  app.get('*', (req, res) =>
-    res.sendFile(path.resolve(__dirname, '../frontend', 'dist', 'index.html'))
-  );
-} else {
-  app.get('/', (req, res) => {
-    res.json({
-      success: true,
-      message: 'Electronic Voting System API',
-      version: '1.0.0',
-      endpoints: {
-        auth: '/api/v1/auth',
-        users: '/api/v1/users',
-        elections: '/api/v1/elections',
-        candidates: '/api/v1/candidates',
-        votes: '/api/v1/votes',
-      },
-    });
-  });
-}
-
-// make static images available in the frontend - i.e when using multer
-app.use(express.static(path.resolve(__dirname, '../frontend/public')));
-app.use(
-  '/uploads',
-  express.static(path.join(__dirname, '../frontend/public/uploads'))
-);
-
-// use extra security package middleware
-const limiter = rateLimit({
-  max: 100,
-  windowMs: 60 * 60 * 1000, // 60 minutes
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  message:
-    'Too many requests from this IP address! Please try again after an hour',
-});
-app.use('/api', limiter);
-app.use(xss()); // sanitize data against XSS
-app.use(mongoSanitize()); // sanitize data against NoSQL query injection i.e email: {$gt: ""}
-app.use(hpp({ whitelist: [''] })); // prevent parameter pollution i.e sort=duration&sort=price - accepts params
 
 // Mount routes
 app.use('/api/v1/auth', authRouter);
@@ -109,24 +43,73 @@ app.use('/api/v1/candidates', candidateRouter);
 app.use('/api/v1/voters', voterRouter);
 app.use('/api/v1/settings', settingsRouter);
 
-// use error middleware
+// 404 handler
 app.use(notFoundMiddleware);
+
+// Error handler
 app.use(errorHandlerMiddleware);
 
-// start server
+// Server configuration
 const PORT = process.env.PORT || 5000;
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+  console.error(err.name, err.message);
+  // Close server & exit process
+  process.exit(1);
+});
+
+// Database connection
 const DB = process.env.MONGO_URL;
 
 mongoose
-  .connect(DB)
+  .connect(DB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log('✅ MongoDB Connection Successful'))
-  .catch((err) => console.log(`❌ Could Not Connect to MongoDB`, err));
+  .catch((err) => {
+    console.error('❌ Could Not Connect to MongoDB');
+    console.error('Error details:', err.message);
+    console.error('Make sure:');
+    console.error('1. MongoDB is running and connection string is correct');
+    console.error('2. The database name in the connection string is correct');
+    console.error('3. If using MongoDB Atlas, ensure your IP is whitelisted');
+    process.exit(1);
+  });
 
-app.listen(PORT, () => console.log(`🚀 Server Running on Port ${PORT}`));
-
-// handle errors occurring outside express i.e incorrect db password, invalid connection string
-process.on('unhandledRejection', (err) => {
-  console.log(`⚠️ UNHANDLED REJECTION! SHUTTING DOWN...`);
-  console.log(err.name, err.message);
-  server.close(() => process.exit(1));
+// Start server
+const server = app.listen(PORT, () => {
+  console.log(
+    `🚀 Server Running on Port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`
+  );
 });
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED REJECTION! 💥 Shutting down...');
+  console.error(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
+});
+
+// Handle SIGTERM (for Heroku, etc.)
+process.on('SIGTERM', () => {
+  console.log('👋 SIGTERM RECEIVED. Shutting down gracefully');
+  server.close(() => {
+    console.log('💥 Process terminated!');
+  });
+});
+
+// Handle process termination
+process.on('SIGINT', () => {
+  console.log('👋 SIGINT RECEIVED. Shutting down gracefully');
+  server.close(() => {
+    console.log('💥 Process terminated!');
+    process.exit(0);
+  });
+});
+
+export default app;

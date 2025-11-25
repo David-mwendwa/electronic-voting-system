@@ -1,14 +1,13 @@
 import { StatusCodes } from 'http-status-codes';
+import { CustomAPIError } from '../errors/customErrors.js';
 
 // Environment detection
-const isDevelopment = /dev/i.test(process.env.NODE_ENV || '');
 const isProduction = /prod/i.test(process.env.NODE_ENV || '');
-const isTest = /test/i.test(process.env.NODE_ENV || '');
 
 /**
  * Logs error information for debugging and monitoring
  * @param {Error} err - The error object
- * @param {import('express').Request} req - Express request object
+ * @param {Object} req - Express request object
  */
 const logError = (err, req) => {
   const errorInfo = {
@@ -16,119 +15,165 @@ const logError = (err, req) => {
     path: req.path,
     method: req.method,
     message: err.message,
-    stack: isDevelopment ? err.stack : undefined,
     ...(err.name && { name: err.name }),
     ...(err.code && { code: err.code }),
+    ...(!isProduction && { stack: err.stack }),
   };
 
-  if (isProduction) {
-    // In production, log to a monitoring service
-    console.error('Production Error:', JSON.stringify(errorInfo, null, 2));
-  } else {
-    // In development, log full error details
-    console.error('Error:', errorInfo);
-  }
+  console.error(
+    isProduction ? 'Production Error:' : 'Error:',
+    isProduction ? JSON.stringify(errorInfo, null, 2) : errorInfo
+  );
 };
 
 /**
  * Handle development errors with detailed error information
  * @param {Error} err - The error object
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @param {import('express').NextFunction} next - Next middleware function
- * @returns {void}
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
  */
-const handleDevelopmentErrors = (err, req, res, next) => {
+const handleDevelopmentErrors = (err, req, res) => {
   logError(err, req);
 
-  res.status(err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
+  const {
+    message = 'An unexpected error occurred',
+    name = 'InternalServerError',
+    statusCode = StatusCodes.INTERNAL_SERVER_ERROR,
+    ...rest
+  } = err;
+
+  const errorResponse = {
     success: false,
-    message: err.message,
-    error: err,
-    stack: isDevelopment ? err.stack : undefined,
-  });
+    message,
+    error: {
+      name,
+      statusCode,
+      timestamp: new Date().toISOString(),
+      path: req.originalUrl,
+      method: req.method,
+      stack: err.stack,
+      details: rest,
+    },
+  };
+
+  res.status(statusCode).json(errorResponse);
 };
 
 /**
  * Handle production errors with user-friendly messages
  * @param {Error} err - The error object
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @param {import('express').NextFunction} next - Next middleware function
- * @returns {void}
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
  */
-const handleProductionErrors = (err, req, res, next) => {
+const handleProductionErrors = (err, req, res) => {
+  // Handle custom errors first
+  if (err instanceof CustomAPIError) {
+    logError(err, req);
+    return res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+      ...(err.errors && { errors: err.errors }),
+    });
+  }
+
   const defaultError = {
     statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-    message: 'Something went wrong. Please try again later.',
+    message: 'An unexpected error occurred. Please try again later.',
   };
 
-  // Handle known error types
-  if (err.name === 'ValidationError') {
-    defaultError.statusCode = StatusCodes.BAD_REQUEST;
-    defaultError.message = Object.values(err.errors)
-      .map((item) => item.message)
-      .join('. ');
-  } else if (err.code === 11000) {
-    defaultError.statusCode = StatusCodes.BAD_REQUEST;
-    defaultError.message = `${Object.keys(err.keyValue)} field must be unique`;
-  } else if (err.name === 'JsonWebTokenError') {
-    defaultError.statusCode = StatusCodes.UNAUTHORIZED;
-    defaultError.message = 'Invalid token. Please log in again';
-  } else if (err.name === 'TokenExpiredError') {
-    defaultError.statusCode = StatusCodes.UNAUTHORIZED;
-    defaultError.message = 'Session expired. Please log in again';
-  } else if (err.name === 'CastError') {
+  // Handle non-custom errors
+  if (err.name === 'CastError') {
     defaultError.statusCode = StatusCodes.NOT_FOUND;
-    defaultError.message = 'The requested resource was not found';
+    defaultError.message = `Resource not found. Invalid: ${err.path}`;
+  } else if (err.code === 11000) {
+    defaultError.statusCode = StatusCodes.CONFLICT;
+    const field = Object.keys(err.keyValue)[0];
+    defaultError.message = `${field} '${err.keyValue[field]}' already exists.`;
   } else if (err.name === 'MongoServerError') {
     defaultError.statusCode = StatusCodes.SERVICE_UNAVAILABLE;
-    defaultError.message = 'Database service is currently unavailable';
+    defaultError.message = 'Database operation failed. Please try again.';
   } else if (err.name === 'MongooseServerSelectionError') {
     defaultError.statusCode = StatusCodes.SERVICE_UNAVAILABLE;
-    defaultError.message = 'Unable to connect to the database';
+    defaultError.message =
+      'Unable to connect to the database. Please try again later.';
   } else if (err.name === 'MulterError') {
     defaultError.statusCode = StatusCodes.BAD_REQUEST;
     defaultError.message = `File upload error: ${err.message}`;
+  } else if (
+    err.name === 'PayloadTooLargeError' ||
+    err.type === 'entity.too.large'
+  ) {
+    defaultError.statusCode = StatusCodes.REQUEST_TOO_LONG;
+    defaultError.message = 'Request payload is too large.';
+  } else if (err.code === 'ETIMEDOUT' || err.code === 'ESOCKETTIMEDOUT') {
+    defaultError.statusCode = StatusCodes.REQUEST_TIMEOUT;
+    defaultError.message = 'Request timeout. Please try again.';
+  } else if (err.code === 'ECONNREFUSED') {
+    defaultError.statusCode = StatusCodes.SERVICE_UNAVAILABLE;
+    defaultError.message =
+      'Service temporarily unavailable. Please try again later.';
+  } else if (err.code === 'EBADCSRFTOKEN') {
+    defaultError.statusCode = StatusCodes.FORBIDDEN;
+    defaultError.message = 'Invalid CSRF token.';
+  } else if (err.name === 'MongoError' && err.message.includes('timed out')) {
+    defaultError.statusCode = StatusCodes.GATEWAY_TIMEOUT;
+    defaultError.message = 'Database operation timed out. Please try again.';
+  } else if (err.name === 'ValidationError') {
+    defaultError.statusCode = StatusCodes.BAD_REQUEST;
+    defaultError.message = Object.values(err.errors)
+      .map((error) => error.message)
+      .join('; ');
+  } else if (err.name === 'SyntaxError' && err.type === 'entity.parse.failed') {
+    defaultError.statusCode = StatusCodes.BAD_REQUEST;
+    defaultError.message = 'Invalid JSON payload';
+  } else if (err.code === 'ENOENT') {
+    defaultError.statusCode = StatusCodes.NOT_FOUND;
+    defaultError.message = 'The requested resource was not found';
+  } else if (err.code === 'EACCES' || err.code === 'EPERM') {
+    defaultError.statusCode = StatusCodes.FORBIDDEN;
+    defaultError.message = 'Permission denied';
+  } else if (err.code === 'ENOSPC') {
+    defaultError.statusCode = StatusCodes.INSUFFICIENT_STORAGE;
+    defaultError.message = 'Storage limit reached';
+  } else if (err.code === 'ECONNRESET') {
+    defaultError.statusCode = StatusCodes.SERVICE_UNAVAILABLE;
+    defaultError.message = 'Connection was reset. Please try again.';
+  } else if (err.code === 'ECONNABORTED') {
+    defaultError.statusCode = StatusCodes.REQUEST_TIMEOUT;
+    defaultError.message = 'Connection was aborted due to timeout.';
   }
 
-  // For 500 errors, log the full error
-  if (defaultError.statusCode >= 500) {
-    logError(err, req);
+  // Log the error
+  console.error('Error:', {
+    name: err.name,
+    statusCode: defaultError.statusCode,
+    message: err.message,
+    path: req.path,
+    method: req.method,
+    timestamp: new Date().toISOString(),
+    ...(defaultError.statusCode >= 500 && { stack: err.stack }),
+  });
 
-    // In production, don't expose internal error details
-    if (isProduction) {
-      defaultError.message =
-        'An unexpected error occurred. Our team has been notified.';
-    }
-  }
-
+  // Send error response
   res.status(defaultError.statusCode).json({
     success: false,
     message: defaultError.message,
-    ...(isDevelopment && { error: err.message, stack: err.stack }),
   });
 };
 
 /**
  * Central error handling middleware
  * @param {Error} err - The error object
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @param {import('express').NextFunction} next - Next middleware function
- * @returns {void}
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
  */
 const errorHandlerMiddleware = (err, req, res, next) => {
-  // Ensure headers are not sent twice
-  if (res.headersSent) {
-    return next(err);
-  }
+  if (res.headersSent) return next(err);
 
-  // Handle different environments
-  if (isProduction) {
-    return handleProductionErrors(err, req, res, next);
-  }
-  return handleDevelopmentErrors(err, req, res, next);
+  return isProduction
+    ? handleProductionErrors(err, req, res)
+    : handleDevelopmentErrors(err, req, res);
 };
 
 export default errorHandlerMiddleware;

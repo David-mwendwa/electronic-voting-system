@@ -1,7 +1,10 @@
 import User from '../models/User.js';
 import Settings from '../models/Settings.js';
 import { sendToken } from '../utils/jwt.js';
-import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
+import {
+  BadRequestError,
+  UnauthenticatedError,
+} from '../errors/customErrors.js';
 
 // Register user (POST /auth/register)
 export const register = async (req, res, next) => {

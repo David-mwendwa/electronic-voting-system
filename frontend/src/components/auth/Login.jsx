@@ -15,11 +15,47 @@ const Login = ({ onClose, onSwitchToRegister }) => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showTestCredentials, setShowTestCredentials] = useState(false);
   const [touched, setTouched] = useState({
     email: false,
     password: false,
   });
-  const { login } = useAuth();
+  const { login, rememberMe, setRememberMe } = useAuth();
+
+  // Test credentials for different user roles
+  const testCredentials = [
+    {
+      role: 'System Administrator',
+      email: 'admin@evs.com',
+      password: 'admin123',
+      description: 'Full access to all system features and settings.',
+    },
+    {
+      role: 'Election Official',
+      email: 'official@evs.com',
+      password: 'official123',
+      description: 'Manage elections, candidates, and view results.',
+    },
+    {
+      role: 'Voter',
+      email: 'voter@evs.com',
+      password: 'voter123',
+      description: 'View active elections and cast your vote.',
+    },
+  ];
+
+  // Auto-fill form with test credentials
+  const useTestCredentials = (email, password) => {
+    setFormData({
+      email,
+      password,
+    });
+    setTouched({
+      email: true,
+      password: true,
+    });
+    setShowTestCredentials(false);
+  };
 
   // Form validation
   const validate = () => {
@@ -47,29 +83,45 @@ const Login = ({ onClose, onSwitchToRegister }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isFormValid) return;
+    if (!isFormValid || isSubmitting) return;
 
     setIsSubmitting(true);
     setError('');
 
     try {
-      const response = await loginApi({
-        email: formData.email,
-        password: formData.password,
-      });
+      // Call the login API with the form data
+      const response = await loginApi(formData);
 
-      if (response.token) {
-        login(response.user);
-        localStorage.setItem('token', response.token);
-        if (onClose) onClose();
-        toast.success('Welcome back! You are now logged in.');
+      if (response && (response.data || response.token)) {
+        // Handle both response formats for backward compatibility
+        const userData = response.data?.user || response.user;
+        const token = response.data?.token || response.token;
+
+        if (userData && token) {
+          login(
+            {
+              ...userData,
+              token: token,
+            },
+            rememberMe
+          );
+
+          toast.success('Welcome back! You are now logged in.');
+          if (onClose) onClose();
+        } else {
+          throw new Error('Invalid response from server');
+        }
+      } else {
+        throw new Error('No data received from server');
       }
     } catch (error) {
-      setError(
-        error.response?.data?.message ||
-          'Login failed. Please check your credentials.'
-      );
       console.error('Login error:', error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        'Login failed. Please check your credentials and try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -159,12 +211,6 @@ const Login = ({ onClose, onSwitchToRegister }) => {
                   className='block text-sm font-medium text-gray-700 mb-1'>
                   Password
                 </label>
-                <Link
-                  to='/forgot-password'
-                  className='text-sm font-medium text-primary-600 hover:text-primary-500'
-                  onClick={onClose}>
-                  Forgot password?
-                </Link>
               </div>
               <div className='relative mt-1 rounded-md shadow-sm'>
                 <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
@@ -208,6 +254,32 @@ const Login = ({ onClose, onSwitchToRegister }) => {
               )}
             </div>
 
+            {/* Remember Me & Forgot Password */}
+            <div className='flex items-center justify-between mt-4'>
+              <div className='flex items-center'>
+                <input
+                  id='remember-me'
+                  name='remember-me'
+                  type='checkbox'
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className='h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded'
+                />
+                <label
+                  htmlFor='remember-me'
+                  className='ml-2 block text-sm text-gray-700'>
+                  Remember me
+                </label>
+              </div>
+
+              <Link
+                to='/forgot-password'
+                className='text-sm font-medium text-primary-600 hover:text-primary-500'
+                onClick={onClose}>
+                Forgot password?
+              </Link>
+            </div>
+
             {/* Submit Button */}
             <div className='mt-6'>
               <button
@@ -246,8 +318,55 @@ const Login = ({ onClose, onSwitchToRegister }) => {
             </div>
           </form>
 
+          {/* Test Credentials Section */}
+          <div className='mt-6'>
+            <button
+              type='button'
+              onClick={() => setShowTestCredentials(!showTestCredentials)}
+              className='w-full text-center text-sm font-medium text-primary-600 hover:text-primary-500 focus:outline-none'>
+              {showTestCredentials
+                ? 'Hide Test Credentials'
+                : 'Need test credentials?'}
+            </button>
+
+            {showTestCredentials && (
+              <div className='mt-3 p-4 bg-gray-50 rounded-lg border border-gray-200'>
+                <h4 className='text-sm font-medium text-gray-900 mb-2'>
+                  Test Accounts
+                </h4>
+                <p className='text-xs text-gray-500 mb-3'>
+                  Click any account to auto-fill credentials
+                </p>
+                <div className='space-y-2'>
+                  {testCredentials.map((account, index) => (
+                    <div
+                      key={index}
+                      onClick={() =>
+                        useTestCredentials(account.email, account.password)
+                      }
+                      className='p-2 text-sm bg-white rounded border border-gray-200 hover:border-primary-300 hover:bg-primary-50 cursor-pointer transition-colors'>
+                      <div className='font-medium text-gray-900'>
+                        {account.role}
+                      </div>
+                      <div className='text-xs text-gray-500'>
+                        {account.email} / {account.password}
+                      </div>
+                      <div className='text-xs text-gray-400 mt-1'>
+                        {account.description}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className='mt-3 text-xs text-gray-500'>
+                  Note: These are test accounts. In production, users would
+                  create their own accounts.
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Sign Up Link */}
-          <div className='mt-4 text-center text-sm'>
+          <div className='mt-6 text-center text-sm'>
             <p className='text-gray-600'>
               Don't have an account?{' '}
               <button

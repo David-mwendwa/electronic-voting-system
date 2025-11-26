@@ -1,27 +1,39 @@
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-const __dirname = dirname(fileURLToPath(import.meta.url)); // required when using es6 module type
+const __dirname = dirname(fileURLToPath(import.meta.url));
 import 'express-async-errors';
 import 'dotenv/config.js';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
 import express from 'express';
 import cors from 'cors';
 
-// import extra security packages
+// Security middleware
 import helmet from 'helmet';
 import xss from 'xss-clean';
 import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
 import hpp from 'hpp';
 
-// import middleware
-import errorHandlerMiddleware from './middleware/errorHandler.js';
-import notFoundMiddleware from './middleware/notFound.js';
+// =====================
+// 1. GLOBAL ERROR HANDLERS
+// =====================
 
+// Handle uncaught exceptions (synchronous errors) i.e undefined value
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+  console.error('Error:', err.name, err.message);
+  console.error(err.stack);
+  process.exit(1);
+});
+
+// Initialize Express app
 const app = express();
+
+// =====================
+// 2. GLOBAL MIDDLEWARE
+// =====================
 
 // Enable CORS
 app.use(
@@ -33,73 +45,93 @@ app.use(
   })
 );
 
-// handle unhandled errors that occur in synchronous code i.e undefined value
-process.on('uncaughtException', (err) => {
-  console.log(`UNCAUGHT EXCEPTION! SHUTTING DOWN...`);
-  console.log(err.name, err.message);
-  process.exit(1);
-});
-
-app.use(helmet());
-
-app.use(cookieParser());
-if (!/production/i.test(process.env.NODE_ENV)) {
-  app.use(morgan('dev'));
-}
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// render index page after executing 'npm run build-client'
-if (/production/i.test(process.env.NODE_ENV)) {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-}
+// =====================
+// 3. SECURITY MIDDLEWARE
+// =====================
 
 // Set security HTTP headers
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'trusted-cdn.com'],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        connectSrc: ["'self'", 'api.yourservice.com'],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
+    crossOriginResourcePolicy: { policy: 'same-site' },
+    hsts: { maxAge: 15552000, includeSubDomains: true },
+  })
+);
 
-// Data sanitization against XSS
+// Data sanitization against NoSQL injection
+app.use(mongoSanitize());
+
+// Parse JSON and URL-encoded request bodies
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// Clean any user input from XSS attacks
 app.use(xss());
 
-// Data sanitization against NoSQL query injection
-app.use(mongoSanitize());
+// Parse cookies
+app.use(cookieParser());
 
 // Prevent parameter pollution
 app.use(
   hpp({
-    whitelist: ['duration', 'ratingsQuantity', 'ratingsAverage', 'price'],
+    whitelist: ['page', 'limit', 'sort', 'fields', 'search', 'status'],
   })
 );
 
-// Rate limiting
-const limiter = rateLimit({
-  max: 100, // limit each IP to 100 requests per windowMs
-  windowMs: 60 * 60 * 1000, // 1 hour
-  message: 'Too many requests from this IP, please try again in an hour!',
+// =====================
+// 4. LOGGING (Development only)
+// =====================
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+// =====================
+// 5. RATE LIMITING
+// =====================
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 requests per window
+  message: 'Too many login attempts. Please try again later.',
+  skip: (req) => req.path === '/health',
 });
-app.use('/api', limiter);
 
-// Serving static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Test middleware
-app.use((req, res, next) => {
-  req.requestTime = new Date().toISOString();
-  next();
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  message: 'Too many requests from this IP, please try again later.',
+  skip: (req) => req.path.startsWith('/api/health'),
 });
 
-// 2) ROUTES
+// Apply rate limiting
+app.use('/api', apiLimiter);
+app.use('/api/v1/auth', authLimiter);
+
+// =====================
+// 6. ROUTES
+// =====================
 // Health check endpoint
-app.get('/api/v1/health', (req, res) => {
+app.get('/api/health', (req, res) => {
+  res.set('Cache-Control', 'no-store');
   res.status(200).json({
     status: 'success',
     message: 'Server is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-    requestTime: req.requestTime,
+    environment: config.env,
+    uptime: process.uptime(),
   });
 });
 
-// Import routes
+// Import and use routes
 import authRouter from './routes/authRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import electionRouter from './routes/electionRoutes.js';
@@ -107,7 +139,6 @@ import candidateRouter from './routes/candidateRoutes.js';
 import voterRouter from './routes/voterRoutes.js';
 import settingsRouter from './routes/settingsRoutes.js';
 
-// Mount routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/elections', electionRouter);
@@ -115,16 +146,50 @@ app.use('/api/v1/candidates', candidateRouter);
 app.use('/api/v1/voters', voterRouter);
 app.use('/api/v1/settings', settingsRouter);
 
-// 3) ERROR HANDLING
-// 404 handler - must be after all other routes
+// =====================
+// 7. SERVE STATIC FILES (Production Only)
+// =====================
+if (/production/.test(process.env.NODE_ENV)) {
+  // Serve static files with 1-year cache for better performance
+  app.use(
+    express.static(path.join(__dirname, '../frontend/dist'), {
+      maxAge: '1y',
+      // Don't cache HTML files to ensure users get fresh content
+      setHeaders: (res, path) => {
+        if (path.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+        }
+      },
+    })
+  );
+
+  // Handle Single Page Application (SPA) routing
+  app.get('*', (req, res) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ message: 'Not Found' });
+    }
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  });
+}
+
+// =====================
+// 8. ERROR HANDLING
+// =====================
+import notFoundMiddleware from './middleware/notFound.js';
+import errorHandlerMiddleware from './middleware/errorHandler.js';
+
+// 404 handler
 app.use(notFoundMiddleware);
 
-// Global error handler - must be after all other middleware
+// Global error handler
 app.use(errorHandlerMiddleware);
 
-// 4) DATABASE CONNECTION
+// =====================
+// 9. DATABASE CONNECTION
+// =====================
 if (!process.env.MONGO_URL) {
-  console.error(' MONGO_URL is not defined in environment variables');
+  console.error('MONGO_URL is not defined in environment variables');
   process.exit(1);
 }
 
@@ -133,7 +198,6 @@ const DB = process.env.MONGO_URL.replace(
   process.env.MONGO_PASSWORD || ''
 );
 
-// MongoDB connection options
 const mongooseOptions = {
   serverSelectionTimeoutMS: 10000, // Wait up to 10s for server selection
   socketTimeoutMS: 30000, // Close idle connections after 30s
@@ -143,39 +207,42 @@ const mongooseOptions = {
 
 mongoose
   .connect(DB, mongooseOptions)
-  .then(() => console.log(' MongoDB connection successful'))
+  .then(() => console.log('✅ MongoDB connection successful'))
   .catch((err) => {
-    console.error(' MongoDB connection error:', err.message);
+    console.error('❌ MongoDB connection error:', err.message);
     process.exit(1);
   });
 
-// 5) START SERVER
+// =====================
+// 10. SERVER SETUP
+// =====================
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(
-    ` Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
+    `🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
   );
-  console.log(` Connect: http://localhost:${PORT}`);
+  console.log(`📡 Connect: http://localhost:${PORT}`);
 });
 
-// 6) GLOBAL ERROR HANDLERS
+// =====================
+// 11. GLOBAL ERROR HANDLERS
+// =====================
+
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  console.error('UNHANDLED REJECTION!  Shutting down...');
+  console.error('UNHANDLED REJECTION! 💥 Shutting down...');
   console.error('Error:', err.name, err.message);
-
+  console.error(err.stack); // Add stack trace for debugging
   server.close(() => {
-    console.log(' Process terminated!');
     process.exit(1);
   });
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error('UNCAUGHT EXCEPTION!  Shutting down...');
+  console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   console.error('Error:', err.name, err.message);
-
-  // Close server & exit process
+  console.error(err.stack); // Add stack trace for debugging
   server.close(() => {
     process.exit(1);
   });
@@ -183,17 +250,17 @@ process.on('uncaughtException', (err) => {
 
 // Handle SIGTERM (for Heroku, etc.)
 process.on('SIGTERM', () => {
-  console.log(' SIGTERM RECEIVED. Shutting down gracefully');
+  console.log('👋 SIGTERM RECEIVED. Shutting down gracefully');
   server.close(() => {
-    console.log(' Process terminated!');
+    console.log('💥 Process terminated!');
   });
 });
 
-// Handle process termination
+// Handle process termination (Ctrl+C)
 process.on('SIGINT', () => {
-  console.log(' SIGINT RECEIVED. Shutting down gracefully');
+  console.log('👋 SIGINT RECEIVED. Shutting down gracefully');
   server.close(() => {
-    console.log(' Process terminated!');
+    console.log('💥 Process terminated!');
     process.exit(0);
   });
 });

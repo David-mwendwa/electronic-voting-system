@@ -20,6 +20,7 @@ import { ElectionProvider } from './context/ElectionContext.jsx';
 import { VoterProvider } from './context/VoterContext.jsx';
 import { SettingsProvider, useSettings } from './context/SettingsContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
+import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
 
 // Component to handle maintenance mode redirection
 const MaintenanceRedirect = () => {
@@ -127,25 +128,25 @@ function App() {
                 <main className='flex-1 pt-8 md:pt-12'>
                   <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
                     <Routes>
-                      <Route
-                        path='/maintenance'
-                        element={<MaintenancePage />}
-                      />
                       <Route path='/' element={<Home />} />
                       <Route path='/how-it-works' element={<HowItWorks />} />
-                      <Route path='/create' element={<CreateElection />} />
                       <Route path='/vote/:electionId' element={<Vote />} />
+                      <Route path='/results/:electionId' element={<Results />} />
+                      <Route path='/maintenance' element={<MaintenancePage />} />
+
+                      {/* Protected admin routes */}
                       <Route
-                        path='/results/:electionId'
-                        element={<Results />}
-                      />
-                      <Route path='/admin' element={<Admin />}>
-                        <Route
-                          path='elections/:id'
-                          element={<ElectionDetails />}
-                        />
+                        element={
+                          <ProtectedRoute
+                            allowedRoles={['admin', 'sysadmin']}
+                          />
+                        }>
+                        <Route path='/admin' element={<Admin />} />
+                        <Route path='/create' element={<CreateElection />} />
+                        <Route path='/admin/elections/:id' element={<ElectionDetails />} />
+                        <Route path='/admin/*' element={<Admin />} />
+                        {/* Add other admin-only routes here */}
                       </Route>
-                      <Route path='/admin/*' element={<Admin />} />
                     </Routes>
                   </div>
                 </main>

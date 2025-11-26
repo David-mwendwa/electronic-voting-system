@@ -72,7 +72,7 @@ const Navbar = () => {
     }
   };
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'sysadmin';
   const isAdminPage = location.pathname === '/admin';
 
   const navLinks = [

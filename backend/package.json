@@ -9,10 +9,14 @@
     "start": "NODE_ENV=production node server.js",
     "dev": "nodemon --inspect server.js",
     "test": "NODE_ENV=test jest --detectOpenHandles --forceExit",
-    "test:watch": "npm test -- --watch",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "seed:elections": "node scripts/seedElections.js",
+    "seed:users": "node scripts/seedUsers.js",
+    "export:elections": "node scripts/exportElections.js",
+    "export:users": "node scripts/exportUsers.js"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.1.0",
     "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
@@ -33,6 +37,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.4",
     "nodemailer": "^6.9.7",
+    "uuid": "^13.0.0",
     "validator": "^13.11.0",
     "xss-clean": "^0.1.1"
   },

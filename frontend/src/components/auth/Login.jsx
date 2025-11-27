@@ -26,21 +26,21 @@ const Login = ({ onClose, onSwitchToRegister }) => {
   const testCredentials = [
     {
       name: 'System Administrator',
-      email: 'sysadmin@evs.com',
+      email: 'sysadmin@evs.ke',
       password: 'sysadmin123',
       description: 'Full access to all system features and settings.',
       role: 'sysadmin',
     },
     {
       name: 'Administrator',
-      email: 'admin@evs.com',
+      email: 'admin@evs.ke',
       password: 'admin123',
       description: 'Manage elections, candidates, and view results.',
       role: 'admin',
     },
     {
       name: 'Voter',
-      email: 'voter@evs.com',
+      email: 'voter@evs.ke',
       password: 'voter123',
       description: 'View active elections and cast your vote.',
       role: 'user',

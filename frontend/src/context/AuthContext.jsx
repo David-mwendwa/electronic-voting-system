@@ -6,6 +6,7 @@ import {
   useCallback,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/apiClient';
 
 // Constants
 const AUTH_KEYS = ['token', 'user', 'sessionExpiry'];
@@ -73,26 +74,37 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [clearStorage, getAuthData]);
 
-  // Handle user login and session setup
+  // Handle user login: call backend and set up session
   const login = useCallback(
-    (userData, remember = false) => {
+    async (credentials, remember = false) => {
       try {
+        // Call backend
+        const response = await api.post('/auth/login', credentials);
+        const data = response.data || response;
+        const userData = data.user;
+        const token = data.token;
+
+        if (!userData || !token) {
+          throw new Error('Invalid login response from server');
+        }
+
         const now = Date.now();
         const expiryTime =
           now + (remember ? PERSISTENT_DURATION : SESSION_DURATION);
         const storage = remember ? localStorage : sessionStorage;
         const otherStorage = remember ? sessionStorage : localStorage;
 
+        const userWithToken = { ...userData, token };
+
         // Update state
-        setUser(userData);
+        setUser(userWithToken);
         setIsAuthenticated(true);
         setRememberMe(remember);
 
         // Update storage
-        setAuthData(storage, userData, expiryTime);
+        setAuthData(storage, userWithToken, expiryTime);
         clearStorage(otherStorage);
 
-        // Debug logging
         if (process.env.NODE_ENV === 'development') {
           console.group('Login Successful');
           console.log('User:', userData.email);
@@ -108,6 +120,8 @@ export const AuthProvider = ({ children }) => {
           );
           console.groupEnd();
         }
+
+        return data;
       } catch (error) {
         console.error('Login error:', error);
         throw error;
@@ -116,9 +130,43 @@ export const AuthProvider = ({ children }) => {
     [clearStorage, setAuthData]
   );
 
+  // Backend registration API (moved from authService)
+  const register = useCallback(async (userData) => {
+    try {
+      const response = await api.post('/auth/register', userData);
+
+      return {
+        success: true,
+        data: response.data,
+        message: response.data.message || 'Registration successful!',
+      };
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        'Registration failed. Please try again.';
+
+      console.error('Registration error:', error.response?.data || error);
+
+      return {
+        success: false,
+        message: errorMessage,
+        errors: error.response?.data?.errors || null,
+        status: error.response?.status,
+      };
+    }
+  }, []);
+
   // Handle user logout and cleanup
   const logout = useCallback(async () => {
     try {
+      // Notify backend (moved from authService)
+      try {
+        await api.get('/users/logout');
+      } catch (err) {
+        console.error('Backend logout error:', err);
+      }
+
       // Clear all auth data
       [localStorage, sessionStorage].forEach(clearStorage);
 
@@ -164,6 +212,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         logout,
+        register,
         rememberMe,
         setRememberMe,
       }}>

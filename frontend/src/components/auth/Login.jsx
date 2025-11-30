@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiX } from 'react-icons/fi';
-import { login as loginApi } from '../../api/authService';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -92,31 +91,11 @@ const Login = ({ onClose, onSwitchToRegister }) => {
     setError('');
 
     try {
-      // Call the login API with the form data
-      const response = await loginApi(formData);
+      // Call unified login (backend + session) with the form data
+      await login(formData, rememberMe);
 
-      if (response && (response.data || response.token)) {
-        // Handle both response formats for backward compatibility
-        const userData = response.data?.user || response.user;
-        const token = response.data?.token || response.token;
-
-        if (userData && token) {
-          login(
-            {
-              ...userData,
-              token: token,
-            },
-            rememberMe
-          );
-
-          toast.success('Welcome back! You are now logged in.');
-          if (onClose) onClose();
-        } else {
-          throw new Error('Invalid response from server');
-        }
-      } else {
-        throw new Error('No data received from server');
-      }
+      toast.success('Welcome back! You are now logged in.');
+      if (onClose) onClose();
     } catch (error) {
       console.error('Login error:', error);
       const errorMessage =

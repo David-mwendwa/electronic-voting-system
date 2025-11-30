@@ -94,7 +94,6 @@ export const ElectionProvider = ({ children }) => {
         response;
 
       const electionsArray = Array.isArray(raw) ? raw : [];
-      console.log({ electionsArray });
 
       dispatch({ type: 'FETCH_ELECTIONS_SUCCESS', payload: electionsArray });
     } catch (error) {

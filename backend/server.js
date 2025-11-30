@@ -113,8 +113,8 @@ const apiLimiter = rateLimit({
 });
 
 // Apply rate limiting
-app.use('/api', apiLimiter);
-app.use('/api/v1/auth', authLimiter);
+// app.use('/api', apiLimiter);
+// app.use('/api/v1/auth', authLimiter);
 
 // =====================
 // 6. ROUTES

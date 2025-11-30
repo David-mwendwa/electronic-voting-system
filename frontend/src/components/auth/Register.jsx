@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { FiX, FiUser, FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
-import { register as registerApi } from '../../api/authService';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -27,7 +26,7 @@ const Register = ({ onClose, onSwitchToLogin }) => {
     confirmPassword: false,
   });
 
-  const { login } = useAuth();
+  const { login, register } = useAuth();
 
   // Form validation
   const validate = () => {
@@ -85,11 +84,16 @@ const Register = ({ onClose, onSwitchToLogin }) => {
       };
 
       // Register the user
-      const result = await registerApi(userData);
+      const result = await register(userData);
 
       if (result.success) {
-        // Log the user in automatically with the returned user data
-        login(result.data.user);
+        const user = result.data?.user;
+        const token = result.data?.token;
+
+        if (user && token) {
+          // Log the user in automatically with token so AuthContext can persist it
+          login({ ...user, token });
+        }
 
         // Close the modal
         if (onClose) onClose();

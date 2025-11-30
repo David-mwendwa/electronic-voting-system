@@ -5,10 +5,7 @@ import {
   useEffect,
   useCallback,
 } from 'react';
-import {
-  getSettings,
-  updateSettings as updateSettingsApi,
-} from '../api/settingsService';
+import apiClient from '../api/apiClient';
 
 const SettingsContext = createContext();
 
@@ -23,7 +20,12 @@ export const SettingsProvider = ({ children }) => {
   // Load settings from backend on initial render
   const fetchSettings = useCallback(async () => {
     try {
-      const data = await getSettings();
+      const response = await apiClient.get('/settings');
+      const data = response.data?.data || {
+        maintenanceMode: false,
+        registrationEnabled: true,
+      };
+
       setSettings((prev) => ({
         ...prev,
         ...data,
@@ -31,9 +33,24 @@ export const SettingsProvider = ({ children }) => {
         error: null,
       }));
     } catch (error) {
+      // If 404, fall back to defaults without surfacing an error
+      if (error.response?.status === 404) {
+        console.log('Settings endpoint not found, using default settings');
+        setSettings((prev) => ({
+          ...prev,
+          maintenanceMode: false,
+          registrationEnabled: true,
+          isLoading: false,
+          error: null,
+        }));
+        return;
+      }
+
       console.error('Failed to fetch settings:', error);
       setSettings((prev) => ({
         ...prev,
+        maintenanceMode: false,
+        registrationEnabled: true,
         isLoading: false,
         error: error.message || 'Failed to load settings',
       }));
@@ -48,12 +65,16 @@ export const SettingsProvider = ({ children }) => {
   const updateSettings = async (updates) => {
     try {
       setSettings((prev) => ({ ...prev, isLoading: true, error: null }));
-      const updatedSettings = await updateSettingsApi(updates);
+
+      const response = await apiClient.patch('/settings', updates);
+      const updatedSettings = response.data?.data || updates;
+
       setSettings((prev) => ({
         ...prev,
         ...updatedSettings,
         isLoading: false,
       }));
+
       return updatedSettings;
     } catch (error) {
       console.error('Failed to update settings:', error);

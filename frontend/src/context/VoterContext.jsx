@@ -6,6 +6,7 @@ import {
   useCallback,
 } from 'react';
 import api from '../api/apiClient';
+import { useAuth } from './AuthContext';
 
 const VoterContext = createContext();
 
@@ -76,6 +77,7 @@ const voterReducer = (state, action) => {
 
 export const VoterProvider = ({ children }) => {
   const [state, dispatch] = useReducer(voterReducer, initialState);
+  const { isAuthenticated } = useAuth();
 
   // Load voters from backend
   const fetchVoters = useCallback(async () => {
@@ -103,8 +105,15 @@ export const VoterProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    // Only fetch voters when the user is authenticated (admin area)
+    if (!isAuthenticated) {
+      // Ensure loading state is cleared for public views
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return;
+    }
+
     fetchVoters();
-  }, [fetchVoters]);
+  }, [fetchVoters, isAuthenticated]);
 
   // Add a new voter
   const addVoter = async (voterData) => {

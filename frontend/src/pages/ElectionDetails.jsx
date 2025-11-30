@@ -31,7 +31,12 @@ const ElectionDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { getElectionById, updateElection, deleteElection } = useElection();
+  const {
+    getElectionById,
+    updateElection,
+    deleteElection,
+    loading: electionsLoading,
+  } = useElection();
   const hash = location.hash;
   const { voters: allVoters } = useVoter();
   const [election, setElection] = useState(null);
@@ -118,38 +123,53 @@ const ElectionDetails = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Create updated election object with new dates
     const updatedElection = {
       ...election,
+      title: formData.title.trim(),
+      description: formData.description || '',
       startDate: new Date(formData.startDate).toISOString(),
       endDate: new Date(formData.endDate).toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    // The status will be automatically recalculated in the context's updateElection function
-    // because we're using the getElectionStatus function there
+    try {
+      // Persist update via API/context
+      const saved = await updateElection(updatedElection);
 
-    // Update local state and context/localStorage
-    setElection(updatedElection);
-    updateElection(updatedElection);
-    setIsEditing(false);
-    toast.success('Election updated successfully');
+      // Sync local state with what the backend returned
+      setElection(saved || updatedElection);
+      setIsEditing(false);
+      toast.success('Election updated successfully');
+    } catch (error) {
+      console.error('Failed to update election:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to update election';
+      toast.error(message);
+    }
   };
 
   // Load election from context using the ID from the URL
   useEffect(() => {
+    // Wait until elections have finished loading in the context
+    if (electionsLoading) return;
+
     const selectedElection = getElectionById(id);
+
     if (!selectedElection) {
       setElection(null);
       setLoading(false);
       return;
     }
+
     setElection(selectedElection);
     setLoading(false);
-  }, [id, getElectionById]);
+  }, [id, getElectionById, electionsLoading]);
 
   const getStatusBadge = (status) => {
     const statusClasses = {
@@ -306,7 +326,7 @@ const ElectionDetails = () => {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-gray-50'>
+      <div className='min-h-screen bg-gray-50 pt-16'>
         <div className='flex justify-center items-center min-h-screen'>
           <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500'></div>
         </div>
@@ -316,7 +336,7 @@ const ElectionDetails = () => {
 
   if (!election) {
     return (
-      <div className='min-h-screen bg-gray-50'>
+      <div className='min-h-screen bg-gray-50 pt-16'>
         <div className='text-center py-12'>
           <h2 className='text-xl font-medium text-gray-900'>
             Election not found
@@ -336,7 +356,7 @@ const ElectionDetails = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-gray-50 pt-16'>
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         title='Delete Election'
@@ -345,7 +365,7 @@ const ElectionDetails = () => {
         cancelText='Cancel'
         onConfirm={() => {
           if (!election) return;
-          deleteElection(election.id);
+          deleteElection(election._id || election.id);
           setIsDeleteModalOpen(false);
           toast.success('Election deleted successfully');
           navigate('/admin?tab=elections');
@@ -561,7 +581,7 @@ const ElectionDetails = () => {
                     Election ID
                   </dt>
                   <dd className='mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2'>
-                    {election.id}
+                    {election._id || election.id}
                   </dd>
                 </div>
                 <div className='py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6'>

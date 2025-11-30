@@ -104,7 +104,7 @@ const Admin = () => {
   const [stats, setStats] = useState([]);
 
   useEffect(() => {
-    if (elections && voters) {
+    if (Array.isArray(elections) && Array.isArray(voters)) {
       const activeElections = elections.filter(
         (election) =>
           new Date(election.startDate) <= new Date() &&
@@ -639,17 +639,26 @@ const ElectionsContent = () => {
   };
 
   const getStatusBadge = (status) => {
+    const normalized = (status || '').toLowerCase();
     const statusClasses = {
-      Active: 'bg-green-100 text-green-800',
-      Upcoming: 'bg-blue-100 text-blue-800',
-      Completed: 'bg-gray-100 text-gray-800',
+      draft: 'bg-yellow-100 text-yellow-800',
+      upcoming: 'bg-blue-100 text-blue-800',
+      active: 'bg-green-100 text-green-800',
+      completed: 'bg-gray-100 text-gray-800',
+      cancelled: 'bg-red-100 text-red-800',
     };
+
+    const label =
+      status && typeof status === 'string'
+        ? status.charAt(0).toUpperCase() + status.slice(1)
+        : 'Unknown';
+
     return (
       <span
         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-          statusClasses[status] || 'bg-gray-100 text-gray-800'
+          statusClasses[normalized] || 'bg-gray-100 text-gray-800'
         }`}>
-        {status}
+        {label}
       </span>
     );
   };
@@ -752,7 +761,7 @@ const ElectionsContent = () => {
             {currentElections.length > 0 ? (
               currentElections.map((election) => (
                 <tr
-                  key={election.id}
+                  key={election._id || election.id}
                   className='hover:bg-gray-50 transition-colors'>
                   <td className='px-4 py-3'>
                     <div className='flex items-center min-w-[200px]'>
@@ -765,8 +774,8 @@ const ElectionsContent = () => {
                         </div>
                         <div
                           className='text-xs text-gray-500 font-mono'
-                          title={election.id}>
-                          ID: {election.id}
+                          title={election._id || election.id}>
+                          ID: {election._id || election.id}
                         </div>
                       </div>
                     </div>
@@ -825,7 +834,9 @@ const ElectionsContent = () => {
                     <div className='flex items-center justify-end space-x-1'>
                       <button
                         onClick={() =>
-                          navigate(`/admin/elections/${election.id}`)
+                          navigate(
+                            `/admin/elections/${election._id || election.id}`
+                          )
                         }
                         className='text-gray-400 hover:text-primary-500 p-1.5 rounded-full hover:bg-gray-100 transition-colors'
                         title='View election'>
@@ -834,7 +845,7 @@ const ElectionsContent = () => {
                       <button
                         onClick={() =>
                           navigate(
-                            `/admin/elections/${election.id}?tab=settings`
+                            `/admin/elections/${election._id || election.id}?tab=settings`
                           )
                         }
                         className='text-gray-400 hover:text-blue-500 p-1.5 rounded-full hover:bg-blue-50 transition-colors'
@@ -844,7 +855,7 @@ const ElectionsContent = () => {
                       <button
                         onClick={() =>
                           navigate(
-                            `/admin/elections/${election.id}?tab=settings#delete`
+                            `/admin/elections/${election._id || election.id}?tab=settings#delete`
                           )
                         }
                         className='text-gray-400 hover:text-red-500 p-1.5 rounded-full hover:bg-red-50 transition-colors'

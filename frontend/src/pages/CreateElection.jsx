@@ -175,7 +175,7 @@ const CreateElection = ({ onCancel }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -197,37 +197,32 @@ const CreateElection = ({ onCancel }) => {
               ? candidate.customParty.trim()
               : candidate.party;
 
+          // Only send fields the backend needs; let Mongo generate _id and any extra fields
           return {
-            id: `candidate-${index + 1}`,
             name: candidate.name.trim(),
             party: party.trim(),
-            votes: 0,
-            avatar: '', // This will be set by the admin later
           };
         });
-
-      // Generate a slug from the title and add timestamp to ensure uniqueness
-      const slug = `${slugify(formData.title)}-${Date.now()}`;
 
       // Format dates to ISO string and ensure they include timezone information
       const startDate = new Date(formData.startDate).toISOString();
       const endDate = new Date(formData.endDate).toISOString();
 
+      // Send only core fields; backend will handle id, status, timestamps, etc.
       const electionData = {
-        id: slug,
         title: formData.title.trim(),
         description: formData.description.trim(),
-        startDate: startDate,
-        endDate: endDate,
+        startDate,
+        endDate,
         candidates: validCandidates,
-        createdAt: new Date().toISOString(),
-        status: 'upcoming',
-        totalVoters: 0,
-        voted: 0,
       };
 
-      createElection(electionData);
-      toast.success('Election created successfully!', {
+      const created = await createElection(electionData);
+
+      const successMessage =
+        created?.message || 'Election created successfully!';
+
+      toast.success(successMessage, {
         position: 'top-center',
         autoClose: 3000,
         hideProgressBar: false,
@@ -243,7 +238,12 @@ const CreateElection = ({ onCancel }) => {
       }
     } catch (error) {
       console.error('Error creating election:', error);
-      toast.error('Failed to create election. Please try again.', {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to create election. Please try again.';
+
+      toast.error(errorMessage, {
         position: 'top-center',
         autoClose: 5000,
         hideProgressBar: false,

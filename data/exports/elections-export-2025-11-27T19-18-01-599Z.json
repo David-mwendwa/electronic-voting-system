@@ -1,0 +1,322 @@
+[
+  {
+    "_id": "6927cec5282b570c6340e287",
+    "title": "Postgraduate Students Association 2026",
+    "description": "Election for the Postgraduate Students Association leadership. Open to all registered postgraduate students.",
+    "startDate": "2026-07-16T09:00:00.000Z",
+    "endDate": "2027-03-15T17:00:00.000Z",
+    "status": "upcoming",
+    "candidates": [
+      {
+        "name": "Michael Ochieng",
+        "party": "Research First",
+        "gender": "male",
+        "_id": "6927cec5282b570c6340e288",
+        "createdAt": "2025-11-27T04:08:37.977Z",
+        "updatedAt": "2025-11-27T04:08:37.977Z"
+      },
+      {
+        "name": "Grace Wambui",
+        "party": "Student Voice",
+        "gender": "female",
+        "_id": "6927cec5282b570c6340e289",
+        "createdAt": "2025-11-27T04:08:37.977Z",
+        "updatedAt": "2025-11-27T04:08:37.977Z"
+      },
+      {
+        "name": "Daniel Mwangi",
+        "party": "Future Forward",
+        "gender": "male",
+        "_id": "6927cec5282b570c6340e28a",
+        "createdAt": "2025-11-27T04:08:37.977Z",
+        "updatedAt": "2025-11-27T04:08:37.977Z"
+      }
+    ],
+    "voters": [],
+    "voted": 0,
+    "results": {},
+    "createdBy": "691dee34ef1bd8deec238ebb",
+    "createdAt": "2025-11-15T11:20:00.000Z",
+    "updatedAt": "2025-11-27T05:26:48.252Z",
+    "__v": 0
+  },
+  {
+    "_id": "6927cec5282b570c6340e281",
+    "title": "Alumni Association Board Election 2025",
+    "description": "Biannual election for the Alumni Association Board of Directors. Open to all university alumni.",
+    "startDate": "2025-11-15T00:00:00.000Z",
+    "endDate": "2026-07-15T23:59:59.000Z",
+    "status": "active",
+    "candidates": [
+      {
+        "name": "Sarah Johnson",
+        "party": "People's Choice",
+        "gender": "female",
+        "_id": "6927cec5282b570c6340e282",
+        "createdAt": "2025-11-27T04:08:37.739Z",
+        "updatedAt": "2025-11-27T04:08:37.739Z"
+      },
+      {
+        "name": "David Kimani",
+        "party": "Conservative Union",
+        "gender": "male",
+        "_id": "6927cec5282b570c6340e283",
+        "createdAt": "2025-11-27T04:08:37.739Z",
+        "updatedAt": "2025-11-27T04:08:37.739Z"
+      },
+      {
+        "name": "Amina Hassan",
+        "party": "Global Alumni Network",
+        "gender": "female",
+        "_id": "6927cec5282b570c6340e284",
+        "createdAt": "2025-11-27T04:08:37.739Z",
+        "updatedAt": "2025-11-27T04:08:37.739Z"
+      },
+      {
+        "name": "Robert Omondi",
+        "party": "Community First",
+        "gender": "male",
+        "_id": "6927cec5282b570c6340e285",
+        "createdAt": "2025-11-27T04:08:37.739Z",
+        "updatedAt": "2025-11-27T04:08:37.739Z"
+      }
+    ],
+    "voters": [],
+    "voted": 290,
+    "results": {
+      "6927cec5282b570c6340e282": 130,
+      "6927cec5282b570c6340e284": 95,
+      "6927cec5282b570c6340e283": 65
+    },
+    "createdBy": "691dee34ef1bd8deec238ebb",
+    "createdAt": "2025-10-15T09:00:00.000Z",
+    "updatedAt": "2025-11-27T05:26:47.786Z",
+    "__v": 0
+  },
+  {
+    "_id": "6927cec6282b570c6340e28c",
+    "title": "Sports Committee Election 2025",
+    "description": "Annual election for the University Sports Committee. This committee oversees all inter-university sports activities and facilities.",
+    "startDate": "2024-01-15T09:00:00.000Z",
+    "endDate": "2024-02-15T17:00:00.000Z",
+    "status": "completed",
+    "candidates": [
+      {
+        "name": "Kevin Njoroge",
+        "party": "Team Spirit",
+        "gender": "male",
+        "_id": "6927cec6282b570c6340e28d",
+        "createdAt": "2025-11-27T04:08:38.216Z",
+        "updatedAt": "2025-11-27T04:08:38.216Z"
+      },
+      {
+        "name": "Linda Atieno",
+        "party": "Team Spirit",
+        "gender": "female",
+        "_id": "6927cec6282b570c6340e28e",
+        "createdAt": "2025-11-27T04:08:38.216Z",
+        "updatedAt": "2025-11-27T04:08:38.216Z"
+      },
+      {
+        "name": "Michael Ochieng",
+        "party": "Team Spirit",
+        "gender": "male",
+        "_id": "6927cec6282b570c6340e28f",
+        "createdAt": "2025-11-27T04:08:38.216Z",
+        "updatedAt": "2025-11-27T04:08:38.216Z"
+      }
+    ],
+    "voters": [],
+    "voted": 0,
+    "results": {},
+    "createdBy": "691dee34ef1bd8deec238ebb",
+    "createdAt": "2025-09-20T11:20:00.000Z",
+    "updatedAt": "2025-11-27T05:26:48.718Z",
+    "__v": 0
+  },
+  {
+    "_id": "6927cec5282b570c6340e277",
+    "title": "Faculty Senate Election 2025",
+    "description": "Biannual election for faculty representatives to the University Senate. Voting is open to all tenured and tenure-track faculty members.",
+    "startDate": "2025-11-15T08:00:00.000Z",
+    "endDate": "2026-07-15T17:00:00.000Z",
+    "status": "active",
+    "candidates": [
+      {
+        "name": "Dr. James Mwangi",
+        "party": "Progressive Party",
+        "gender": "male",
+        "_id": "6927cec5282b570c6340e278",
+        "createdAt": "2025-11-27T04:08:37.257Z",
+        "updatedAt": "2025-11-27T04:08:37.257Z"
+      },
+      {
+        "name": "Prof. Wanjiku Kariuki",
+        "party": "Progressive Educators",
+        "gender": "female",
+        "_id": "6927cec5282b570c6340e279",
+        "createdAt": "2025-11-27T04:08:37.257Z",
+        "updatedAt": "2025-11-27T04:08:37.257Z"
+      },
+      {
+        "name": "Dr. Peter Ochieng",
+        "party": "Future Forward",
+        "gender": "male",
+        "_id": "6927cec5282b570c6340e27a",
+        "createdAt": "2025-11-27T04:08:37.257Z",
+        "updatedAt": "2025-11-27T04:08:37.257Z"
+      }
+    ],
+    "voters": [],
+    "voted": 430,
+    "results": {
+      "6927cec5282b570c6340e278": 165,
+      "6927cec5282b570c6340e279": 140,
+      "6927cec5282b570c6340e27a": 125
+    },
+    "createdBy": "691dee34ef1bd8deec238ebb",
+    "createdAt": "2025-09-10T10:30:00.000Z",
+    "updatedAt": "2025-11-27T05:26:46.851Z",
+    "__v": 0
+  },
+  {
+    "_id": "6927cec5282b570c6340e27c",
+    "title": "Class Representatives – Semester 1, 2026",
+    "description": "Election of class representatives for all departments for Semester 1, 2026. Each class will elect two representatives.",
+    "startDate": "2026-07-16T09:00:00.000Z",
+    "endDate": "2027-03-15T17:00:00.000Z",
+    "status": "upcoming",
+    "candidates": [
+      {
+        "name": "Eunice Jepchirchir",
+        "party": "Science Guild",
+        "gender": "female",
+        "_id": "6927cec5282b570c6340e27d",
+        "createdAt": "2025-11-27T04:08:37.499Z",
+        "updatedAt": "2025-11-27T04:08:37.499Z"
+      },
+      {
+        "name": "Felix Barasa",
+        "party": "Business Leaders",
+        "gender": "male",
+        "_id": "6927cec5282b570c6340e27e",
+        "createdAt": "2025-11-27T04:08:37.499Z",
+        "updatedAt": "2025-11-27T04:08:37.499Z"
+      },
+      {
+        "name": "Grace Cherono",
+        "party": "Arts Society",
+        "gender": "female",
+        "_id": "6927cec5282b570c6340e27f",
+        "createdAt": "2025-11-27T04:08:37.500Z",
+        "updatedAt": "2025-11-27T04:08:37.500Z"
+      }
+    ],
+    "voters": [],
+    "voted": 0,
+    "results": {},
+    "createdBy": "691dee34ef1bd8deec238ebb",
+    "createdAt": "2025-02-10T09:45:00.000Z",
+    "updatedAt": "2025-11-27T05:26:47.317Z",
+    "__v": 0
+  },
+  {
+    "_id": "6927cec5282b570c6340e271",
+    "title": "Student Council Election 2025",
+    "description": "Annual election for university-wide student council representatives. This election will determine the leadership for the upcoming academic year.",
+    "startDate": "2025-11-15T09:00:00.000Z",
+    "endDate": "2026-07-15T17:00:00.000Z",
+    "status": "active",
+    "candidates": [
+      {
+        "name": "Alice Njeri",
+        "party": "Progressive Party",
+        "gender": "other",
+        "_id": "6927cec5282b570c6340e272",
+        "createdAt": "2025-11-27T04:08:37.012Z",
+        "updatedAt": "2025-11-27T04:08:37.012Z"
+      },
+      {
+        "name": "Brian Kiptoo",
+        "party": "Unity Alliance",
+        "gender": "other",
+        "_id": "6927cec5282b570c6340e273",
+        "createdAt": "2025-11-27T04:08:37.012Z",
+        "updatedAt": "2025-11-27T04:08:37.012Z"
+      },
+      {
+        "name": "Caroline Auma",
+        "party": "Student Voice",
+        "gender": "other",
+        "_id": "6927cec5282b570c6340e274",
+        "createdAt": "2025-11-27T04:08:37.013Z",
+        "updatedAt": "2025-11-27T04:08:37.013Z"
+      },
+      {
+        "name": "David Mwangi",
+        "party": "Independent",
+        "gender": "other",
+        "_id": "6927cec5282b570c6340e275",
+        "createdAt": "2025-11-27T04:08:37.013Z",
+        "updatedAt": "2025-11-27T04:08:37.013Z"
+      }
+    ],
+    "voters": [],
+    "voted": 434,
+    "results": {
+      "6927cec5282b570c6340e272": 145,
+      "6927cec5282b570c6340e273": 125,
+      "6927cec5282b570c6340e274": 95,
+      "6927cec5282b570c6340e275": 69
+    },
+    "createdBy": "691dee34ef1bd8deec238ebb",
+    "createdAt": "2025-01-20T10:15:00.000Z",
+    "updatedAt": "2025-11-27T05:26:46.377Z",
+    "__v": 0
+  },
+  {
+    "_id": "6927cec4282b570c6340e264",
+    "title": "Student Union Election 2024",
+    "description": "Annual student union election for the 2024 academic year. This election determined the student union leadership.",
+    "startDate": "2024-09-01T09:00:00.000Z",
+    "endDate": "2024-09-30T17:00:00.000Z",
+    "status": "completed",
+    "candidates": [
+      {
+        "name": "John Mwangi",
+        "party": "Progressive Alliance",
+        "gender": "male",
+        "_id": "6927cec4282b570c6340e265",
+        "createdAt": "2025-11-27T04:08:36.752Z",
+        "updatedAt": "2025-11-27T04:08:36.752Z"
+      },
+      {
+        "name": "Sarah Wanjiku",
+        "party": "Student Voice",
+        "gender": "female",
+        "_id": "6927cec4282b570c6340e266",
+        "createdAt": "2025-11-27T04:08:36.753Z",
+        "updatedAt": "2025-11-27T04:08:36.753Z"
+      },
+      {
+        "name": "Peter Ochieng",
+        "party": "Future Leaders",
+        "gender": "male",
+        "_id": "6927cec4282b570c6340e267",
+        "createdAt": "2025-11-27T04:08:36.753Z",
+        "updatedAt": "2025-11-27T04:08:36.753Z"
+      }
+    ],
+    "voters": [],
+    "voted": 430,
+    "results": {
+      "6927cec4282b570c6340e265": 182,
+      "6927cec4282b570c6340e266": 158,
+      "6927cec4282b570c6340e267": 90
+    },
+    "createdBy": "691dee34ef1bd8deec238ebb",
+    "createdAt": "2024-08-15T10:00:00.000Z",
+    "updatedAt": "2025-11-27T05:26:45.900Z",
+    "__v": 0
+  }
+]

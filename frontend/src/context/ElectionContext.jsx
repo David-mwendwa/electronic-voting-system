@@ -1,135 +1,75 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import electionsData from '../data/elections.json';
+// src/context/ElectionContext.jsx
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useCallback,
+} from 'react';
+import api from '../api/apiClient';
 
 const ElectionContext = createContext();
 
-// Check if we have saved elections in localStorage, otherwise use JSON dummy data
-const savedElections = JSON.parse(localStorage.getItem('elections'));
-const initialElections =
-  savedElections && savedElections.length > 0 ? savedElections : electionsData;
-
-// Function to determine election status based on current date
-const getElectionStatus = (election) => {
-  const now = new Date();
-  const startDate = new Date(election.startDate || election.votingStarts);
-  const endDate = new Date(election.endDate || election.votingEnds);
-
-  if (now < startDate) return 'Upcoming';
-  if (now >= startDate && now <= endDate) return 'Active';
-  return 'Completed';
-};
-
-// Process initial elections to ensure status is set correctly
-const processedInitialElections = initialElections.map((election) => ({
-  ...election,
-  status: election.status || getElectionStatus(election),
-}));
-
 const initialState = {
-  elections: processedInitialElections,
+  elections: [],
   currentElection: null,
+  loading: false,
+  error: null,
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case 'FETCH_ELECTIONS_REQUEST':
+      return { ...state, loading: true, error: null };
+
+    case 'FETCH_ELECTIONS_SUCCESS':
+      return { ...state, loading: false, elections: action.payload };
+
+    case 'FETCH_ELECTIONS_FAILURE':
+      return { ...state, loading: false, error: action.payload };
+
+    case 'SET_CURRENT_ELECTION':
+      return { ...state, currentElection: action.payload };
+
     case 'CREATE_ELECTION':
-      const newElection = {
-        id: uuidv4(),
-        ...action.payload,
-        createdAt: new Date().toISOString(),
-        voters: [],
-        results: {},
-        status: getElectionStatus(action.payload), // Set initial status based on dates
-      };
       return {
         ...state,
-        elections: [...state.elections, newElection],
-        currentElection: newElection,
-      };
-
-    case 'SUBMIT_VOTE':
-      const { electionId, candidateId, voterId } = action.payload;
-      const updatedElections = state.elections.map((election) => {
-        if (election.id === electionId) {
-          const updatedResults = {
-            ...election.results,
-            [candidateId]: (election.results[candidateId] || 0) + 1,
-          };
-
-          // Add voter to the election's voters array if not already there
-          const voterExists = election.voters?.some((v) => v.id === voterId);
-          const updatedVoters = voterExists
-            ? election.voters.map((v) =>
-                v.id === voterId
-                  ? {
-                      ...v,
-                      votedFor: candidateId,
-                      votedAt: new Date().toISOString(),
-                    }
-                  : v
-              )
-            : [
-                ...(election.voters || []),
-                {
-                  id: voterId,
-                  votedFor: candidateId,
-                  votedAt: new Date().toISOString(),
-                },
-              ];
-
-          return {
-            ...election,
-            results: updatedResults,
-            voters: updatedVoters,
-          };
-        }
-        return election;
-      });
-      return {
-        ...state,
-        elections: updatedElections,
+        elections: [...state.elections, action.payload],
+        currentElection: action.payload,
       };
 
     case 'UPDATE_ELECTION':
       return {
         ...state,
         elections: state.elections.map((election) =>
-          election.id === action.payload.id
-            ? {
-                ...election,
-                ...action.payload,
-                status: getElectionStatus({
-                  ...election,
-                  ...action.payload,
-                }), // Update status when election is updated
-              }
-            : election
+          election._id === action.payload._id ? action.payload : election
         ),
+        currentElection:
+          state.currentElection?._id === action.payload._id
+            ? action.payload
+            : state.currentElection,
       };
 
     case 'DELETE_ELECTION':
       return {
         ...state,
         elections: state.elections.filter(
-          (election) => election.id !== action.payload
+          (election) => election._id !== action.payload
         ),
         currentElection:
-          state.currentElection && state.currentElection.id === action.payload
+          state.currentElection?._id === action.payload
             ? null
             : state.currentElection,
       };
 
-    case 'SET_CURRENT_ELECTION':
+    case 'SUBMIT_VOTE':
       return {
         ...state,
-        currentElection: action.payload,
-      };
-
-    case 'ADD_VOTER':
-      return {
-        ...state,
-        voters: [...state.voters, action.payload],
+        elections: state.elections.map((election) =>
+          election._id === action.payload.electionId
+            ? { ...election, results: action.payload.results }
+            : election
+        ),
       };
 
     default:
@@ -140,35 +80,122 @@ const reducer = (state, action) => {
 export const ElectionProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  // Fetch all elections
+  const fetchElections = useCallback(async () => {
+    dispatch({ type: 'FETCH_ELECTIONS_REQUEST' });
+    try {
+      const response = await api.get('/elections');
+
+      // Support different backend response shapes and always store an array
+      const raw =
+        response?.data?.data ||
+        response?.data?.elections ||
+        response?.data ||
+        response;
+
+      const electionsArray = Array.isArray(raw) ? raw : [];
+      console.log({ electionsArray });
+
+      dispatch({ type: 'FETCH_ELECTIONS_SUCCESS', payload: electionsArray });
+    } catch (error) {
+      dispatch({ type: 'FETCH_ELECTIONS_FAILURE', payload: error.message });
+      console.error('Failed to fetch elections:', error);
+    }
+  }, []);
+
+  // Initial fetch
   useEffect(() => {
-    localStorage.setItem('elections', JSON.stringify(state.elections));
-  }, [state.elections]);
+    fetchElections();
+  }, [fetchElections]);
 
-  const createElection = (electionData) => {
-    dispatch({ type: 'CREATE_ELECTION', payload: electionData });
-  };
+  // Get election by ID
+  const getElectionById = useCallback(
+    (id) => {
+      return state.elections.find((election) => election._id === id);
+    },
+    [state.elections]
+  );
 
-  const updateElection = (electionData) => {
-    dispatch({ type: 'UPDATE_ELECTION', payload: electionData });
-  };
-
-  const submitVote = (electionId, voterId, candidateId) => {
-    dispatch({
-      type: 'SUBMIT_VOTE',
-      payload: { electionId, voterId, candidateId },
-    });
-  };
-
-  const getElectionById = (id) => {
-    return state.elections.find((election) => election.id === id);
-  };
-
-  const setCurrentElection = (election) => {
+  // Set current election
+  const setCurrentElection = useCallback((election) => {
     dispatch({ type: 'SET_CURRENT_ELECTION', payload: election });
+  }, []);
+
+  // Create election
+  const createElection = async (electionData) => {
+    try {
+      const response = await api.post('/elections', electionData);
+      const created =
+        response?.data?.data ||
+        response?.data?.election ||
+        response?.data ||
+        response;
+
+      dispatch({ type: 'CREATE_ELECTION', payload: created });
+      return created;
+    } catch (error) {
+      console.error('Failed to create election:', error);
+      throw error;
+    }
   };
 
-  const deleteElection = (id) => {
-    dispatch({ type: 'DELETE_ELECTION', payload: id });
+  // Update election
+  const updateElection = async (electionData) => {
+    try {
+      const response = await api.patch(
+        `/elections/${electionData._id}`,
+        electionData
+      );
+      const updated =
+        response?.data?.data ||
+        response?.data?.election ||
+        response?.data ||
+        response;
+
+      dispatch({ type: 'UPDATE_ELECTION', payload: updated });
+      return updated;
+    } catch (error) {
+      console.error('Failed to update election:', error);
+      throw error;
+    }
+  };
+
+  // Delete election
+  const deleteElection = async (id) => {
+    try {
+      await api.delete(`/elections/${id}`);
+      dispatch({ type: 'DELETE_ELECTION', payload: id });
+    } catch (error) {
+      console.error('Failed to delete election:', error);
+      throw error;
+    }
+  };
+
+  // Submit vote
+  const submitVote = async (electionId, candidateId) => {
+    try {
+      const response = await api.post(`/elections/${electionId}/vote`, {
+        candidateId,
+      });
+
+      const updatedElection =
+        response?.data?.data ||
+        response?.data?.election ||
+        response?.data ||
+        response;
+
+      dispatch({
+        type: 'SUBMIT_VOTE',
+        payload: {
+          electionId,
+          results: updatedElection.results,
+        },
+      });
+      return updatedElection;
+    } catch (error) {
+      console.error('Failed to submit vote:', error);
+      throw error;
+    }
   };
 
   return (
@@ -176,6 +203,9 @@ export const ElectionProvider = ({ children }) => {
       value={{
         elections: state.elections,
         currentElection: state.currentElection,
+        loading: state.loading,
+        error: state.error,
+        fetchElections,
         createElection,
         updateElection,
         deleteElection,

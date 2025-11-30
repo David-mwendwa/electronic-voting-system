@@ -357,25 +357,6 @@ const Admin = () => {
               ))}
             </div>
           </nav>
-
-          {/* User profile and logout */}
-          <div className='border-t border-gray-200 p-4'>
-            <div className='flex items-center'>
-              <div className='h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500'>
-                <FiUserPlus className='h-5 w-5' />
-              </div>
-              <div className='ml-3'>
-                <p className='text-sm font-medium text-gray-700'>Admin User</p>
-                <p className='text-xs text-gray-500'>Administrator</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className='ml-auto rounded-full p-1 text-gray-500 hover:bg-gray-100'
-                title='Sign out'>
-                <FiLogOut className='h-5 w-5' />
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -539,7 +520,7 @@ const DashboardContent = ({ stats, recentActivity, isLoading }) => {
           <div className='bg-gray-50 px-4 py-3 text-right sm:px-6 rounded-b-lg'>
             <button
               type='button'
-              onClick={() => navigate('/admin?tab=elections')}
+              onClick={() => navigate('/admin?tab=dashboard')}
               className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'>
               View all activity
             </button>

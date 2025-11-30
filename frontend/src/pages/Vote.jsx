@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useElection } from '../context/ElectionContext';
+import { useAuth } from '../context/AuthContext';
+import api from '../api/apiClient';
+import { Spinner } from '../components/ui/Loaders';
 import { toast } from 'react-toastify';
 import {
   FiArrowLeft,
@@ -12,8 +15,13 @@ import {
 
 const Vote = () => {
   const { electionId } = useParams();
-  const { getElectionById, submitVote } = useElection();
+  const {
+    getElectionById,
+    submitVote,
+    loading: electionsLoading,
+  } = useElection();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [election, setElection] = useState(null);
   const [voterId, setVoterId] = useState('');
@@ -23,23 +31,53 @@ const Vote = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
-    const foundElection = getElectionById(electionId);
-    if (!foundElection) {
-      toast.error('Election not found');
-      navigate('/');
-      return;
-    }
-    setElection(foundElection);
+    const loadElection = async () => {
+      // Wait for elections to finish loading before resolving the election
+      if (electionsLoading) return;
 
-    // Check if already voted (in a real app, this would be more secure)
-    const votedElections = JSON.parse(
-      localStorage.getItem('votedElections') || '{}'
-    );
-    if (votedElections[electionId]) {
-      setHasVoted(true);
-      setVoterId(votedElections[electionId]);
+      // First try to get it from context
+      const foundElection = getElectionById(electionId);
+      if (foundElection) {
+        setElection(foundElection);
+      } else {
+        try {
+          const response = await api.get(`/elections/${electionId}`);
+          const remoteElection =
+            response?.data?.data || response?.data?.election || response?.data;
+
+          if (!remoteElection) {
+            toast.error('Election not found');
+            navigate('/');
+            return;
+          }
+
+          setElection(remoteElection);
+        } catch (error) {
+          toast.error('Election not found');
+          navigate('/');
+          return;
+        }
+      }
+
+      // Check if already voted (in a real app, this would be more secure)
+      const votedElections = JSON.parse(
+        localStorage.getItem('votedElections') || '{}'
+      );
+      if (votedElections[electionId]) {
+        setHasVoted(true);
+        setVoterId(votedElections[electionId]);
+      }
+    };
+
+    loadElection();
+  }, [electionId, getElectionById, navigate, electionsLoading]);
+
+  useEffect(() => {
+    if (user) {
+      const authVoterId = user._id || user.id || '';
+      setVoterId(authVoterId);
     }
-  }, [electionId, getElectionById, navigate]);
+  }, [user]);
 
   const handleSubmitVote = (e) => {
     e.preventDefault();
@@ -57,7 +95,7 @@ const Vote = () => {
     setShowConfirmation(true);
   };
 
-  const confirmVote = () => {
+  const confirmVote = async () => {
     if (!selectedCandidate) return;
 
     setIsSubmitting(true);
@@ -71,7 +109,7 @@ const Vote = () => {
       votedElections[electionId] = voterId;
       localStorage.setItem('votedElections', JSON.stringify(votedElections));
 
-      submitVote(electionId, voterId, selectedCandidate);
+      await submitVote(electionId, selectedCandidate);
       setHasVoted(true);
       toast.success('Your vote has been submitted successfully!');
     } catch (error) {
@@ -85,7 +123,7 @@ const Vote = () => {
   if (!election)
     return (
       <div className='min-h-screen bg-gray-50 pt-16 flex items-center justify-center'>
-        Loading...
+        <Spinner />
       </div>
     );
 
@@ -104,7 +142,9 @@ const Vote = () => {
               recorded.
             </p>
             <button
-              onClick={() => navigate(`/results/${election.id}`)}
+              onClick={() =>
+                navigate(`/results/${election._id || election.id}`)
+              }
               className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'>
               View Results
             </button>
@@ -115,7 +155,7 @@ const Vote = () => {
   }
 
   const selectedCandidateData = election.candidates.find(
-    (c) => c.id === selectedCandidate
+    (c) => (c._id || c.id) === selectedCandidate
   );
 
   return (
@@ -178,10 +218,9 @@ const Vote = () => {
                     type='text'
                     id='voterId'
                     value={voterId}
-                    onChange={(e) => setVoterId(e.target.value)}
                     className='focus:ring-primary-500 focus:border-primary-500 block w-full pl-3 pr-10 py-2.5 sm:py-3 text-sm sm:text-base border-gray-300 rounded-lg border'
-                    placeholder='Enter your voter ID'
-                    disabled={isSubmitting}
+                    placeholder='Your voter ID from your account'
+                    disabled
                     required
                   />
                 </div>
@@ -200,47 +239,50 @@ const Vote = () => {
                 </p>
 
                 <div className='grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2'>
-                  {election.candidates.map((candidate) => (
-                    <div
-                      key={candidate.id}
-                      className={`relative rounded-xl border-2 p-3 sm:p-4 transition-all cursor-pointer ${
-                        selectedCandidate === candidate.id
-                          ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-200'
-                          : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
-                      }`}
-                      onClick={() =>
-                        !isSubmitting && setSelectedCandidate(candidate.id)
-                      }>
-                      {selectedCandidate === candidate.id && (
-                        <div className='absolute -top-2 -right-2 bg-primary-600 text-white rounded-full p-1'>
-                          <FiCheck className='h-3 w-3' />
-                        </div>
-                      )}
-                      <div className='flex items-center'>
-                        <div className='flex-shrink-0 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-primary-100 flex items-center justify-center text-lg sm:text-xl font-medium text-primary-700'>
-                          {candidate.name
-                            .split(' ')
-                            .map((n) => n[0])
-                            .join('')}
-                        </div>
-                        <div className='ml-3 sm:ml-4 overflow-hidden'>
-                          <h4 className='text-sm sm:text-base font-medium text-gray-900 truncate'>
-                            {candidate.name}
-                          </h4>
-                          {candidate.party && (
-                            <p className='text-xs sm:text-sm text-primary-600 font-medium truncate'>
-                              {candidate.party}
-                            </p>
-                          )}
-                          {candidate.bio && (
-                            <p className='mt-1 text-xs text-gray-500 line-clamp-2'>
-                              {candidate.bio}
-                            </p>
-                          )}
+                  {election.candidates.map((candidate) => {
+                    const candidateId = candidate._id || candidate.id;
+                    return (
+                      <div
+                        key={candidateId}
+                        className={`relative rounded-xl border-2 p-3 sm:p-4 transition-all cursor-pointer ${
+                          selectedCandidate === candidateId
+                            ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-200'
+                            : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
+                        }`}
+                        onClick={() =>
+                          !isSubmitting && setSelectedCandidate(candidateId)
+                        }>
+                        {selectedCandidate === candidateId && (
+                          <div className='absolute -top-2 -right-2 bg-primary-600 text-white rounded-full p-1'>
+                            <FiCheck className='h-3 w-3' />
+                          </div>
+                        )}
+                        <div className='flex items-center'>
+                          <div className='flex-shrink-0 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-primary-100 flex items-center justify-center text-lg sm:text-xl font-medium text-primary-700'>
+                            {candidate.name
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')}
+                          </div>
+                          <div className='ml-3 sm:ml-4 overflow-hidden'>
+                            <h4 className='text-sm sm:text-base font-medium text-gray-900 truncate'>
+                              {candidate.name}
+                            </h4>
+                            {candidate.party && (
+                              <p className='text-xs sm:text-sm text-primary-600 font-medium truncate'>
+                                {candidate.party}
+                              </p>
+                            )}
+                            {candidate.bio && (
+                              <p className='mt-1 text-xs text-gray-500 line-clamp-2'>
+                                {candidate.bio}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

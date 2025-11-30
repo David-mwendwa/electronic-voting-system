@@ -110,7 +110,11 @@ export const ElectionProvider = ({ children }) => {
   // Get election by ID
   const getElectionById = useCallback(
     (id) => {
-      return state.elections.find((election) => election._id === id);
+      return state.elections.find(
+        (election) =>
+          String(election._id) === String(id) ||
+          (election.id && String(election.id) === String(id))
+      );
     },
     [state.elections]
   );

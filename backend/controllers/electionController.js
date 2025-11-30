@@ -117,3 +117,62 @@ export const getElectionsByStatus = async (req, res, next) => {
 
 // Delete election (admin only)
 export const deleteElection = deleteOne(Election);
+
+// Cast a vote in an election (authenticated user)
+export const voteElection = async (req, res) => {
+  const { id } = req.params;
+  const { candidateId } = req.body;
+
+  if (!candidateId) {
+    throw new BadRequestError('candidateId is required');
+  }
+
+  const election = await Election.findById(id);
+
+  if (!election) {
+    throw new NotFoundError('Election not found');
+  }
+
+  // Only allow voting on active elections
+  if (!election.isActive) {
+    throw new BadRequestError('This election is not currently active');
+  }
+
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ForbiddenError('You must be authenticated to vote');
+  }
+
+  // Prevent duplicate voting
+  const alreadyVoted = election.voters.some(
+    (voterId) => String(voterId) === String(userId)
+  );
+
+  if (alreadyVoted) {
+    throw new BadRequestError('You have already voted in this election');
+  }
+
+  // Ensure candidate exists in this election
+  const candidateExists = election.candidates.some(
+    (candidate) => String(candidate._id) === String(candidateId)
+  );
+
+  if (!candidateExists) {
+    throw new BadRequestError(
+      'Selected candidate does not belong to this election'
+    );
+  }
+
+  // Update voters list and counters
+  election.voters.push(userId);
+  election.voted = (election.voted || 0) + 1;
+
+  // Update results map
+  const currentCount = election.results.get(String(candidateId)) || 0;
+  election.results.set(String(candidateId), currentCount + 1);
+
+  await election.save();
+
+  res.status(200).json(election);
+};

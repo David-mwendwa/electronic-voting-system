@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useElection } from '../context/ElectionContext';
 import { useAuth } from '../context/AuthContext';
+import { Spinner } from '../components/ui/Loaders';
 import { FiX, FiCheckCircle, FiLogIn } from 'react-icons/fi';
 import Login from '../components/auth/Login';
 import Register from '../components/auth/Register';
@@ -12,7 +13,7 @@ const Home = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const { elections } = useElection();
+  const { elections, loading: electionsLoading } = useElection();
 
   // Use real elections from context and filter to active ones
   const activeElections = elections.filter(
@@ -242,11 +243,15 @@ const Home = () => {
                     </div>
 
                     <div className='space-y-3'>
-                      {activeElections.length > 0 ? (
+                      {electionsLoading ? (
+                        <Spinner />
+                      ) : activeElections.length > 0 ? (
                         activeElections.map((election) => (
                           <button
-                            key={election.id}
-                            onClick={() => handleElectionSelect(election.id)}
+                            key={election._id || election.id}
+                            onClick={() =>
+                              handleElectionSelect(election._id || election.id)
+                            }
                             className='w-full flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left'>
                             <div className='flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 mr-4'>
                               <FiCheckCircle className='h-5 w-5' />

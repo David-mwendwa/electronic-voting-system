@@ -7,6 +7,7 @@ import {
   deleteElection,
   updateElectionStatus,
   getElectionsByStatus,
+  voteElection,
 } from '../controllers/electionController.js';
 import { authenticate, authorizeRoles } from '../middleware/auth.js';
 const router = express.Router();
@@ -16,6 +17,9 @@ const router = express.Router();
 router.route('/').get(getElections);
 router.route('/status/:status').get(getElectionsByStatus);
 router.route('/:id').get(getElection);
+
+// Cast a vote in an election (authenticated users)
+router.route('/:id/vote').post(authenticate, voteElection);
 
 /******************[ ADMIN ROUTES ]******************/
 // Both admin and sysadmin can manage elections

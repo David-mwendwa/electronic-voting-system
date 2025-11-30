@@ -1,15 +1,16 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
-import votersData from '../data/voters.json';
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useCallback,
+} from 'react';
+import api from '../api/apiClient';
 
 const VoterContext = createContext();
 
-// Check if we have saved voters in localStorage, otherwise use JSON dummy data
-const savedVoters = JSON.parse(localStorage.getItem('voters'));
-const initialVoters =
-  savedVoters && savedVoters.length > 0 ? savedVoters : votersData;
-
 const initialState = {
-  voters: initialVoters,
+  voters: [],
   currentVoter: null,
   isLoading: false,
   error: null,
@@ -17,6 +18,15 @@ const initialState = {
 
 const voterReducer = (state, action) => {
   switch (action.type) {
+    case 'FETCH_VOTERS_REQUEST':
+      return { ...state, isLoading: true, error: null };
+
+    case 'FETCH_VOTERS_SUCCESS':
+      return { ...state, isLoading: false, voters: action.payload };
+
+    case 'FETCH_VOTERS_FAILURE':
+      return { ...state, isLoading: false, error: action.payload };
+
     case 'ADD_VOTER':
       return {
         ...state,
@@ -27,7 +37,7 @@ const voterReducer = (state, action) => {
       return {
         ...state,
         voters: state.voters.map((voter) =>
-          voter.id === action.payload.id
+          String(voter._id) === String(action.payload._id)
             ? { ...voter, ...action.payload }
             : voter
         ),
@@ -36,7 +46,9 @@ const voterReducer = (state, action) => {
     case 'DELETE_VOTER':
       return {
         ...state,
-        voters: state.voters.filter((voter) => voter.id !== action.payload),
+        voters: state.voters.filter(
+          (voter) => String(voter._id) !== String(action.payload)
+        ),
       };
 
     case 'SET_CURRENT_VOTER':
@@ -65,10 +77,33 @@ const voterReducer = (state, action) => {
 export const VoterProvider = ({ children }) => {
   const [state, dispatch] = useReducer(voterReducer, initialState);
 
-  // Save voters to localStorage whenever they change
+  // Load voters from backend
+  const fetchVoters = useCallback(async () => {
+    dispatch({ type: 'FETCH_VOTERS_REQUEST' });
+    try {
+      const response = await api.get('/users');
+
+      const raw =
+        response?.data?.data ||
+        response?.data?.users ||
+        response?.data ||
+        response;
+
+      const votersArray = Array.isArray(raw) ? raw : [];
+
+      dispatch({ type: 'FETCH_VOTERS_SUCCESS', payload: votersArray });
+    } catch (error) {
+      console.error('Failed to fetch voters:', error);
+      dispatch({
+        type: 'FETCH_VOTERS_FAILURE',
+        payload: error.message || 'Failed to load voters',
+      });
+    }
+  }, []);
+
   useEffect(() => {
-    localStorage.setItem('voters', JSON.stringify(state.voters));
-  }, [state.voters]);
+    fetchVoters();
+  }, [fetchVoters]);
 
   // Add a new voter
   const addVoter = async (voterData) => {
@@ -125,7 +160,9 @@ export const VoterProvider = ({ children }) => {
 
   // Get a voter by ID
   const getVoterById = (id) => {
-    return state.voters.find((voter) => voter.id === id);
+    return state.voters.find(
+      (voter) => String(voter._id) === String(id) || voter.id === id
+    );
   };
 
   // Set the current voter
@@ -160,6 +197,7 @@ export const VoterProvider = ({ children }) => {
         currentVoter: state.currentVoter,
         isLoading: state.isLoading,
         error: state.error,
+        fetchVoters,
         addVoter,
         updateVoter,
         deleteVoter,

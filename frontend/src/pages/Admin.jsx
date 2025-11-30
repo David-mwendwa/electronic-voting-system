@@ -402,14 +402,44 @@ const Admin = () => {
   );
 };
 
+// Shared table skeleton loader
+const TableSkeleton = () => (
+  <div className='space-y-4'>
+    <div className='animate-pulse space-y-4'>
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className='h-16 bg-gray-200 rounded-md'></div>
+      ))}
+    </div>
+  </div>
+);
+
+// Shared centered spinner loader
+const Spinner = () => (
+  <div className='flex items-center justify-center py-16'>
+    <div className='animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600'></div>
+  </div>
+);
+
+// Shared error alert
+const ErrorAlert = ({ label, error }) => (
+  <div className='bg-red-50 border-l-4 border-red-400 p-4'>
+    <div className='flex'>
+      <div className='flex-shrink-0'>
+        <FiAlertCircle className='h-5 w-5 text-red-400' aria-hidden='true' />
+      </div>
+      <div className='ml-3'>
+        <p className='text-sm text-red-700'>
+          Error loading{(label && ` ${label}`) || ''}: {error}
+        </p>
+      </div>
+    </div>
+  </div>
+);
+
 // Dashboard Content Component
 const DashboardContent = ({ stats, recentActivity, isLoading }) => {
   if (isLoading) {
-    return (
-      <div className='flex items-center justify-center h-64'>
-        <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600'></div>
-      </div>
-    );
+    return <Spinner />;
   }
 
   return (
@@ -621,13 +651,11 @@ const ElectionsContent = () => {
   };
 
   if (loading) {
-    return <div className='text-center py-8'>Loading elections...</div>;
+    return <TableSkeleton />;
   }
 
   if (error) {
-    return (
-      <div className='text-red-600 p-4'>Error loading elections: {error}</div>
-    );
+    return <ErrorAlert label='elections' error={error} />;
   }
 
   const handleCreateNew = () => {
@@ -1159,23 +1187,7 @@ const VotersContent = () => {
   }
 
   if (error) {
-    return (
-      <div className='bg-red-50 border-l-4 border-red-400 p-4'>
-        <div className='flex'>
-          <div className='flex-shrink-0'>
-            <FiAlertCircle
-              className='h-5 w-5 text-red-400'
-              aria-hidden='true'
-            />
-          </div>
-          <div className='ml-3'>
-            <p className='text-sm text-red-700'>
-              Error loading voters: {error}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
+    return <ErrorAlert label='voters' error={error} />;
   }
 
   return (
@@ -1593,6 +1605,7 @@ const SettingsContent = () => {
     toggleMaintenanceMode,
     toggleRegistration,
     isLoading,
+    error,
   } = useSettings();
 
   if (isLoading) {
@@ -1601,6 +1614,10 @@ const SettingsContent = () => {
         <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600'></div>
       </div>
     );
+  }
+
+  if (error) {
+    return <ErrorAlert label='settings' error={error} />;
   }
 
   return (

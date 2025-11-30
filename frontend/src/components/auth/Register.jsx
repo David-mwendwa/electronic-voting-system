@@ -149,13 +149,20 @@ const Register = ({ onClose, onSwitchToLogin }) => {
         <div className='px-6 py-4'>
           {/* Error Message */}
           {error && (
-            <div className='p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-md text-left'>
+            <div className='p-3 mb-3 text-sm text-red-700 bg-red-100 rounded-md text-left'>
               <div className='flex items-center'>
                 <FiX className='w-5 h-5 mr-2' />
                 <span>{error}</span>
               </div>
             </div>
           )}
+
+          {/* Info: test with dummy details */}
+          <div className='mb-4 text-xs sm:text-sm text-blue-700 bg-blue-50 border border-blue-100 rounded-md px-3 py-2 text-left'>
+            For testing this demo, you can use dummy details (name, email,
+            etc.). Just make sure the email looks valid, e.g.{' '}
+            <span className='font-mono'>test.user@example.com</span>.
+          </div>
 
           {/* Registration Form */}
           <form onSubmit={handleSubmit} className='space-y-4'>

@@ -11,11 +11,26 @@ export const getElections = getMany(Election);
 
 // Get single election
 export const getElection = async (req, res) => {
-  const election = await Election.findById(req.params.id);
+  const electionDoc = await Election.findById(req.params.id);
 
-  if (!election) {
+  if (!electionDoc) {
     throw new NotFoundError('Election not found');
   }
+
+  // Convert to plain object so we can safely add computed properties
+  const election = electionDoc.toObject ? electionDoc.toObject() : electionDoc;
+
+  // Compute whether the current authenticated user has voted in this election
+  const userId = req.user?.id;
+  let hasVotedForCurrentUser = false;
+
+  if (userId && Array.isArray(election.voters)) {
+    hasVotedForCurrentUser = election.voters.some(
+      (voterId) => String(voterId) === String(userId)
+    );
+  }
+
+  election.hasVotedForCurrentUser = hasVotedForCurrentUser;
 
   res.json(election);
 };
@@ -139,9 +154,17 @@ export const voteElection = async (req, res) => {
   }
 
   const userId = req.user?.id;
+  const userRole = req.user?.role;
 
   if (!userId) {
     throw new ForbiddenError('You must be authenticated to vote');
+  }
+
+  // Prevent admin and sysadmin accounts from voting in elections
+  if (userRole === 'admin' || userRole === 'sysadmin') {
+    throw new ForbiddenError(
+      `${userRole} accounts are not allowed to vote in elections`
+    );
   }
 
   // Prevent duplicate voting

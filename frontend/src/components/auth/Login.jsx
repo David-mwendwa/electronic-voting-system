@@ -10,7 +10,6 @@ const Login = ({ onClose, onSwitchToRegister }) => {
     email: '',
     password: '',
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -175,7 +174,7 @@ const Login = ({ onClose, onSwitchToRegister }) => {
                       : 'focus:ring-primary-500'
                   } focus:border-primary-500`}
                   placeholder='email@example.com'
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 />
               </div>
               {touched.email && errors.email && (
@@ -215,7 +214,7 @@ const Login = ({ onClose, onSwitchToRegister }) => {
                       : 'focus:ring-primary-500'
                   } focus:border-primary-500`}
                   placeholder='••••••••'
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                 />
                 <button
                   type='button'
@@ -266,13 +265,13 @@ const Login = ({ onClose, onSwitchToRegister }) => {
             <div className='mt-6'>
               <button
                 type='submit'
-                disabled={isLoading || (isSubmitting && !isFormValid)}
+                disabled={isSubmitting || !isFormValid}
                 className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                  isLoading || (isSubmitting && !isFormValid)
+                  isSubmitting || !isFormValid
                     ? 'bg-primary-400 cursor-not-allowed'
                     : 'bg-primary-600 hover:bg-primary-700'
                 } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500`}>
-                {isLoading ? (
+                {isSubmitting ? (
                   <>
                     <svg
                       className='w-4 h-4 mr-2 -ml-1 text-white animate-spin'

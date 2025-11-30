@@ -35,42 +35,46 @@ const Vote = () => {
       // Wait for elections to finish loading before resolving the election
       if (electionsLoading) return;
 
-      // First try to get it from context
-      const foundElection = getElectionById(electionId);
-      if (foundElection) {
-        setElection(foundElection);
-      } else {
-        try {
-          const response = await api.get(`/elections/${electionId}`);
-          const remoteElection =
-            response?.data?.data || response?.data?.election || response?.data;
+      try {
+        // Always fetch from backend so we have up-to-date hasVotedForCurrentUser
+        const response = await api.get(`/elections/${electionId}`);
+        const remoteElection =
+          response?.data?.data || response?.data?.election || response?.data;
 
-          if (!remoteElection) {
-            toast.error('Election not found');
-            navigate('/');
-            return;
-          }
-
-          setElection(remoteElection);
-        } catch (error) {
+        if (!remoteElection) {
           toast.error('Election not found');
           navigate('/');
           return;
         }
-      }
 
-      // Check if already voted (in a real app, this would be more secure)
-      const votedElections = JSON.parse(
-        localStorage.getItem('votedElections') || '{}'
-      );
-      if (votedElections[electionId]) {
-        setHasVoted(true);
-        setVoterId(votedElections[electionId]);
+        // Determine if the current user has already voted in this election
+        const currentUserId = user?._id || user?.id;
+        const hasVotedForUser =
+          remoteElection.hasVotedForCurrentUser ||
+          (currentUserId &&
+            Array.isArray(remoteElection.voters) &&
+            remoteElection.voters.some(
+              (voterId) => String(voterId) === String(currentUserId)
+            ));
+
+        // If the user has already voted in this election, take them straight to results
+        if (hasVotedForUser) {
+          navigate(
+            `/results/${remoteElection._id || remoteElection.id || electionId}`
+          );
+          return;
+        }
+
+        setElection(remoteElection);
+      } catch (error) {
+        toast.error('Election not found');
+        navigate('/');
+        return;
       }
     };
 
     loadElection();
-  }, [electionId, getElectionById, navigate, electionsLoading]);
+  }, [electionId, getElectionById, navigate, electionsLoading, user]);
 
   useEffect(() => {
     if (user) {
@@ -102,19 +106,23 @@ const Vote = () => {
     setShowConfirmation(false);
 
     try {
-      // In a real app, this would be handled by a backend with proper authentication
-      const votedElections = JSON.parse(
-        localStorage.getItem('votedElections') || '{}'
-      );
-      votedElections[electionId] = voterId;
-      localStorage.setItem('votedElections', JSON.stringify(votedElections));
-
       await submitVote(electionId, selectedCandidate);
       setHasVoted(true);
       toast.success('Your vote has been submitted successfully!');
     } catch (error) {
       console.error('Error submitting vote:', error);
-      toast.error('Failed to submit vote. Please try again.');
+      const backendMessage = error?.response?.data?.message;
+
+      if (backendMessage && backendMessage.includes('already voted')) {
+        // Backend says this user has already voted in this election – send them to results
+        toast.info('You have already voted in this election. Showing results.');
+        navigate(`/results/${election._id || election.id || electionId}`);
+      } else {
+        // Show specific backend message when available, otherwise a generic fallback
+        toast.error(
+          backendMessage || 'Failed to submit vote. Please try again.'
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -163,7 +171,7 @@ const Vote = () => {
       <div className='max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12'>
         <div className='mb-4 sm:mb-6'>
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/')}
             className='inline-flex items-center px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base font-medium text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg transition-colors active:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-100'>
             <FiArrowLeft className='mr-1.5 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0' />
             <span className='truncate'>Back to Elections</span>
@@ -181,11 +189,22 @@ const Vote = () => {
           </div>
 
           <div className='p-4 sm:p-6'>
-            <div className='mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r'>
+            <div
+              className={`mb-6 p-4 rounded-r border-l-4 ${
+                {
+                  admin: 'bg-red-50 border-red-500',
+                  sysadmin: 'bg-red-50 border-red-500',
+                  default: 'bg-blue-50 border-blue-500',
+                }[user?.role] || 'bg-blue-50 border-blue-500'
+              }`}>
               <div className='flex'>
                 <div className='flex-shrink-0 pt-0.5'>
                   <svg
-                    className='h-5 w-5 text-blue-500'
+                    className={`h-5 w-5 ${
+                      user?.role === 'admin' || user?.role === 'sysadmin'
+                        ? 'text-red-500'
+                        : 'text-blue-500'
+                    }`}
                     xmlns='http://www.w3.org/2000/svg'
                     viewBox='0 0 20 20'
                     fill='currentColor'>
@@ -197,11 +216,26 @@ const Vote = () => {
                   </svg>
                 </div>
                 <div className='ml-3'>
-                  <p className='text-xs sm:text-sm text-blue-700'>
-                    Please verify your voter ID and select your preferred
-                    candidate. Your vote is anonymous and cannot be changed once
-                    submitted.
-                  </p>
+                  {user?.role === 'admin' || user?.role === 'sysadmin' ? (
+                    <div className='inline-flex flex-wrap items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-red-50 text-[11px] sm:text-xs font-medium text-red-700'>
+                      <span>
+                        You are signed in as an {user.role}. Admin accounts
+                        manage elections and voters, but do not cast ballots.
+                      </span>
+                      <button
+                        type='button'
+                        onClick={() => navigate('/admin')}
+                        className='underline text-red-700 hover:text-red-800'>
+                        Go to admin dashboard
+                      </button>
+                    </div>
+                  ) : (
+                    <p className='text-xs sm:text-sm text-blue-700'>
+                      Please verify your voter ID and select your preferred
+                      candidate. Your vote is anonymous and cannot be changed
+                      once submitted.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -241,17 +275,28 @@ const Vote = () => {
                 <div className='grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2'>
                   {election.candidates.map((candidate) => {
                     const candidateId = candidate._id || candidate.id;
+                    const isAdminLike =
+                      user?.role === 'admin' || user?.role === 'sysadmin';
+                    const isSelected = selectedCandidate === candidateId;
+
                     return (
                       <div
                         key={candidateId}
-                        className={`relative rounded-xl border-2 p-3 sm:p-4 transition-all cursor-pointer ${
-                          selectedCandidate === candidateId
+                        className={`relative rounded-xl border-2 p-3 sm:p-4 transition-all ${
+                          isAdminLike
+                            ? 'cursor-not-allowed opacity-60 border-gray-200 bg-gray-50'
+                            : 'cursor-pointer'
+                        } ${
+                          !isAdminLike && isSelected
                             ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-200'
-                            : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
+                            : !isAdminLike
+                              ? 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
+                              : ''
                         }`}
-                        onClick={() =>
-                          !isSubmitting && setSelectedCandidate(candidateId)
-                        }>
+                        onClick={() => {
+                          if (isAdminLike || isSubmitting) return;
+                          setSelectedCandidate(candidateId);
+                        }}>
                         {selectedCandidate === candidateId && (
                           <div className='absolute -top-2 -right-2 bg-primary-600 text-white rounded-full p-1'>
                             <FiCheck className='h-3 w-3' />

@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useElection } from '../context/ElectionContext';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/apiClient';
 import { Spinner } from '../components/ui/Loaders';
 import { FiX, FiCheckCircle, FiLogIn } from 'react-icons/fi';
 import Login from '../components/auth/Login';
@@ -20,13 +21,26 @@ const Home = () => {
     (election) => election.status === 'Active' || election.status === 'active'
   );
 
-  const handleElectionSelect = (electionId) => {
+  const handleElectionSelect = async (electionId) => {
     if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }
     setShowElectionModal(false);
-    navigate(`/vote/${electionId}`);
+    try {
+      const response = await api.get(`/elections/${electionId}`);
+      const election =
+        response?.data?.data || response?.data?.election || response?.data;
+
+      if (election?.hasVotedForCurrentUser) {
+        navigate(`/results/${electionId}`);
+      } else {
+        navigate(`/vote/${electionId}`);
+      }
+    } catch (error) {
+      // On any error, fall back to the vote page so the user can proceed
+      navigate(`/vote/${electionId}`);
+    }
   };
 
   // Modal handlers
@@ -243,6 +257,10 @@ const Home = () => {
                     </div>
 
                     <div className='space-y-3'>
+                      <div className='mb-2 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-700'>
+                        Click an election below to vote or view results (where
+                        you have already cast your vote).
+                      </div>
                       {electionsLoading ? (
                         <Spinner />
                       ) : activeElections.length > 0 ? (
@@ -261,7 +279,7 @@ const Home = () => {
                                 {election.title}
                               </h4>
                               <p className='text-sm text-gray-500'>
-                                Click to vote in this election
+                                Click to vote or view results
                               </p>
                             </div>
                           </button>

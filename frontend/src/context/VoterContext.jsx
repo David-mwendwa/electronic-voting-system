@@ -12,20 +12,20 @@ const VoterContext = createContext();
 const initialState = {
   voters: [],
   currentVoter: null,
-  isLoading: false,
+  loading: true,
   error: null,
 };
 
 const voterReducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_VOTERS_REQUEST':
-      return { ...state, isLoading: true, error: null };
+      return { ...state, loading: true, error: null };
 
     case 'FETCH_VOTERS_SUCCESS':
-      return { ...state, isLoading: false, voters: action.payload };
+      return { ...state, loading: false, voters: action.payload };
 
     case 'FETCH_VOTERS_FAILURE':
-      return { ...state, isLoading: false, error: action.payload };
+      return { ...state, loading: false, error: action.payload };
 
     case 'ADD_VOTER':
       return {
@@ -60,7 +60,7 @@ const voterReducer = (state, action) => {
     case 'SET_LOADING':
       return {
         ...state,
-        isLoading: action.payload,
+        loading: action.payload,
       };
 
     case 'SET_ERROR':
@@ -81,7 +81,8 @@ export const VoterProvider = ({ children }) => {
   const fetchVoters = useCallback(async () => {
     dispatch({ type: 'FETCH_VOTERS_REQUEST' });
     try {
-      const response = await api.get('/users');
+      // Request a high limit so we get all voters for admin management
+      const response = await api.get('/users?limit=1000');
 
       const raw =
         response?.data?.data ||
@@ -130,11 +131,19 @@ export const VoterProvider = ({ children }) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       // In a real app, you would make an API call here
+      const response = await api.patch(`/users/${id}`, voterData);
+
+      const raw =
+        response?.data?.data ||
+        response?.data?.user ||
+        response?.data ||
+        response;
+
       const updatedVoter = {
         ...voterData,
-        id,
-        updatedAt: new Date().toISOString(),
+        ...raw,
       };
+
       dispatch({ type: 'UPDATE_VOTER', payload: updatedVoter });
       return updatedVoter;
     } catch (error) {
@@ -146,9 +155,12 @@ export const VoterProvider = ({ children }) => {
   };
 
   // Delete a voter
-  const deleteVoter = (voterId) => {
+  const deleteVoter = async (voterId) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
+
+      await api.delete(`/users/${voterId}`);
+
       dispatch({ type: 'DELETE_VOTER', payload: voterId });
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
@@ -195,7 +207,7 @@ export const VoterProvider = ({ children }) => {
       value={{
         voters: state.voters,
         currentVoter: state.currentVoter,
-        isLoading: state.isLoading,
+        loading: state.loading,
         error: state.error,
         fetchVoters,
         addVoter,

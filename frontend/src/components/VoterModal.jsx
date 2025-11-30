@@ -90,7 +90,8 @@ const VoterModal = ({ isOpen, onClose, editMode = false }) => {
 
     try {
       if (editMode && currentVoter) {
-        await updateVoter(currentVoter.id, {
+        const id = currentVoter._id || currentVoter.id;
+        await updateVoter(id, {
           ...formData,
           status: currentVoter.status || 'active',
           hasVoted: currentVoter.hasVoted || false,

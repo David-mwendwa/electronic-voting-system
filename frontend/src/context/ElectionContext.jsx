@@ -13,7 +13,7 @@ const ElectionContext = createContext();
 const initialState = {
   elections: [],
   currentElection: null,
-  loading: false,
+  loading: true,
   error: null,
 };
 

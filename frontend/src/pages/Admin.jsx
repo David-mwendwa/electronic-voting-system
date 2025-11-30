@@ -43,6 +43,7 @@ import {
   FiActivity,
   FiCalendar,
 } from 'react-icons/fi';
+import { TableSkeleton, Spinner } from '../components/ui/Loaders';
 import VoterModal from '../components/VoterModal';
 import CreateElection from './CreateElection';
 
@@ -51,19 +52,18 @@ const Admin = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const { voters } = useVoter();
-  const { elections } = useElection();
+  const { voters, loading: votersLoading } = useVoter();
+  const { elections, loading: electionsLoading } = useElection();
   const { maintenanceMode } = useSettings();
 
-  // Set initial tab from URL or default to 'dashboard'
+  // Sync active tab with URL query (?tab=...) so navigation updates the view
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab && ['dashboard', 'elections', 'voters', 'settings'].includes(tab)) {
       setActiveTab(tab);
     }
-  }, []);
+  }, [searchParams]);
 
   // Handle window resize
   useEffect(() => {
@@ -103,8 +103,14 @@ const Admin = () => {
   // Calculate stats from real data
   const [stats, setStats] = useState([]);
 
+  const dashboardLoading = electionsLoading || votersLoading;
+
   useEffect(() => {
-    if (Array.isArray(elections) && Array.isArray(voters)) {
+    if (
+      !dashboardLoading &&
+      Array.isArray(elections) &&
+      Array.isArray(voters)
+    ) {
       const activeElections = elections.filter(
         (election) =>
           new Date(election.startDate) <= new Date() &&
@@ -178,10 +184,8 @@ const Admin = () => {
           changeType: 'info',
         },
       ]);
-
-      setIsLoading(false);
     }
-  }, [elections, voters, maintenanceMode]);
+  }, [dashboardLoading, elections, voters, maintenanceMode]);
 
   // Recent activity data
   const [recentActivity, setRecentActivity] = useState([
@@ -215,18 +219,35 @@ const Admin = () => {
         }),
         icon: <FiAward className='h-4 w-4 text-blue-500' />,
       })) || []),
+      // Recent election updates (based on updatedAt)
+      ...(elections || [])
+        .slice()
+        .sort(
+          (a, b) =>
+            new Date(b.updatedAt || b.startDate) -
+            new Date(a.updatedAt || a.startDate)
+        )
+        .slice(0, 2)
+        .map((election, index) => ({
+          id: 20 + index,
+          user: 'Admin',
+          action: `Election "${election.title}" updated`,
+          time: formatDistanceToNow(
+            new Date(election.updatedAt || election.startDate),
+            {
+              addSuffix: true,
+            }
+          ),
+          icon: <FiEdit2 className='h-4 w-4 text-purple-500' />,
+        })),
       ...(voters?.slice(0, 2).map((voter, index) => ({
         id: index + 5,
         user: 'System',
-        action: `New ${voter.isApproved ? 'approved' : 'pending'} voter: ${
-          voter.name
-        }`,
-        time: 'Recently',
-        icon: voter.isApproved ? (
-          <FiUserCheck className='h-4 w-4 text-green-500' />
-        ) : (
-          <FiClock className='h-4 w-4 text-yellow-500' />
-        ),
+        action: `New voter created: ${voter.name || voter.email || 'Unknown'}`,
+        time: formatDistanceToNow(new Date(voter.createdAt), {
+          addSuffix: true,
+        }),
+        icon: <FiUserPlus className='h-4 w-4 text-blue-500' />,
       })) || []),
     ];
 
@@ -391,7 +412,7 @@ const Admin = () => {
             <DashboardContent
               stats={stats}
               recentActivity={recentActivity}
-              isLoading={isLoading}
+              isLoading={dashboardLoading}
             />
           ) : (
             renderContent()
@@ -401,24 +422,6 @@ const Admin = () => {
     </div>
   );
 };
-
-// Shared table skeleton loader
-const TableSkeleton = () => (
-  <div className='space-y-4'>
-    <div className='animate-pulse space-y-4'>
-      {[...Array(5)].map((_, i) => (
-        <div key={i} className='h-16 bg-gray-200 rounded-md'></div>
-      ))}
-    </div>
-  </div>
-);
-
-// Shared centered spinner loader
-const Spinner = () => (
-  <div className='flex items-center justify-center py-16'>
-    <div className='animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600'></div>
-  </div>
-);
 
 // Shared error alert
 const ErrorAlert = ({ label, error }) => (
@@ -438,6 +441,7 @@ const ErrorAlert = ({ label, error }) => (
 
 // Dashboard Content Component
 const DashboardContent = ({ stats, recentActivity, isLoading }) => {
+  const navigate = useNavigate();
   if (isLoading) {
     return <Spinner />;
   }
@@ -498,11 +502,11 @@ const DashboardContent = ({ stats, recentActivity, isLoading }) => {
         {/* Recent Activity */}
         <div className='bg-white shadow sm:rounded-lg lg:col-span-2'>
           <div className='px-4 py-5 sm:px-6 border-b border-gray-200'>
-            <h3 className='text-lg font-medium leading-6 text-gray-900'>
+            <h3 className='text-lg font-semibold leading-6 text-gray-900'>
               Recent Activity
             </h3>
             <p className='mt-1 text-sm text-gray-500'>
-              Latest system and user activities
+              Latest updates across elections and voters
             </p>
           </div>
           <div className='divide-y divide-gray-200'>
@@ -516,10 +520,11 @@ const DashboardContent = ({ stats, recentActivity, isLoading }) => {
                       <div className='flex-shrink-0'>{activity.icon}</div>
                       <div className='ml-4'>
                         <p className='text-sm font-medium text-gray-900'>
-                          <span className='font-semibold'>{activity.user}</span>{' '}
                           {activity.action}
                         </p>
-                        <p className='text-sm text-gray-500'>{activity.time}</p>
+                        <p className='text-xs text-gray-500 mt-0.5'>
+                          {activity.time}
+                        </p>
                       </div>
                     </div>
                   </li>
@@ -553,13 +558,13 @@ const DashboardContent = ({ stats, recentActivity, isLoading }) => {
           </div>
           <div className='p-4 space-y-3'>
             <button
-              onClick={() => navigate('/admin?tab=elections&new=true')}
+              onClick={() => navigate('/admin?tab=elections')}
               className='w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'>
               <FiPlusCircle className='-ml-1 mr-2 h-5 w-5' />
               New Election
             </button>
             <button
-              onClick={() => navigate('/admin?tab=voters&add=true')}
+              onClick={() => navigate('/admin?tab=voters')}
               className='w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'>
               <FiUserPlus className='-ml-1 mr-2 h-5 w-5' />
               Add Voter
@@ -1071,7 +1076,7 @@ const VotersContent = () => {
   const votersPerPage = 10;
   const {
     voters,
-    isLoading,
+    loading,
     error,
     setCurrentVoter,
     deleteVoter,
@@ -1088,7 +1093,8 @@ const VotersContent = () => {
   const handleConfirmDelete = async () => {
     if (voterToDelete) {
       try {
-        await deleteVoter(voterToDelete.id);
+        const id = voterToDelete._id || voterToDelete.id;
+        await deleteVoter(id);
         toast.success('Voter deleted successfully');
       } catch (error) {
         toast.error('Failed to delete voter');
@@ -1174,16 +1180,8 @@ const VotersContent = () => {
     return sortConfig.direction === 'asc' ? '↑' : '↓';
   };
 
-  if (isLoading) {
-    return (
-      <div className='space-y-4'>
-        <div className='animate-pulse space-y-4'>
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className='h-16 bg-gray-200 rounded-md'></div>
-          ))}
-        </div>
-      </div>
-    );
+  if (loading) {
+    return <TableSkeleton />;
   }
 
   if (error) {

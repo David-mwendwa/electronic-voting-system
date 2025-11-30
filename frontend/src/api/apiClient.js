@@ -8,19 +8,36 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Include cookies in requests
 });
 
 // Request interceptor to add auth token to requests
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    // Prefer localStorage, fall back to sessionStorage (matches AuthContext behavior)
+    const token =
+      localStorage.getItem('token') || sessionStorage.getItem('token');
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor for basic auth handling
+apiClient.interceptors.response.use(
+  (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      // Clear auth-related storage keys; AuthContext will see this on next load
+      ['token', 'user', 'sessionExpiry'].forEach((key) => {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+      });
+    }
+
     return Promise.reject(error);
   }
 );

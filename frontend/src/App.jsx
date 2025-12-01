@@ -9,6 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect } from 'react';
 import Navbar from './components/Navbar.jsx';
+import Footer from './components/Footer.jsx';
 import Home from './pages/Home.jsx';
 import CreateElection from './pages/CreateElection.jsx';
 import Vote from './pages/Vote.jsx';
@@ -131,8 +132,14 @@ function App() {
                       <Route path='/' element={<Home />} />
                       <Route path='/how-it-works' element={<HowItWorks />} />
                       <Route path='/vote/:electionId' element={<Vote />} />
-                      <Route path='/results/:electionId' element={<Results />} />
-                      <Route path='/maintenance' element={<MaintenancePage />} />
+                      <Route
+                        path='/results/:electionId'
+                        element={<Results />}
+                      />
+                      <Route
+                        path='/maintenance'
+                        element={<MaintenancePage />}
+                      />
 
                       {/* Protected admin routes */}
                       <Route
@@ -143,13 +150,17 @@ function App() {
                         }>
                         <Route path='/admin' element={<Admin />} />
                         <Route path='/create' element={<CreateElection />} />
-                        <Route path='/admin/elections/:id' element={<ElectionDetails />} />
+                        <Route
+                          path='/admin/elections/:id'
+                          element={<ElectionDetails />}
+                        />
                         <Route path='/admin/*' element={<Admin />} />
                         {/* Add other admin-only routes here */}
                       </Route>
                     </Routes>
                   </div>
                 </main>
+                <Footer />
                 <ToastContainer position='top-right' autoClose={3000} />
               </div>
             </VoterProvider>

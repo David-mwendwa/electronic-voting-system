@@ -99,7 +99,14 @@ const userSchema = new mongoose.Schema(
 );
 
 /**
- * Encrypt password before saving a user;
+ * Mongoose pre-save hook that hashes the user's password when it has been modified.
+ *
+ * - Generates a bcrypt salt.
+ * - Replaces the plain-text password with the hashed value.
+ * - Removes `passwordConfirm` so it is not persisted to the database.
+ *
+ * @this mongoose.Document
+ * @returns {Promise<void>}
  */
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
@@ -108,33 +115,65 @@ userSchema.pre('save', async function () {
   this.passwordConfirm = undefined; // delete passwordConfirm field (does not need to be persistent in the db)
 });
 
+/**
+ * Mongoose pre-save hook that sets `passwordChangedAt` when the password is
+ * modified on an existing document. This is used to invalidate JWTs issued
+ * before the password change.
+ *
+ * @this mongoose.Document
+ */
 userSchema.pre('save', function () {
   if (!this.isModified('password') || this.isNew) return;
   this.passwordChangedAt = Date.now() - 1000;
 });
 
 /**
- * Filter out inactive users on current find query
+ * Mongoose pre-find hook that excludes users where `active === false`.
+ *
+ * This acts as a soft-delete mechanism so inactive users are hidden from
+ * normal queries. To include inactive users (for example, in admin/sysadmin
+ * views), pass the `bypassActiveFilter` query option when building the query.
+ *
+ * @example
+ * User.find({}, null, { bypassActiveFilter: true })
+ *
+ * @this mongoose.Query
+ * @param {Function} next - Callback to move to the next middleware.
  */
 userSchema.pre(/^find/, function (next) {
+  const options = this.getOptions ? this.getOptions() : {};
+
+  if (options && options.bypassActiveFilter) {
+    return next();
+  }
+
   this.find({ active: { $ne: false } });
   next();
 });
 
 /**
- * Compare user input password with the one stored in the database
- * @param {*} inputPassword password from the request body
- * @param {*} userPwd (optional) actual user pasword on the database. Can also be parsed as this.password
- * @returns true or false
+ * Compare a candidate password with the user's stored password hash.
+ *
+ * @async
+ * @param {string} inputPassword - Plain-text password from the request body.
+ * @param {string} [userPwd] - Optional hashed password to compare against. If
+ *   omitted, `this.password` is used.
+ * @returns {Promise<boolean>} Resolves to `true` if the passwords match,
+ *   otherwise `false`.
  */
 userSchema.methods.comparePassword = async function (inputPassword, userPwd) {
   return await bcrypt.compare(inputPassword, userPwd || this.password);
 };
 
 /**
- * Check if the password was chnaged after the token was issued
- * @param {*} JWTTimestamp JSON Web Token timestamp
- * @returns true or false
+ * Determine whether the user changed their password after a JWT was issued.
+ *
+ * Used to invalidate tokens if the password has been updated since the token
+ * was created.
+ *
+ * @param {number} JWTTimestamp - JWT `iat` timestamp in seconds since epoch.
+ * @returns {boolean} `true` if the password was changed after the token was
+ *   issued, otherwise `false`.
  */
 userSchema.methods.passwordChangedAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
@@ -148,9 +187,12 @@ userSchema.methods.passwordChangedAfter = function (JWTTimestamp) {
 };
 
 /**
- * Sign JSON Web Token
- * @param {*} null
- * @returns authetication token
+ * Generate a signed JSON Web Token for the user.
+ *
+ * The token payload includes the user's `_id` and `role` and uses the
+ * configured `JWT_SECRET` and `JWT_LIFETIME` environment variables.
+ *
+ * @returns {string} Signed JWT string.
  */
 userSchema.methods.signJWT = function () {
   return jwt.sign({ id: this._id, role: this.role }, process.env.JWT_SECRET, {
@@ -159,9 +201,16 @@ userSchema.methods.signJWT = function () {
 };
 
 /**
- * Create password rest token
- * @param {*} null
- * @returns password reset token
+ * Create and persist a password reset token for the user.
+ *
+ * - Generates a random token.
+ * - Stores a hashed version on the document in `passwordResetToken`.
+ * - Sets `passwordResetExpiresAt` to 30 minutes from now.
+ *
+ * The unhashed token is returned so it can be sent to the user via email or
+ * another delivery mechanism.
+ *
+ * @returns {string} The plain-text password reset token.
  */
 userSchema.methods.generatePasswordResetToken = function () {
   // generate token

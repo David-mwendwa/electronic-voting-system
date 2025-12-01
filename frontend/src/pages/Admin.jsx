@@ -53,7 +53,7 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
-  const { voters, loading: votersLoading } = useVoter();
+  const { voters, total: totalVoters, loading: votersLoading } = useVoter();
   const { elections, loading: electionsLoading } = useElection();
   const { maintenanceMode } = useSettings();
 
@@ -127,6 +127,8 @@ const Admin = () => {
         return format(parseISO(dateString), 'MMMM d, yyyy');
       };
 
+      const totalVotersCount = totalVoters || voters.length;
+
       setStats([
         {
           name: 'Active Elections',
@@ -140,10 +142,12 @@ const Admin = () => {
         },
         {
           name: 'Total Voters',
-          value: voters.length,
+          value: totalVotersCount,
           icon: <FiUsers className='h-6 w-6 text-green-500' />,
           change:
-            voters.length > 0 ? `${voters.length} registered` : 'No voters yet',
+            totalVotersCount > 0
+              ? `${totalVotersCount} registered`
+              : 'No voters yet',
           changeType: 'info',
         },
         {
@@ -1053,12 +1057,13 @@ const VotersContent = () => {
     key: 'createdAt',
     direction: 'desc',
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const votersPerPage = 10;
   const {
     voters,
     loading,
     error,
+    total,
+    pagination,
+    fetchVoters,
     setCurrentVoter,
     deleteVoter,
     currentVoter,
@@ -1128,24 +1133,31 @@ const VotersContent = () => {
     return result;
   }, [voters, searchTerm, statusFilter, sortConfig]);
 
-  // Get current voters for pagination
-  const indexOfLastVoter = currentPage * votersPerPage;
-  const indexOfFirstVoter = indexOfLastVoter - votersPerPage;
-  const currentVoters = filteredVoters.slice(
-    indexOfFirstVoter,
-    indexOfLastVoter
-  );
-  const totalPages = Math.ceil(filteredVoters.length / votersPerPage);
+  // Backend-driven pagination metadata
+  const currentPage = pagination?.page || 1;
+  const votersPerPage = pagination?.pageSize || 10;
+  const totalPages = pagination?.totalPages || 1;
 
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  const nextPage = () =>
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  // For this page, just apply filters/sorting to the voters we have
+  const currentVoters = filteredVoters;
 
-  // Reset to first page when filters change
+  // Compute global index ranges based on backend pagination
+  const indexOfFirstVoter = (currentPage - 1) * votersPerPage + 1;
+  const indexOfLastVoter = indexOfFirstVoter + currentVoters.length - 1;
+
+  // Change page using backend fetch
+  const paginate = (pageNumber) => {
+    if (pageNumber < 1 || pageNumber > totalPages) return;
+    fetchVoters(pageNumber, votersPerPage);
+  };
+  const nextPage = () => paginate(currentPage + 1);
+  const prevPage = () => paginate(currentPage - 1);
+
+  // When filters or sorting change, reset to first page
   useEffect(() => {
-    setCurrentPage(1);
+    if (currentPage !== 1) {
+      fetchVoters(1, votersPerPage);
+    }
   }, [searchTerm, statusFilter, sortConfig]);
 
   const requestSort = (key) => {
@@ -1179,13 +1191,13 @@ const VotersContent = () => {
               Voter Management
             </h2>
             <p className='mt-1 text-xs sm:text-sm text-gray-500'>
-              {voters.length === 0
+              {total === 0 || voters.length === 0
                 ? 'No voters found. Add a voter to get started.'
                 : `Showing ${indexOfFirstVoter + 1}-${Math.min(
                     indexOfLastVoter,
-                    filteredVoters.length
-                  )} of ${filteredVoters.length} voter${
-                    filteredVoters.length !== 1 ? 's' : ''
+                    total || voters.length
+                  )} of ${total || voters.length} voter${
+                    (total || voters.length) !== 1 ? 's' : ''
                   }`}
             </p>
           </div>
@@ -1413,7 +1425,7 @@ const VotersContent = () => {
       </div>
 
       {/* Pagination */}
-      {filteredVoters.length > votersPerPage && (
+      {(total || 0) > votersPerPage && (
         <div className='bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6'>
           <div className='flex-1 flex justify-between sm:hidden'>
             <button
@@ -1443,9 +1455,12 @@ const VotersContent = () => {
                 Showing{' '}
                 <span className='font-medium'>{indexOfFirstVoter + 1}</span> to{' '}
                 <span className='font-medium'>
-                  {Math.min(indexOfLastVoter, filteredVoters.length)}
+                  {Math.min(indexOfLastVoter, total || filteredVoters.length)}
                 </span>{' '}
-                of <span className='font-medium'>{filteredVoters.length}</span>{' '}
+                of{' '}
+                <span className='font-medium'>
+                  {total || filteredVoters.length}
+                </span>{' '}
                 voters
               </p>
             </div>

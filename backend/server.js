@@ -112,14 +112,21 @@ const apiLimiter = rateLimit({
   skip: (req) => req.path.startsWith('/api/health'),
 });
 
-// Apply rate limiting
-// app.use('/api', apiLimiter);
-// app.use('/api/v1/auth', authLimiter);
+app.use('/api', apiLimiter);
+app.use('/api/v1/auth', authLimiter);
 
 // =====================
 // 6. ROUTES
 // =====================
-// Health check endpoint
+
+/**
+ * Simple health check endpoint for uptime and environment monitoring.
+ *
+ * Returns a JSON payload with basic status information that can be used by
+ * load balancers or monitoring tools.
+ *
+ * @route GET /api/health
+ */
 app.get('/api/health', (req, res) => {
   res.set('Cache-Control', 'no-store');
   res.status(200).json({

@@ -5,36 +5,48 @@ import {
 } from '../errors/customErrors.js';
 
 /**
- * Authenticates incoming requests by validating JWT tokens from multiple sources.
- * 
- * This middleware checks for tokens in the following order:
- * 1. Standard cookies (req.cookies.token)
- * 2. Signed cookies (req.signedCookies.token)
- * 3. Authorization header (Bearer token)
- * 4. Raw cookie header (as fallback)
- * 
+ * Shape of the decoded JWT payload attached to `req.user` after authentication.
+ *
+ * @typedef {Object} AuthenticatedUser
+ * @property {string} id - User identifier taken from the JWT payload.
+ * @property {string} role - User role (e.g. `user`, `admin`, `sysadmin`).
+ * @property {number} iat - Issued-at timestamp (seconds since epoch).
+ * @property {number} exp - Expiry timestamp (seconds since epoch).
+ */
+
+/**
+ * Authenticate incoming requests by validating a JWT token from common sources.
+ *
+ * The middleware looks for a token in the following order:
+ * 1. `req.cookies.token`
+ * 2. `req.signedCookies.token`
+ * 3. `Authorization` header with a `Bearer` token
+ * 4. Raw `cookie` header (fallback)
+ *
+ * When a valid token is found and verified, the decoded payload is attached to
+ * `req.user` and the request is allowed to proceed. If no token is found or the
+ * token is invalid/expired, an `UnauthenticatedError` is thrown.
+ *
  * @async
- * @function
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
- * @throws {UnauthenticatedError} If no valid token is found
+ * @function authenticate
+ * @param {import('express').Request & { user?: AuthenticatedUser }} req -
+ *   Express request object; `req.user` is populated on success.
+ * @param {import('express').Response} res - Express response object.
+ * @param {import('express').NextFunction} next - Next middleware function.
+ * @throws {UnauthenticatedError} If no valid JWT is found or verification fails.
  * @returns {Promise<void>}
- * 
+ *
  * @example
- * // In your route definitions
+ * Example: protect a single route with authentication
  * router.get('/protected-route', authenticate, (req, res) => {
- *   // Only accessible with valid authentication
- *   res.json({ message: 'Protected data' });
+ *   const { id, role } = req.user; // decoded JWT payload
+ *   res.json({ userId: id, role });
  * });
- * 
- * // The authenticated user is available as req.user
- * // Example: { id: 'user123', role: 'admin', iat: 1600000000, exp: 1600003600 }
  */
 export const authenticate = async (req, res, next) => {
   let token = null;
   const authHeader = req.headers.authorization;
-  
+
   // Check for token in various locations
   if (req?.cookies?.token) {
     token = req.cookies.token;
@@ -51,34 +63,41 @@ export const authenticate = async (req, res, next) => {
   }
 
   try {
-    // Verify and decode the JWT token
     req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch (error) {
-    throw new UnauthenticatedError('Invalid or expired token. Please log in again');
+    throw new UnauthenticatedError(
+      'Invalid or expired token. Please log in again'
+    );
   }
 };
 
 /**
- * Authorizes access to routes based on user roles.
- * 
- * This middleware verifies that the authenticated user has one of the required roles.
- * 
- * @function
+ * Factory for role-based authorization middleware.
+ *
+ * The returned middleware assumes that `authenticate` has already populated
+ * `req.user`. It checks that `req.user.role` is included in the list of allowed
+ * roles; otherwise a `ForbiddenError` is thrown.
+ *
+ * @function authorizeRoles
  * @param {...(string|string[])} roles - One or more roles or arrays of roles
- * @returns {Function} Express middleware function
- * @throws {ForbiddenError} If user's role is not in the allowed roles
- * 
+ *   that are permitted to access the route.
+ * @returns {import('express').RequestHandler} Express middleware that enforces
+ *   role-based access control.
+ * @throws {ForbiddenError} If the authenticated user's role is not allowed.
+ *
  * @example
- * // Single role check
- * router.get('/admin', authorizeRoles('admin'), adminHandler);
- * 
- * // Multiple roles check (any format works)
- * router.get('/admin', authorizeRoles('admin', 'sysadmin'), adminHandler);
- * router.get('/admin', authorizeRoles(['admin', 'sysadmin']), adminHandler);
- * 
- * // The authenticated user must be available in req.user
- * // Example req.user: { id: 'user123', role: 'admin', ... }
+ * Example: only admins may access this route
+ * router.get('/admin', authenticate, authorizeRoles('admin'), adminHandler);
+ *
+ * @example
+ * Example: allow either admin or sysadmin roles
+ * router.get(
+ *   '/admin-or-sysadmin',
+ *   authenticate,
+ *   authorizeRoles('admin', 'sysadmin'),
+ *   handler
+ * );
  */
 export const authorizeRoles = (...roles) => {
   // Flatten and normalize roles array to handle both formats

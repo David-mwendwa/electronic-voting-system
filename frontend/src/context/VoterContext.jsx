@@ -15,6 +15,12 @@ const initialState = {
   currentVoter: null,
   loading: true,
   error: null,
+  total: 0,
+  pagination: {
+    page: 1,
+    pageSize: 10,
+    totalPages: 1,
+  },
 };
 
 const voterReducer = (state, action) => {
@@ -23,7 +29,13 @@ const voterReducer = (state, action) => {
       return { ...state, loading: true, error: null };
 
     case 'FETCH_VOTERS_SUCCESS':
-      return { ...state, loading: false, voters: action.payload };
+      return {
+        ...state,
+        loading: false,
+        voters: action.payload.voters,
+        total: action.payload.total,
+        pagination: action.payload.pagination || state.pagination,
+      };
 
     case 'FETCH_VOTERS_FAILURE':
       return { ...state, loading: false, error: action.payload };
@@ -79,12 +91,17 @@ export const VoterProvider = ({ children }) => {
   const [state, dispatch] = useReducer(voterReducer, initialState);
   const { isAuthenticated, user } = useAuth();
 
-  // Load voters from backend
-  const fetchVoters = useCallback(async () => {
+  // Load voters from backend with pagination
+  const fetchVoters = useCallback(async (page = 1, limit = 10) => {
+    console.log('[VoterContext] fetchVoters called', { page, limit });
     dispatch({ type: 'FETCH_VOTERS_REQUEST' });
     try {
-      // Request a high limit so we get all voters for admin management
-      const response = await api.get('/users?limit=1000');
+      console.log(
+        '[VoterContext] Requesting voters from /users with pagination',
+        { page, limit }
+      );
+      const response = await api.get(`/users?page=${page}&limit=${limit}`);
+      console.log('[VoterContext] Response:', response);
 
       const raw =
         response?.data?.data ||
@@ -94,7 +111,35 @@ export const VoterProvider = ({ children }) => {
 
       const votersArray = Array.isArray(raw) ? raw : [];
 
-      dispatch({ type: 'FETCH_VOTERS_SUCCESS', payload: votersArray });
+      const meta = response?.data?.meta?.pagination || {};
+      const totalFromMeta = meta.total ?? votersArray.length;
+      const pageFromMeta = parseInt(meta.page, 10) || page || 1;
+      const pageSizeFromMeta = parseInt(meta.pageSize, 10) || limit || 10;
+      const totalPagesFromMeta =
+        totalFromMeta && pageSizeFromMeta
+          ? Math.ceil(totalFromMeta / pageSizeFromMeta)
+          : 1;
+
+      console.log('[VoterContext] Voters fetch success', {
+        arrayLength: votersArray.length,
+        totalFromMeta,
+        page: pageFromMeta,
+        pageSize: pageSizeFromMeta,
+        totalPages: totalPagesFromMeta,
+      });
+
+      dispatch({
+        type: 'FETCH_VOTERS_SUCCESS',
+        payload: {
+          voters: votersArray,
+          total: totalFromMeta,
+          pagination: {
+            page: pageFromMeta,
+            pageSize: pageSizeFromMeta,
+            totalPages: totalPagesFromMeta,
+          },
+        },
+      });
     } catch (error) {
       console.error('Failed to fetch voters:', error);
       dispatch({
@@ -111,13 +156,21 @@ export const VoterProvider = ({ children }) => {
       !user ||
       (user.role !== 'admin' && user.role !== 'sysadmin')
     ) {
+      console.log('[VoterContext] Skipping fetchVoters for user/role', {
+        isAuthenticated,
+        hasUser: !!user,
+        role: user?.role,
+      });
       // Ensure loading state is cleared for public/non-admin views
       dispatch({ type: 'SET_LOADING', payload: false });
       return;
     }
 
-    fetchVoters();
-  }, [fetchVoters, isAuthenticated, user]);
+    console.log(
+      '[VoterContext] Authenticated admin/sysadmin detected, fetching voters'
+    );
+    fetchVoters(1, state.pagination.pageSize || 10);
+  }, [fetchVoters, isAuthenticated, user, state.pagination.pageSize]);
 
   // Add a new voter
   const addVoter = async (voterData) => {
@@ -222,6 +275,8 @@ export const VoterProvider = ({ children }) => {
         currentVoter: state.currentVoter,
         loading: state.loading,
         error: state.error,
+        total: state.total,
+        pagination: state.pagination,
         fetchVoters,
         addVoter,
         updateVoter,

@@ -1,16 +1,46 @@
 import nodemailer from 'nodemailer';
 
 /**
- * Send email through nodemailer
- * @param {*} options mail options e.g email receiver, subject, text or html
+ * Send an email using Nodemailer and environment-based SMTP configuration.
+ *
+ * Transport configuration is derived from environment variables:
+ * - If `SMTP_SERVICE` is set to `gmail` (case-insensitive), the built-in
+ *   Gmail service is used.
+ * - Otherwise, a generic SMTP transport is created using `SMTP_HOST` and
+ *   `SMTP_PORT`.
+ *
+ * Common environment variables:
+ * - `SMTP_SERVICE` (optional, e.g. `gmail`)
+ * - `SMTP_HOST`, `SMTP_PORT` (for generic SMTP)
+ * - `SMTP_USERNAME`, `SMTP_PASSWORD`
+ * - `SMTP_FROM_NAME`, `SMTP_FROM_EMAIL`
+ *
+ * @async
+ * @param {Object} options - Email options.
+ * @param {string} options.email - Recipient email address.
+ * @param {string} options.subject - Email subject line.
+ * @param {string} [options.html] - HTML body of the email.
+ * @returns {Promise<import('nodemailer').SentMessageInfo>} Result from
+ *   `transporter.sendMail`.
+ * @throws {Error} If transport creation or sendMail fails.
  */
 export const sendEmail = async (options) => {
   try {
+    const useGmailService = /gmail/i.test(process.env.SMTP_SERVICE || '');
+
+    const transportConfig = useGmailService
+      ? {
+          service: 'gmail',
+          secure: /production/i.test(process.env.NODE_ENV),
+        }
+      : {
+          host: process.env.SMTP_HOST,
+          port: process.env.SMTP_PORT,
+          secure: /production/i.test(process.env.NODE_ENV),
+        };
+
     const transporter = nodemailer.createTransport({
-      // service: 'gmail',
-      secure: /production/i.test(process.env.NODE_ENV),
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
+      ...transportConfig,
       auth: {
         user: process.env.SMTP_USERNAME,
         pass: process.env.SMTP_PASSWORD,
@@ -27,6 +57,9 @@ export const sendEmail = async (options) => {
 
     return await transporter.sendMail(message);
   } catch (error) {
-    throw new Error(error);
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error(String(error));
   }
 };

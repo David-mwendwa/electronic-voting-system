@@ -5,9 +5,15 @@ import { CustomAPIError } from '../errors/customErrors.js';
 const isProduction = /prod/i.test(process.env.NODE_ENV || '');
 
 /**
- * Logs error information for debugging and monitoring
- * @param {Error} err - The error object
- * @param {Object} req - Express request object
+ * Log structured error information for debugging and monitoring.
+ *
+ * In non-production environments, the full error object (including stack) is
+ * logged for easier debugging. In production, a JSON-serialised summary is
+ * logged instead to keep logs concise.
+ *
+ * @param {Error} err - The error instance that was thrown.
+ * @param {import('express').Request} req - Current Express request object.
+ * @returns {void}
  */
 const logError = (err, req) => {
   const errorInfo = {
@@ -27,10 +33,15 @@ const logError = (err, req) => {
 };
 
 /**
- * Handle development errors with detailed error information
- * @param {Error} err - The error object
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
+ * Send detailed error responses in development environments.
+ *
+ * Includes stack trace and additional error properties in the JSON payload to
+ * help with debugging.
+ *
+ * @param {Error} err - The error instance that was thrown.
+ * @param {import('express').Request} req - Express request object.
+ * @param {import('express').Response} res - Express response object.
+ * @returns {void}
  */
 const handleDevelopmentErrors = (err, req, res) => {
   logError(err, req);
@@ -60,10 +71,17 @@ const handleDevelopmentErrors = (err, req, res) => {
 };
 
 /**
- * Handle production errors with user-friendly messages
- * @param {Error} err - The error object
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
+ * Send user-friendly error responses in production environments.
+ *
+ * Custom errors (instances of {@link CustomAPIError}) are returned with their
+ * own status codes and messages. Known database, validation, networking, and
+ * payload errors are mapped to appropriate HTTP status codes and generic
+ * messages; all other errors fall back to a 500 response.
+ *
+ * @param {Error} err - The error instance that was thrown.
+ * @param {import('express').Request} req - Express request object.
+ * @param {import('express').Response} res - Express response object.
+ * @returns {void}
  */
 const handleProductionErrors = (err, req, res) => {
   // Handle custom errors first
@@ -81,7 +99,6 @@ const handleProductionErrors = (err, req, res) => {
     message: 'An unexpected error occurred. Please try again later.',
   };
 
-  // Handle non-custom errors
   if (err.name === 'CastError') {
     defaultError.statusCode = StatusCodes.NOT_FOUND;
     defaultError.message = `Resource not found. Invalid: ${err.path}`;
@@ -143,7 +160,6 @@ const handleProductionErrors = (err, req, res) => {
     defaultError.message = 'Connection was aborted due to timeout.';
   }
 
-  // Log the error
   console.error('Error:', {
     name: err.name,
     statusCode: defaultError.statusCode,
@@ -154,7 +170,6 @@ const handleProductionErrors = (err, req, res) => {
     ...(defaultError.statusCode >= 500 && { stack: err.stack }),
   });
 
-  // Send error response
   res.status(defaultError.statusCode).json({
     success: false,
     message: defaultError.message,
@@ -162,11 +177,23 @@ const handleProductionErrors = (err, req, res) => {
 };
 
 /**
- * Central error handling middleware
- * @param {Error} err - The error object
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
+ * Central Express error-handling middleware.
+ *
+ * Delegates to {@link handleProductionErrors} or
+ * {@link handleDevelopmentErrors} depending on `NODE_ENV`. If response
+ * headers have already been sent, the error is forwarded to the default
+ * Express handler.
+ *
+ * Register this after all other middleware and routes:
+ *
+ * @example
+ * app.use(errorHandlerMiddleware);
+ *
+ * @param {Error} err - The error instance that was thrown.
+ * @param {import('express').Request} req - Express request object.
+ * @param {import('express').Response} res - Express response object.
+ * @param {import('express').NextFunction} next - Next middleware function.
+ * @returns {void}
  */
 const errorHandlerMiddleware = (err, req, res, next) => {
   if (res.headersSent) return next(err);

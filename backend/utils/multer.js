@@ -2,16 +2,20 @@ import path from 'path';
 import multer from 'multer';
 
 /**
- * Multer is a popular middleware package for handling multipart/form-date in node.js web apps.
- * It's commonly used for handling file uploads and simplifies the process of accepting and storing file submitted through HTTP requests by providing an easy-to-use API.
- * It integrates seamlessly with express.js and allows developers to define upload destination, file size limits and other configuations.
- */
-
-/**
- * Provide the correct path to the uploads folder - no proceeding slash!
- * @param {*} uploadPath path to uploads location or client file storage
+ * Absolute or relative path to the folder where uploaded files are stored
+ * temporarily before being processed or moved elsewhere.
+ *
+ * In this project it points to the client application's public uploads
+ * directory so that uploaded assets can be served statically if needed.
  */
 const uploadPath = 'client/public/uploads';
+
+/**
+ * Multer disk storage engine configuration.
+ *
+ * - `destination`: where to write incoming files.
+ * - `filename`: how to name the stored file (field name + timestamp + ext).
+ */
 const storage = multer.diskStorage({
   destination(req, file, cb) {
     cb(null, uploadPath);
@@ -25,10 +29,14 @@ const storage = multer.diskStorage({
 });
 
 /**
- * Check for allowed file content types
- * @param {*} file upload file
- * @param {*} cb parse an error string incase the file doesn't meet the required content type @example cb('You can only upload images!')
- * @returns
+ * Validate that the uploaded file is an image of an allowed type.
+ *
+ * Allowed extensions/MIME types: jpeg, jpg, png, gif, svg.
+ *
+ * @param {Express.Multer.File} file - Uploaded file metadata from Multer.
+ * @param {Function} cb - Multer callback. Call with `(null, true)` to accept
+ *   the file, or with an `Error` instance to reject it.
+ * @returns {void}
  */
 const checkFileType = function (file, cb) {
   const fileTypes = /jpeg|jpg|png|gif|svg/;
@@ -46,9 +54,15 @@ const checkFileType = function (file, cb) {
 };
 
 /**
- * Parse form data files through uploadOptions middleware to the request - accepts images only!
- * @call_method {*} .single(...) parse a single file, usually with the upload file field name @example uploadOptions.single('image')
- * @call_method {*} .array(...) parse a an array of multiple files, usually with the upload file field name as first param and files limit as second param @example uploadOptions.array('images', 10)
+ * Preconfigured Multer instance for handling image uploads.
+ *
+ * - Stores files on disk using the configured `storage` engine.
+ * - Limits file size to 10 MB.
+ * - Only accepts image types validated by {@link checkFileType}.
+ *
+ * Common usage patterns:
+ * - Single file: `uploadOptions.single('image')`
+ * - Multiple files: `uploadOptions.array('images', 10)`
  */
 export const uploadOptions = multer({
   storage,

@@ -1,27 +1,24 @@
 import { StatusCodes } from 'http-status-codes';
 
 /**
- * Middleware to handle 404 Not Found errors
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @param {import('express').NextFunction} next - Next middleware function
+ * Express middleware that handles unmatched routes with a 404 JSON response.
+ *
+ * Should be registered after all other route handlers so that any request
+ * which does not match an existing route will fall through to this handler.
+ *
+ * @param {import('express').Request} req - Express request object.
+ * @param {import('express').Response} res - Express response object.
+ * @param {import('express').NextFunction} next - Next middleware function.
  * @returns {void}
- * 
+ *
  * @example
- * // In your Express app:
- * app.use(notFound);
- * 
- * // This will catch all routes that don't match any route handlers
- * // and return a 404 response in the format:
- * // {
- * //   success: false,
- * //   message: "Route not found"
- * // }
+ * Example: register as the final middleware in your Express app
+ * app.use(notFoundMiddleware);
  */
 const notFoundMiddleware = (req, res, next) => {
   res.status(StatusCodes.NOT_FOUND).json({
     success: false,
-    message: 'Route not found'
+    message: 'Route not found',
   });
 };
 

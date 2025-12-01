@@ -48,14 +48,12 @@ export const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   // Check for token in various locations
-  if (req?.cookies?.token) {
-    token = req.cookies.token;
-  } else if (req?.signedCookies?.token) {
-    token = req.signedCookies.token;
-  } else if (authHeader && /^Bearer /i.test(authHeader)) {
+  if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.split(' ')[1];
-  } else if (req?.headers?.cookie) {
-    token = req.headers.cookie.split('=')[1];
+  } else if (req.cookies?.token) {
+    token = req.cookies.token;
+  } else if (req.signedCookies?.token) {
+    token = req.signedCookies.token;
   }
 
   if (!token) {
@@ -63,7 +61,9 @@ export const authenticate = async (req, res, next) => {
   }
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Token verified successfully:', decoded);
+    req.user = decoded;
     next();
   } catch (error) {
     throw new UnauthenticatedError(

@@ -38,18 +38,14 @@ app.set('trust proxy', 1); // trust first proxy (Render)
 // =====================
 
 // Enable CORS
-app.use(
-  cors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'https://evspolls.netlify.app',
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+   app.use(
+     cors({
+       origin: ['https://evspolls.netlify.app', 'http://localhost:3000'],
+       credentials: true,
+       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+       allowedHeaders: ['Content-Type', 'Authorization'],
+     })
+   );
 
 // =====================
 // 3. SECURITY MIDDLEWARE

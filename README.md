@@ -2,7 +2,13 @@
 
 A secure and transparent electronic voting platform built with React, Node.js, and Express.
 
-## 🚀 Features
+## � Project Links
+
+- **GitHub Repository**: https://github.com/David-mwendwa/electronic-voting-system
+- **Frontend (Netlify)**: https://evspolls.netlify.app
+- **Backend API (Render)**: https://electronic-voting-system-nxqt.onrender.com/api/v1
+
+## �🚀 Features
 
 - User authentication and authorization
 - Secure voting system
@@ -149,6 +155,154 @@ JWT_SECRET=your_jwt_secret_key
 NODE_ENV=development
 # Add other backend environment variables here
 ```
+
+## ☁️ Deployment
+
+### Backend (Render)
+
+The backend is deployed as an **API-only** service on Render.
+
+**Key environment variables on Render:**
+
+- `MONGO_URL` – MongoDB connection string template (e.g. `mongodb+srv://<USER>:<PASSWORD>@cluster/db-name`)
+- `MONGO_PASSWORD` – Password used to replace `<PASSWORD>` in `MONGO_URL`
+- `JWT_SECRET` – Long random secret string used to sign JWTs
+- `JWT_LIFETIME` – JWT lifetime (e.g. `7d`)
+- `COOKIE_LIFETIME` – Cookie lifetime in **days** (e.g. `7`)
+- `NODE_ENV` – `production`
+- `PORT` – Optional; Render usually sets this automatically
+
+**Typical Render setup:**
+
+- Service type: **Web Service**
+- Environment: **Node**
+- Build command (from `backend/`): `npm install`
+- Start command (from `backend/`): `npm start`
+- Root directory for the service: `backend`
+
+The backend exposes its API at:
+
+- `https://electronic-voting-system-nxqt.onrender.com/api/v1`
+
+The backend **does not** serve the React app; it only serves JSON APIs.
+
+### Frontend (Netlify)
+
+The frontend is a Vite React app deployed on Netlify from the repo root using `netlify.toml`.
+
+`netlify.toml`:
+
+```toml
+[build]
+  base = ""
+  command = "cd frontend && npm install && npm run build"
+  publish = "frontend/dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+```
+
+- **Build command**: `cd frontend && npm install && npm run build`
+- **Publish directory**: `frontend/dist`
+- **SPA routing**: the redirect rule ensures all routes (e.g. `/admin`, `/dashboard`) serve `index.html`, fixing 404s on reload.
+
+### Frontend → Backend connection
+
+The frontend uses `frontend/src/api/apiClient.js` to determine the API base URL:
+
+```js
+const API_BASE_URL = (() => {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+
+  if (import.meta.env.MODE === 'development') {
+    return 'http://localhost:5000/api/v1';
+  }
+
+  return 'https://electronic-voting-system-nxqt.onrender.com/api/v1';
+})();
+```
+
+For Netlify production, you can either:
+
+- Rely on the default Render URL above, **or**
+- Set `VITE_API_BASE_URL` in Netlify to override it (e.g. if the Render URL changes).
+
+The Axios client automatically attaches the JWT as a Bearer token on every request:
+
+```js
+apiClient.interceptors.request.use((config) => {
+  const token =
+    localStorage.getItem('token') || sessionStorage.getItem('token');
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+```
+
+## 🧪 Local Development
+
+### Backend
+
+From the `backend/` directory:
+
+```bash
+npm install
+npm run dev   # or npm start for production-like run
+```
+
+Backend will listen on `http://localhost:5000` (and expose APIs under `/api/v1`).
+
+### Frontend
+
+From the `frontend/` directory:
+
+```bash
+npm install
+npm run dev
+```
+
+Vite will start the frontend dev server (commonly on `http://localhost:5173`). The API client will automatically use `http://localhost:5000/api/v1` in development if `VITE_API_BASE_URL` is not set.
+
+## 🐛 Common Issues & Troubleshooting
+
+### 1. CORS errors (blocked by CORS policy)
+
+Ensure the backend CORS config (`backend/server.js`) allows the frontend origin and required methods:
+
+```js
+app.use(
+  cors({
+    origin: ['https://evspolls.netlify.app', 'http://localhost:3000'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+```
+
+If you see a preflight error mentioning a specific method (e.g. `PATCH`), make sure it is listed in `methods`.
+
+### 2. "Invalid or expired token" after login
+
+Check that:
+
+- `JWT_SECRET` is set on Render and matches what the backend expects.
+- `JWT_LIFETIME` is a valid duration string (e.g. `7d`).
+- `COOKIE_LIFETIME` is a number of days (e.g. `7`).
+- You have cleared old tokens from `localStorage` / `sessionStorage` when changing secrets.
+
+The decoded JWT should have an `exp` value that is later than `iat` by the configured lifetime.
+
+### 3. 404 "Page not found" on reload (Netlify)
+
+If reloading a route like `/admin` or `/dashboard` shows the Netlify 404 page, ensure the `[[redirects]]` block in `netlify.toml` is present as above so that all unknown routes serve `index.html` for React Router to handle.
 
 ## 📝 License
 

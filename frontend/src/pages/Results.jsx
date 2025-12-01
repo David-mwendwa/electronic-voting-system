@@ -193,10 +193,12 @@ const Results = () => {
         setIsLoading(true);
 
         // First try to get the election from context
-        let foundElection = getElectionById(electionId);
+        const contextElection = getElectionById(electionId);
+        let foundElection = contextElection;
 
-        // If not present in context (e.g. direct refresh), fetch from backend
-        if (!foundElection) {
+        // If not present in context (e.g. direct refresh) OR missing
+        // backend-enriched fields like eligibleVotersCount, fetch from backend
+        if (!foundElection || foundElection.eligibleVotersCount == null) {
           const response = await api.get(`/elections/${electionId}`);
           const remoteElection =
             response?.data?.data ||
@@ -210,7 +212,37 @@ const Results = () => {
             return;
           }
 
-          foundElection = remoteElection;
+          // Merge context election (which may contain client-updated results)
+          // with the backend-enriched election (which has eligibleVotersCount,
+          // voted, etc.). Prefer backend meta fields but keep non-empty
+          // results from context if backend results are missing/empty.
+          const backendResults = remoteElection?.results;
+          const contextResults = contextElection?.results;
+
+          // Helper to sum votes from a plain results map
+          const getTotalFromResults = (resultsMap) => {
+            if (!resultsMap || typeof resultsMap !== 'object') return 0;
+            return Object.values(resultsMap).reduce(
+              (sum, val) => sum + Number(val || 0),
+              0
+            );
+          };
+
+          const backendTotal = getTotalFromResults(backendResults);
+          const contextTotal = getTotalFromResults(contextResults);
+
+          // Prefer the source with higher total votes. This avoids replacing
+          // non-zero client-side results with zero-valued backend results.
+          let mergedResults = backendResults;
+          if (contextTotal > backendTotal) {
+            mergedResults = contextResults;
+          }
+
+          foundElection = {
+            ...(contextElection || {}),
+            ...(remoteElection || {}),
+            ...(mergedResults ? { results: mergedResults } : {}),
+          };
         }
 
         setElection(foundElection);

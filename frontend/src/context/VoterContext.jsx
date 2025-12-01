@@ -77,7 +77,7 @@ const voterReducer = (state, action) => {
 
 export const VoterProvider = ({ children }) => {
   const [state, dispatch] = useReducer(voterReducer, initialState);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   // Load voters from backend
   const fetchVoters = useCallback(async () => {
@@ -105,15 +105,19 @@ export const VoterProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // Only fetch voters when the user is authenticated (admin area)
-    if (!isAuthenticated) {
-      // Ensure loading state is cleared for public views
+    // Only fetch voters when the user is authenticated AND an admin/sysadmin
+    if (
+      !isAuthenticated ||
+      !user ||
+      (user.role !== 'admin' && user.role !== 'sysadmin')
+    ) {
+      // Ensure loading state is cleared for public/non-admin views
       dispatch({ type: 'SET_LOADING', payload: false });
       return;
     }
 
     fetchVoters();
-  }, [fetchVoters, isAuthenticated]);
+  }, [fetchVoters, isAuthenticated, user]);
 
   // Add a new voter
   const addVoter = async (voterData) => {

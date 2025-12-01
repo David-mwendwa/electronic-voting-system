@@ -38,7 +38,6 @@ export const getElection = async (req, res) => {
     const eligibleVotersCount = await User.countDocuments({
       role: { $nin: ['admin', 'sysadmin'] },
     });
-    console.log(eligibleVotersCount);
     election.eligibleVotersCount = eligibleVotersCount;
   } catch (err) {
     // If this fails, we simply omit eligibleVotersCount and let the frontend fall back

@@ -367,8 +367,8 @@ const Admin = () => {
 
       {/* Main content */}
       <div className='flex flex-1 flex-col overflow-hidden'>
-        {/* Top navigation */}
-        <header className='fixed top-0 left-0 right-0 z-40 flex h-16 flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-6'>
+        {/* Top navigation (static on mobile, fixed on large screens) */}
+        <header className='flex h-16 flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-6 lg:fixed lg:top-0 lg:left-0 lg:right-0 lg:z-40'>
           <div className='flex items-center'>
             <button
               onClick={toggleSidebar}
@@ -393,7 +393,7 @@ const Admin = () => {
         </header>
 
         {/* Page content */}
-        <main className='flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6 mt-16 lg:mt-0'>
+        <main className='flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6 mt-0 lg:mt-16'>
           {activeTab === 'dashboard' ? (
             <DashboardContent
               stats={stats}

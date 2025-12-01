@@ -207,6 +207,7 @@ const Navbar = () => {
             <Link
               key={link.name}
               to={link.path}
+              onClick={() => setIsOpen(false)}
               className={`${
                 location.pathname === link.path
                   ? 'bg-primary-50 text-primary-700 border-l-4 border-primary-500'
@@ -238,6 +239,7 @@ const Navbar = () => {
               <div className='border-t border-gray-200'></div>
               <Link
                 to='/profile'
+                onClick={() => setIsOpen(false)}
                 className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50'>
                 <FiUser className='inline-block mr-2 h-4 w-4' />
                 Your Profile
@@ -245,13 +247,17 @@ const Navbar = () => {
               {isAdmin && (
                 <Link
                   to='/admin'
+                  onClick={() => setIsOpen(false)}
                   className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50'>
                   <FiLayout className='inline-block mr-2 h-4 w-4' />
                   Dashboard
                 </Link>
               )}
               <button
-                onClick={handleLogout}
+                onClick={async () => {
+                  setIsOpen(false);
+                  await handleLogout();
+                }}
                 className='w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700'>
                 <FiLogOut className='inline-block mr-2 h-4 w-4' />
                 Sign out

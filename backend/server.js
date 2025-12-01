@@ -160,27 +160,33 @@ app.use('/api/v1/settings', settingsRouter);
 // =====================
 // 7. SERVE STATIC FILES (Production Only)
 // =====================
-if (/production/.test(process.env.NODE_ENV)) {
-  // Serve static files with 1-year cache for better performance
-  app.use(
-    express.static(path.join(__dirname, '../frontend/dist'), {
-      maxAge: '1y',
-      // Don't cache HTML files to ensure users get fresh content
-      setHeaders: (res, path) => {
-        if (path.endsWith('.html')) {
-          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-        }
-      },
-    })
-  );
+// if (/production/.test(process.env.NODE_ENV)) {
+//   // Serve static files with 1-year cache for better performance
+//   app.use(
+//     express.static(path.join(__dirname, '../frontend/dist'), {
+//       maxAge: '1y',
+//       // Don't cache HTML files to ensure users get fresh content
+//       setHeaders: (res, path) => {
+//         if (path.endsWith('.html')) {
+//           res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+//         }
+//       },
+//     })
+//   );
 
-  // Handle Single Page Application (SPA) routing
-  app.get('*', (req, res) => {
-    // Skip API routes
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ message: 'Not Found' });
-    }
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+//   // Handle Single Page Application (SPA) routing
+//   app.get('*', (req, res) => {
+//     // Skip API routes
+//     if (req.path.startsWith('/api/')) {
+//       return res.status(404).json({ message: 'Not Found' });
+//     }
+//     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+//   });
+// }
+
+if (/production/.test(process.env.NODE_ENV)) {
+  app.get('/', (req, res) => {
+    res.status(200).json({ message: 'API is running' });
   });
 }
 

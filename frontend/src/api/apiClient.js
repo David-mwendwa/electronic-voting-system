@@ -1,7 +1,19 @@
 import axios from 'axios';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
+const API_BASE_URL = (() => {
+  // 1) Highest priority: explicit env override
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+
+  // 2) Default by mode
+  if (import.meta.env.MODE === 'development') {
+    return 'http://localhost:5000/api/v1';
+  }
+
+  // 3) Production fallback: Render API URL
+  return 'https://electronic-voting-system-nxqt.onrender.com/api/v1';
+})();
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

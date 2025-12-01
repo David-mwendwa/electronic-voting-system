@@ -31,6 +31,8 @@ process.on('uncaughtException', (err) => {
 // Initialize Express app
 const app = express();
 
+app.set('trust proxy', 1); // trust first proxy (Render)
+
 // =====================
 // 2. GLOBAL MIDDLEWARE
 // =====================

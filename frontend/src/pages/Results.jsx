@@ -42,10 +42,24 @@ const Results = () => {
     doc.text('Election Results Report', pageWidth / 2, 30, { align: 'center' });
 
     // Add election details
-    const safeTotalVoters = Number(election?.totalVoters || 0);
-    const safeTotalVotes = Number(totalVotes || 0);
+    const rawEligibleFromBackend = Number(
+      election?.eligibleVotersCount ?? election?.totalVoters ?? 0
+    );
+    const safeTotalVotes = Number(election?.voted ?? totalVotes ?? 0);
+
+    // If backend doesn't provide a valid eligible count but there are votes,
+    // fall back to treating all votes as from the eligible pool to avoid `of 0`.
+    const safeTotalEligibleVoters =
+      rawEligibleFromBackend > 0
+        ? rawEligibleFromBackend
+        : safeTotalVotes > 0
+          ? safeTotalVotes
+          : 0;
+
     const safeTurnout =
-      safeTotalVoters > 0 ? (safeTotalVotes / safeTotalVoters) * 100 : 0;
+      safeTotalEligibleVoters > 0
+        ? (safeTotalVotes / safeTotalEligibleVoters) * 100
+        : 0;
 
     doc.setFontSize(10);
     doc.setTextColor(75, 85, 99);
@@ -54,7 +68,11 @@ const Results = () => {
       15,
       45
     );
-    doc.text(`Total Voters: ${safeTotalVoters.toLocaleString()}`, 15, 50);
+    doc.text(
+      `Total Eligible Voters: ${safeTotalEligibleVoters.toLocaleString()}`,
+      15,
+      50
+    );
     doc.text(`Votes Cast: ${safeTotalVotes.toLocaleString()}`, 15, 55);
     doc.text(`Turnout: ${safeTurnout.toFixed(1)}%`, 15, 60);
 
@@ -253,9 +271,24 @@ const Results = () => {
     );
   }
 
-  // Calculate statistics with safe fallbacks
-  const totalVoters = Number(election?.totalVoters || 0);
-  const turnout = totalVoters > 0 ? (totalVotes / totalVoters) * 100 : 0;
+  // Calculate statistics with safe fallbacks using backend-provided counts
+  const rawEligibleFromBackend = Number(
+    election?.eligibleVotersCount ?? election?.totalVoters ?? 0
+  );
+
+  const votesCount = Number(election?.voted ?? totalVotes ?? 0);
+
+  // If backend doesn't provide a valid eligible count but there are votes,
+  // fall back to treating all votes as from the eligible pool to avoid `of 0`.
+  const totalEligibleVoters =
+    rawEligibleFromBackend > 0
+      ? rawEligibleFromBackend
+      : votesCount > 0
+        ? votesCount
+        : 0;
+
+  const turnout =
+    totalEligibleVoters > 0 ? (votesCount / totalEligibleVoters) * 100 : 0;
   const leadingCandidate = results[0];
   const isTie = results.length > 1 && results[0].votes === results[1].votes;
 
@@ -291,28 +324,28 @@ const Results = () => {
                   <div className='flex items-center'>
                     <FiUsers className='mr-1.5 h-3.5 w-3.5 flex-shrink-0' />
                     <span>
-                      {totalVoters.toLocaleString()} registered voters
+                      {totalEligibleVoters.toLocaleString()} eligible voters
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className='mt-3 md:mt-0 bg-primary-50 p-3 sm:p-4 rounded-lg'>
-                <div className='text-xs sm:text-sm font-medium text-gray-600 mb-1'>
+              <div className='mt-2 md:mt-0 bg-primary-50 px-3 py-2 sm:px-3 sm:py-2.5 rounded-md'>
+                <div className='text-[11px] sm:text-xs font-medium text-gray-600 mb-0.5'>
                   Turnout
                 </div>
                 <div className='flex items-baseline'>
-                  <span className='text-2xl sm:text-3xl font-bold text-primary-700'>
+                  <span className='text-xl sm:text-2xl font-bold text-primary-700'>
                     {turnout.toFixed(1)}%
                   </span>
-                  <span className='ml-2 text-xs sm:text-sm text-gray-500'>
-                    ({totalVotes.toLocaleString()} of{' '}
-                    {totalVoters.toLocaleString()} votes)
+                  <span className='ml-2 text-[11px] sm:text-xs text-gray-500'>
+                    ({votesCount.toLocaleString()} of{' '}
+                    {totalEligibleVoters.toLocaleString()} eligible voters)
                   </span>
                 </div>
-                <div className='w-full bg-gray-200 rounded-full h-2 mt-2'>
+                <div className='w-full bg-gray-200 rounded-full h-1.5 mt-1.5'>
                   <div
-                    className='bg-primary-600 h-2 rounded-full'
+                    className='bg-primary-600 h-full rounded-full'
                     style={{ width: `${Math.min(100, turnout)}%` }}
                   />
                 </div>
@@ -556,8 +589,8 @@ const Results = () => {
                       {turnout.toFixed(1)}%
                     </div>
                     <div className='text-xs sm:text-sm text-gray-500 mt-0.5'>
-                      {totalVotes.toLocaleString()} of{' '}
-                      {totalVoters.toLocaleString()} voters
+                      {votesCount.toLocaleString()} of{' '}
+                      {totalEligibleVoters.toLocaleString()} eligible voters
                     </div>
                   </div>
                   <div className='w-full bg-gray-200 rounded-full h-1.5 sm:h-2 mt-2'>

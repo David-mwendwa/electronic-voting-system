@@ -1,4 +1,5 @@
 import Election from '../models/Election.js';
+import User from '../models/User.js';
 import {
   BadRequestError,
   NotFoundError,
@@ -31,6 +32,18 @@ export const getElection = async (req, res) => {
   }
 
   election.hasVotedForCurrentUser = hasVotedForCurrentUser;
+
+  // Compute total eligible voters (all non-admin, non-sysadmin users)
+  try {
+    const eligibleVotersCount = await User.countDocuments({
+      role: { $nin: ['admin', 'sysadmin'] },
+    });
+    console.log(eligibleVotersCount);
+    election.eligibleVotersCount = eligibleVotersCount;
+  } catch (err) {
+    // If this fails, we simply omit eligibleVotersCount and let the frontend fall back
+    console.error('Failed to compute eligibleVotersCount:', err);
+  }
 
   res.json(election);
 };

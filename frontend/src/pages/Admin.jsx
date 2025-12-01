@@ -579,7 +579,7 @@ const ElectionsContent = () => {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const electionsPerPage = 10;
+  const [electionsPerPage, setElectionsPerPage] = useState(10);
 
   const formatDate = (dateString) => {
     return format(parseISO(dateString), 'MMMM d, yyyy h:mm a');
@@ -620,6 +620,12 @@ const ElectionsContent = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
+  };
+
+  const handleElectionPageSizeChange = (event) => {
+    const newSize = Number(event.target.value) || 10;
+    setElectionsPerPage(newSize);
+    setCurrentPage(1);
   };
 
   // Reset to first page when sort changes
@@ -705,26 +711,48 @@ const ElectionsContent = () => {
   return (
     <div className='bg-white shadow overflow-hidden sm:rounded-lg'>
       <div className='px-4 py-4 sm:px-6 border-b border-gray-200 bg-white sticky top-0 z-10'>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-          <div className='mb-3 sm:mb-0'>
+        <div className='space-y-3'>
+          {/* First row: title + primary action */}
+          <div className='flex items-center justify-between'>
             <h2 className='text-lg font-semibold text-gray-900'>
               Election Management
             </h2>
-            <p className='mt-1 text-xs sm:text-sm text-gray-500'>
-              {elections.length === 0
-                ? 'No elections found. Create your first election to get started.'
-                : `Showing ${elections.length} election${
-                    elections.length !== 1 ? 's' : ''
-                  }`}
-            </p>
+            <button
+              type='button'
+              onClick={handleCreateNew}
+              className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'>
+              <FiPlus className='-ml-1 mr-2 h-5 w-5' />
+              New Election
+            </button>
           </div>
-          <button
-            type='button'
-            onClick={handleCreateNew}
-            className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'>
-            <FiPlus className='-ml-1 mr-2 h-5 w-5' />
-            New Election
-          </button>
+
+          {/* Second row: filters (currently only rows-per-page) */}
+          <div className='grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 w-full'>
+            <div className='col-span-1 text-sm text-gray-500 flex items-center'>
+              <span>
+                {elections.length === 0
+                  ? 'No elections found. Create your first election to get started.'
+                  : `Total elections: ${elections.length}`}
+              </span>
+            </div>
+
+            <div className='col-span-1' />
+
+            {/* Rows per page selector */}
+            <div className='flex items-center justify-start sm:justify-end space-x-2 text-sm text-gray-500 whitespace-nowrap'>
+              <span className='whitespace-nowrap'>Rows per page:</span>
+              <select
+                className='appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-3 pr-8 rounded-md leading-tight focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm h-9'
+                value={electionsPerPage}
+                onChange={handleElectionPageSizeChange}>
+                {[10, 20, 50, 100].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1057,13 +1085,13 @@ const VotersContent = () => {
     key: 'createdAt',
     direction: 'desc',
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [votersPerPage, setVotersPerPage] = useState(10);
   const {
     voters,
     loading,
     error,
     total,
-    pagination,
-    fetchVoters,
     setCurrentVoter,
     deleteVoter,
     currentVoter,
@@ -1113,7 +1141,9 @@ const VotersContent = () => {
     // Apply status filter
     if (statusFilter !== 'all') {
       result = result.filter((voter) =>
-        statusFilter === 'active' ? voter.isActive : !voter.isActive
+        statusFilter === 'active'
+          ? String(voter.status).toLowerCase() === 'active'
+          : String(voter.status).toLowerCase() !== 'active'
       );
     }
 
@@ -1133,32 +1163,47 @@ const VotersContent = () => {
     return result;
   }, [voters, searchTerm, statusFilter, sortConfig]);
 
-  // Backend-driven pagination metadata
-  const currentPage = pagination?.page || 1;
-  const votersPerPage = pagination?.pageSize || 10;
-  const totalPages = pagination?.totalPages || 1;
+  // Client-side pagination based on filtered voters
+  const totalCount = total || voters.length || 0;
+  const totalPages = Math.max(
+    1,
+    Math.ceil((filteredVoters.length || 0) / votersPerPage) || 1
+  );
 
-  // For this page, just apply filters/sorting to the voters we have
-  const currentVoters = filteredVoters;
+  const indexOfFirstVoter =
+    filteredVoters.length > 0 ? (currentPage - 1) * votersPerPage : 0;
+  const indexOfLastVoter = Math.min(
+    indexOfFirstVoter + votersPerPage,
+    filteredVoters.length
+  );
+  const currentVoters = filteredVoters.slice(
+    indexOfFirstVoter,
+    indexOfLastVoter
+  );
 
-  // Compute global index ranges based on backend pagination
-  const indexOfFirstVoter = (currentPage - 1) * votersPerPage + 1;
-  const indexOfLastVoter = indexOfFirstVoter + currentVoters.length - 1;
+  const displayFirstIndex =
+    filteredVoters.length > 0 ? indexOfFirstVoter + 1 : 0;
+  const displayLastIndex =
+    filteredVoters.length > 0 ? indexOfFirstVoter + currentVoters.length : 0;
 
-  // Change page using backend fetch
+  // Change page client-side only
   const paginate = (pageNumber) => {
     if (pageNumber < 1 || pageNumber > totalPages) return;
-    fetchVoters(pageNumber, votersPerPage);
+    setCurrentPage(pageNumber);
   };
   const nextPage = () => paginate(currentPage + 1);
   const prevPage = () => paginate(currentPage - 1);
 
-  // When filters or sorting change, reset to first page
+  const handlePageSizeChange = (event) => {
+    const newSize = Number(event.target.value) || 10;
+    setVotersPerPage(newSize);
+    setCurrentPage(1);
+  };
+
+  // When filters, sorting, or page size change, reset to first page
   useEffect(() => {
-    if (currentPage !== 1) {
-      fetchVoters(1, votersPerPage);
-    }
-  }, [searchTerm, statusFilter, sortConfig]);
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, sortConfig, votersPerPage, voters.length]);
 
   const requestSort = (key) => {
     let direction = 'asc';
@@ -1185,24 +1230,28 @@ const VotersContent = () => {
     <div className='bg-white shadow overflow-hidden sm:rounded-lg'>
       {/* Header with search and actions */}
       <div className='px-4 py-4 sm:px-6 border-b border-gray-200 bg-white sticky top-0 z-10'>
-        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-          <div className='mb-3 sm:mb-0'>
+        <div className='space-y-3'>
+          {/* First row: title + primary action */}
+          <div className='flex items-center justify-between'>
             <h2 className='text-lg font-semibold text-gray-900'>
               Voter Management
             </h2>
-            <p className='mt-1 text-xs sm:text-sm text-gray-500'>
-              {total === 0 || voters.length === 0
-                ? 'No voters found. Add a voter to get started.'
-                : `Showing ${indexOfFirstVoter + 1}-${Math.min(
-                    indexOfLastVoter,
-                    total || voters.length
-                  )} of ${total || voters.length} voter${
-                    (total || voters.length) !== 1 ? 's' : ''
-                  }`}
-            </p>
+            <button
+              type='button'
+              onClick={() => {
+                clearCurrentVoter();
+                setIsModalOpen(true);
+              }}
+              className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'>
+              <FiUserPlus className='-ml-1 mr-2 h-5 w-5' />
+              Add Voter
+            </button>
           </div>
-          <div className='grid grid-cols-2 gap-2 sm:flex sm:space-x-2 w-full sm:w-auto'>
-            <div className='relative col-span-2 sm:w-64'>
+
+          {/* Second row: filters */}
+          <div className='grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 w-full'>
+            {/* Search */}
+            <div className='relative col-span-2 sm:col-span-1 sm:w-full'>
               <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                 <FiSearch className='h-4 w-4 text-gray-400' />
               </div>
@@ -1215,7 +1264,8 @@ const VotersContent = () => {
               />
             </div>
 
-            <div className='relative w-full sm:w-40'>
+            {/* Status filter */}
+            <div className='relative w-full'>
               <select
                 className='appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-3 pr-8 rounded-md leading-tight focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm h-9'
                 value={statusFilter}
@@ -1233,18 +1283,22 @@ const VotersContent = () => {
                 </svg>
               </div>
             </div>
-          </div>
 
-          <button
-            type='button'
-            onClick={() => {
-              clearCurrentVoter();
-              setIsModalOpen(true);
-            }}
-            className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'>
-            <FiUserPlus className='-ml-1 mr-2 h-5 w-5' />
-            Add Voter
-          </button>
+            {/* Rows per page selector */}
+            <div className='flex items-center space-x-2 text-sm text-gray-500 whitespace-nowrap'>
+              <span className='whitespace-nowrap'>Rows per page:</span>
+              <select
+                className='appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-3 pr-8 rounded-md leading-tight focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-sm h-9'
+                value={votersPerPage}
+                onChange={handlePageSizeChange}>
+                {[10, 20, 50, 100].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1345,38 +1399,44 @@ const VotersContent = () => {
                     )}
                   </td>
                   <td className='px-4 py-3 whitespace-nowrap'>
-                    <span
-                      onClick={async () => {
-                        try {
-                          await updateVoterStatus(voter.id, !voter.isActive);
-                          toast.success(
-                            `Voter ${
-                              voter.isActive ? 'deactivated' : 'activated'
-                            } successfully`
-                          );
-                        } catch (error) {
-                          toast.error(
-                            `Failed to update voter status: ${error.message}`
-                          );
-                        }
-                      }}
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors ${
-                        voter.isActive
-                          ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                          : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                      }`}>
-                      {voter.isActive ? (
-                        <>
-                          <FiCheckCircle className='mr-1.5 h-3.5 w-3.5 flex-shrink-0' />
-                          <span>Active</span>
-                        </>
-                      ) : (
-                        <>
-                          <FiUserX className='mr-1.5 h-3.5 w-3.5 flex-shrink-0' />
-                          <span>Inactive</span>
-                        </>
-                      )}
-                    </span>
+                    {(() => {
+                      const isActive =
+                        String(voter.status || '').toLowerCase() === 'active';
+                      return (
+                        <span
+                          onClick={async () => {
+                            try {
+                              await updateVoterStatus(voter.id, !isActive);
+                              toast.success(
+                                `Voter ${
+                                  isActive ? 'deactivated' : 'activated'
+                                } successfully`
+                              );
+                            } catch (error) {
+                              toast.error(
+                                `Failed to update voter status: ${error.message}`
+                              );
+                            }
+                          }}
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-colors ${
+                            isActive
+                              ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                              : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                          }`}>
+                          {isActive ? (
+                            <>
+                              <FiCheckCircle className='mr-1.5 h-3.5 w-3.5 flex-shrink-0' />
+                              <span>Active</span>
+                            </>
+                          ) : (
+                            <>
+                              <FiUserX className='mr-1.5 h-3.5 w-3.5 flex-shrink-0' />
+                              <span>Inactive</span>
+                            </>
+                          )}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className='px-4 py-3 whitespace-nowrap'>
                     <div className='flex items-center justify-end space-x-1'>
@@ -1425,7 +1485,7 @@ const VotersContent = () => {
       </div>
 
       {/* Pagination */}
-      {(total || 0) > votersPerPage && (
+      {totalCount > 0 && (
         <div className='bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6'>
           <div className='flex-1 flex justify-between sm:hidden'>
             <button
@@ -1450,18 +1510,19 @@ const VotersContent = () => {
             </button>
           </div>
           <div className='hidden sm:flex-1 sm:flex sm:items-center sm:justify-between'>
-            <div>
+            <div className='flex items-center space-x-6'>
               <p className='text-sm text-gray-700'>
-                Showing{' '}
-                <span className='font-medium'>{indexOfFirstVoter + 1}</span> to{' '}
-                <span className='font-medium'>
-                  {Math.min(indexOfLastVoter, total || filteredVoters.length)}
-                </span>{' '}
-                of{' '}
-                <span className='font-medium'>
-                  {total || filteredVoters.length}
-                </span>{' '}
-                voters
+                {filteredVoters.length === 0 || currentVoters.length === 0 ? (
+                  'No voters found.'
+                ) : (
+                  <>
+                    Showing{' '}
+                    <span className='font-medium'>{displayFirstIndex}</span> to{' '}
+                    <span className='font-medium'>{displayLastIndex}</span> of{' '}
+                    <span className='font-medium'>{filteredVoters.length}</span>{' '}
+                    voters
+                  </>
+                )}
               </p>
             </div>
             <div>

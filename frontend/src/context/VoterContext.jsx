@@ -91,16 +91,20 @@ export const VoterProvider = ({ children }) => {
   const [state, dispatch] = useReducer(voterReducer, initialState);
   const { isAuthenticated, user } = useAuth();
 
-  // Load voters from backend with pagination
-  const fetchVoters = useCallback(async (page = 1, limit = 10) => {
-    console.log('[VoterContext] fetchVoters called', { page, limit });
+  // Load all voters from backend once (using a large limit) and keep them in memory for client-side pagination/search
+  const fetchVoters = useCallback(async () => {
+    console.log(
+      '[VoterContext] fetchVoters called (client-side pagination mode, requesting large limit)'
+    );
     dispatch({ type: 'FETCH_VOTERS_REQUEST' });
     try {
+      // Use a very large limit so that backend pagination does not truncate the result set
+      const MAX_VOTERS_LIMIT = 10000;
       console.log(
-        '[VoterContext] Requesting voters from /users with pagination',
-        { page, limit }
+        '[VoterContext] Requesting voters from /users with large limit for client-side pagination',
+        { limit: MAX_VOTERS_LIMIT }
       );
-      const response = await api.get(`/users?page=${page}&limit=${limit}`);
+      const response = await api.get(`/users?limit=${MAX_VOTERS_LIMIT}`);
       console.log('[VoterContext] Response:', response);
 
       const raw =
@@ -111,32 +115,34 @@ export const VoterProvider = ({ children }) => {
 
       const votersArray = Array.isArray(raw) ? raw : [];
 
-      const meta = response?.data?.meta?.pagination || {};
-      const totalFromMeta = meta.total ?? votersArray.length;
-      const pageFromMeta = parseInt(meta.page, 10) || page || 1;
-      const pageSizeFromMeta = parseInt(meta.pageSize, 10) || limit || 10;
-      const totalPagesFromMeta =
-        totalFromMeta && pageSizeFromMeta
-          ? Math.ceil(totalFromMeta / pageSizeFromMeta)
-          : 1;
+      const totalFromBackend =
+        typeof response?.data?.meta?.pagination?.total === 'number'
+          ? response.data.meta.pagination.total
+          : votersArray.length;
 
-      console.log('[VoterContext] Voters fetch success', {
-        arrayLength: votersArray.length,
-        totalFromMeta,
-        page: pageFromMeta,
-        pageSize: pageSizeFromMeta,
-        totalPages: totalPagesFromMeta,
-      });
+      const singlePageSize = votersArray.length || 0;
+      const totalPagesFromBackend = singlePageSize > 0 ? 1 : 0;
+
+      console.log(
+        '[VoterContext] Voters fetch success (client-side pagination)',
+        {
+          arrayLength: votersArray.length,
+          total: totalFromBackend,
+          page: 1,
+          pageSize: singlePageSize,
+          totalPages: totalPagesFromBackend,
+        }
+      );
 
       dispatch({
         type: 'FETCH_VOTERS_SUCCESS',
         payload: {
           voters: votersArray,
-          total: totalFromMeta,
+          total: totalFromBackend,
           pagination: {
-            page: pageFromMeta,
-            pageSize: pageSizeFromMeta,
-            totalPages: totalPagesFromMeta,
+            page: 1,
+            pageSize: singlePageSize,
+            totalPages: totalPagesFromBackend,
           },
         },
       });
@@ -169,8 +175,8 @@ export const VoterProvider = ({ children }) => {
     console.log(
       '[VoterContext] Authenticated admin/sysadmin detected, fetching voters'
     );
-    fetchVoters(1, state.pagination.pageSize || 10);
-  }, [fetchVoters, isAuthenticated, user, state.pagination.pageSize]);
+    fetchVoters();
+  }, [fetchVoters, isAuthenticated, user]);
 
   // Add a new voter
   const addVoter = async (voterData) => {

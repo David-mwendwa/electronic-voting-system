@@ -133,7 +133,7 @@ app.get('/api/health', (req, res) => {
     status: 'success',
     message: 'Server is running',
     timestamp: new Date().toISOString(),
-    environment: config.env,
+    environment: process.env.NODE_ENV || 'development',
     uptime: process.uptime(),
   });
 });

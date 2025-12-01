@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { useElection } from '../context/ElectionContext';
 import { useVoter } from '../context/VoterContext';
+import { useAuth } from '../context/AuthContext';
 import {
   FiArrowLeft,
   FiUsers,
@@ -31,9 +32,11 @@ const ElectionDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const {
     getElectionById,
     updateElection,
+    updateElectionStatus,
     deleteElection,
     loading: electionsLoading,
   } = useElection();
@@ -43,6 +46,7 @@ const ElectionDetails = () => {
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
+  const isAdminNotSysadmin = user?.role === 'admin';
 
   // Set active tab from URL query parameter and handle hash-based scrolling
   useEffect(() => {
@@ -172,18 +176,26 @@ const ElectionDetails = () => {
   }, [id, getElectionById, electionsLoading]);
 
   const getStatusBadge = (status) => {
+    const normalized = (status || '').toLowerCase();
     const statusClasses = {
-      Active: 'bg-green-100 text-green-800',
-      Upcoming: 'bg-blue-100 text-blue-800',
-      Completed: 'bg-gray-100 text-gray-800',
+      draft: 'bg-yellow-100 text-yellow-800',
+      upcoming: 'bg-blue-100 text-blue-800',
+      active: 'bg-green-100 text-green-800',
+      completed: 'bg-gray-100 text-gray-800',
+      cancelled: 'bg-red-100 text-red-800',
     };
+
+    const label =
+      status && typeof status === 'string'
+        ? status.charAt(0).toUpperCase() + status.slice(1)
+        : 'Unknown';
 
     return (
       <span
         className={`inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium ${
-          statusClasses[status] || 'bg-gray-100 text-gray-800'
+          statusClasses[normalized] || 'bg-gray-100 text-gray-800'
         }`}>
-        {status}
+        {label}
       </span>
     );
   };
@@ -355,21 +367,61 @@ const ElectionDetails = () => {
     );
   }
 
+  const deleteTitle = isAdminNotSysadmin
+    ? 'Cancel Election'
+    : 'Delete Election';
+  const deleteMessage = isAdminNotSysadmin
+    ? 'Are you sure you want to cancel this election? Voters will no longer be able to participate, but the record will be kept for reference.'
+    : 'Are you sure you want to delete this election? This action cannot be undone.';
+  const deleteNote = isAdminNotSysadmin
+    ? '⚠️ Only system administrators can permanently delete elections. As an admin, you can cancel elections by changing their status.'
+    : undefined;
+  const deleteConfirmText = isAdminNotSysadmin ? 'Cancel Election' : 'Delete';
+
+  const handleConfirmDeleteElection = async () => {
+    if (!election) return;
+    try {
+      if (isAdminNotSysadmin) {
+        // Admin: cancel the election by updating its status via dedicated endpoint
+        const updated = await updateElectionStatus(
+          election._id || election.id,
+          'cancelled'
+        );
+        if (updated) {
+          toast.success('Election cancelled successfully');
+          setElection(updated);
+        } else {
+          toast.success('Election cancelled successfully');
+        }
+      } else {
+        // Sysadmin: hard delete
+        await deleteElection(election._id || election.id);
+        toast.success('Election deleted successfully');
+        navigate('/admin?tab=elections');
+      }
+    } catch (error) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        (isAdminNotSysadmin
+          ? 'Failed to cancel election'
+          : 'Failed to delete election');
+      toast.error(message);
+    } finally {
+      setIsDeleteModalOpen(false);
+    }
+  };
+
   return (
     <div className='min-h-screen bg-gray-50 pt-16'>
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
-        title='Delete Election'
-        message='Are you sure you want to delete this election? This action cannot be undone.'
-        confirmText='Delete'
+        title={deleteTitle}
+        message={deleteMessage}
+        note={deleteNote}
+        confirmText={deleteConfirmText}
         cancelText='Cancel'
-        onConfirm={() => {
-          if (!election) return;
-          deleteElection(election._id || election.id);
-          setIsDeleteModalOpen(false);
-          toast.success('Election deleted successfully');
-          navigate('/admin?tab=elections');
-        }}
+        onConfirm={handleConfirmDeleteElection}
         onCancel={() => setIsDeleteModalOpen(false)}
       />
       <div className='flex items-center justify-between'>

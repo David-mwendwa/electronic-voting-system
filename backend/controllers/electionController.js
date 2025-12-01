@@ -37,6 +37,7 @@ export const getElection = async (req, res) => {
   try {
     const eligibleVotersCount = await User.countDocuments({
       role: { $nin: ['admin', 'sysadmin'] },
+      status: 'active',
     });
     election.eligibleVotersCount = eligibleVotersCount;
   } catch (err) {

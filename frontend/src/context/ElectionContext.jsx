@@ -142,6 +142,24 @@ export const ElectionProvider = ({ children }) => {
     }
   };
 
+  // Update election status (e.g., cancel)
+  const updateElectionStatus = async (id, status) => {
+    try {
+      const response = await api.patch(`/elections/${id}/status`, { status });
+      const updated =
+        response?.data?.data ||
+        response?.data?.election ||
+        response?.data ||
+        response;
+
+      dispatch({ type: 'UPDATE_ELECTION', payload: updated });
+      return updated;
+    } catch (error) {
+      console.error('Failed to update election status:', error);
+      throw error;
+    }
+  };
+
   // Update election
   const updateElection = async (electionData) => {
     try {
@@ -211,6 +229,7 @@ export const ElectionProvider = ({ children }) => {
         fetchElections,
         createElection,
         updateElection,
+        updateElectionStatus,
         deleteElection,
         submitVote,
         getElectionById,

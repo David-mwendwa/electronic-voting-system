@@ -3,6 +3,7 @@ import { useNavigate, Outlet, useSearchParams, Link } from 'react-router-dom';
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { useVoter } from '../context/VoterContext';
 import { useSettings } from '../context/SettingsContext';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -1085,6 +1086,7 @@ const VotersContent = () => {
     key: 'createdAt',
     direction: 'desc',
   });
+  const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [votersPerPage, setVotersPerPage] = useState(10);
   const {
@@ -1097,7 +1099,19 @@ const VotersContent = () => {
     currentVoter,
     clearCurrentVoter,
     updateVoterStatus,
+    updateVoter,
   } = useVoter();
+
+  const isAdminNotSysadmin = user?.role === 'admin';
+  const deleteTitle = isAdminNotSysadmin ? 'Deactivate Voter' : 'Delete Voter';
+  const deleteMessage = isAdminNotSysadmin
+    ? 'Are you sure you want to deactivate this voter? They will no longer be able to access the system.'
+    : 'Are you sure you want to delete this voter? This action cannot be undone.';
+  const deleteNote = isAdminNotSysadmin
+    ? '⚠️ Only system administrators can permanently delete voters. As an admin, you can deactivate voters by setting them to inactive.'
+    : undefined;
+  const deleteConfirmText = isAdminNotSysadmin ? 'Deactivate' : 'Delete';
+  const deleteConfirmDisabled = false;
 
   const handleDeleteClick = (voter) => {
     setVoterToDelete(voter);
@@ -1108,10 +1122,22 @@ const VotersContent = () => {
     if (voterToDelete) {
       try {
         const id = voterToDelete._id || voterToDelete.id;
-        await deleteVoter(id);
-        toast.success('Voter deleted successfully');
+        if (isAdminNotSysadmin) {
+          const currentStatus = String(
+            voterToDelete.status || ''
+          ).toLowerCase();
+          if (currentStatus === 'inactive') {
+            toast.info('Voter is already inactive. No changes were made.');
+          } else {
+            await updateVoter(id, { status: 'inactive' });
+            toast.success('Voter deactivated successfully');
+          }
+        } else {
+          await deleteVoter(id);
+          toast.success('Voter deleted successfully');
+        }
       } catch (error) {
-        toast.error('Failed to delete voter');
+        toast.error('Failed to update voter');
       }
       setShowDeleteModal(false);
       setVoterToDelete(null);
@@ -1354,7 +1380,7 @@ const VotersContent = () => {
             {currentVoters.length > 0 ? (
               currentVoters.map((voter) => (
                 <tr
-                  key={voter.id}
+                  key={voter._id || voter.id}
                   className='hover:bg-gray-50 transition-colors'>
                   <td className='px-4 py-3'>
                     <div className='flex items-center min-w-[200px]'>
@@ -1402,11 +1428,12 @@ const VotersContent = () => {
                     {(() => {
                       const isActive =
                         String(voter.status || '').toLowerCase() === 'active';
+                      const voterId = voter._id || voter.id;
                       return (
                         <span
                           onClick={async () => {
                             try {
-                              await updateVoterStatus(voter.id, !isActive);
+                              await updateVoterStatus(voterId, !isActive);
                               toast.success(
                                 `Voter ${
                                   isActive ? 'deactivated' : 'activated'
@@ -1641,13 +1668,14 @@ const VotersContent = () => {
 
       <ConfirmationModal
         isOpen={showDeleteModal}
-        title='Delete Voter'
-        message='Are you sure you want to delete this voter? This action cannot be undone.'
-        confirmText='Delete'
+        title={deleteTitle}
+        message={deleteMessage}
+        note={deleteNote}
+        confirmText={deleteConfirmText}
         cancelText='Cancel'
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
-        confirmButtonClass='bg-red-600 hover:bg-red-700 focus:ring-red-500'
+        confirmDisabled={deleteConfirmDisabled}
       />
     </div>
   );
@@ -1662,6 +1690,8 @@ const SettingsContent = () => {
     isLoading,
     error,
   } = useSettings();
+  const { user } = useAuth();
+  const isAdminNotSysadmin = user?.role === 'admin';
 
   if (isLoading) {
     return (
@@ -1679,6 +1709,15 @@ const SettingsContent = () => {
     <div className='space-y-6'>
       <div className='rounded-lg bg-white p-6 shadow'>
         <h2 className='text-lg font-medium text-gray-900'>System Settings</h2>
+        {isAdminNotSysadmin && (
+          <div className='mt-4 rounded-md bg-yellow-50 border border-yellow-200 px-4 py-3'>
+            <p className='text-xs sm:text-sm text-yellow-800'>
+              ⚠️ Only system administrators can perform actions on this page. As
+              an admin, you can view these settings but may not have permission
+              to apply all changes.
+            </p>
+          </div>
+        )}
         <div className='mt-6 space-y-6'>
           <div className='flex items-center justify-between'>
             <div>
@@ -1691,12 +1730,19 @@ const SettingsContent = () => {
             </div>
             <button
               type='button'
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
-                maintenanceMode ? 'bg-primary-600' : 'bg-gray-200'
+              disabled={isAdminNotSysadmin}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+                isAdminNotSysadmin
+                  ? maintenanceMode
+                    ? 'bg-primary-300 cursor-not-allowed opacity-80'
+                    : 'bg-gray-200 cursor-not-allowed opacity-80'
+                  : maintenanceMode
+                    ? 'bg-primary-600 cursor-pointer'
+                    : 'bg-gray-200 cursor-pointer'
               }`}
               role='switch'
               aria-checked={maintenanceMode}
-              onClick={toggleMaintenanceMode}
+              onClick={isAdminNotSysadmin ? undefined : toggleMaintenanceMode}
               aria-labelledby='maintenance-mode-label'>
               <span className='sr-only'>Toggle maintenance mode</span>
               <span
@@ -1718,12 +1764,19 @@ const SettingsContent = () => {
             </div>
             <button
               type='button'
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
-                registrationEnabled ? 'bg-primary-600' : 'bg-gray-200'
+              disabled={isAdminNotSysadmin}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+                isAdminNotSysadmin
+                  ? registrationEnabled
+                    ? 'bg-primary-300 cursor-not-allowed opacity-80'
+                    : 'bg-gray-200 cursor-not-allowed opacity-80'
+                  : registrationEnabled
+                    ? 'bg-primary-600 cursor-pointer'
+                    : 'bg-gray-200 cursor-pointer'
               }`}
               role='switch'
               aria-checked={registrationEnabled}
-              onClick={toggleRegistration}
+              onClick={isAdminNotSysadmin ? undefined : toggleRegistration}
               aria-labelledby='registration-enabled-label'>
               <span className='sr-only'>Toggle registration</span>
               <span
@@ -1782,7 +1835,12 @@ const SettingsContent = () => {
                 <div className='mt-4'>
                   <button
                     type='button'
-                    className='inline-flex items-center rounded-md border border-transparent bg-red-100 px-3 py-2 text-sm font-medium leading-4 text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'>
+                    disabled={isAdminNotSysadmin}
+                    className={`inline-flex items-center rounded-md border px-3 py-2 text-sm font-medium leading-4 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      isAdminNotSysadmin
+                        ? 'bg-red-50 text-red-300 border-red-200 cursor-not-allowed focus:ring-red-200'
+                        : 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200 focus:ring-red-500'
+                    }`}>
                     Delete all data
                   </button>
                 </div>

@@ -27,12 +27,16 @@ const VoterModal = ({ isOpen, onClose, editMode = false }) => {
   // Initialize form with currentVoter data when in edit mode
   useEffect(() => {
     if (editMode && currentVoter) {
+      const rawDob = currentVoter.dateOfBirth || '';
+      const normalizedDob = rawDob
+        ? String(rawDob).split('T')[0] // handle ISO strings like 2025-12-17T00:00:00.000Z
+        : '';
       setFormData({
         name: currentVoter.name || '',
         email: currentVoter.email || '',
         phone: currentVoter.phone || '',
         address: currentVoter.address || '',
-        dateOfBirth: currentVoter.dateOfBirth || '',
+        dateOfBirth: normalizedDob,
         gender: currentVoter.gender || '',
       });
     } else {
@@ -298,9 +302,10 @@ const VoterModal = ({ isOpen, onClose, editMode = false }) => {
                 id='email'
                 value={formData.email}
                 onChange={handleChange}
+                disabled={editMode}
                 className={`block w-full pl-10 pr-3 py-2 border ${
                   errors.email ? 'border-red-300' : 'border-gray-300'
-                } rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500`}
+                } rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 ${editMode ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                 placeholder='john@example.com'
               />
             </div>

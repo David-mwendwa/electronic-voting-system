@@ -93,19 +93,11 @@ export const VoterProvider = ({ children }) => {
 
   // Load all voters from backend once (using a large limit) and keep them in memory for client-side pagination/search
   const fetchVoters = useCallback(async () => {
-    console.log(
-      '[VoterContext] fetchVoters called (client-side pagination mode, requesting large limit)'
-    );
     dispatch({ type: 'FETCH_VOTERS_REQUEST' });
     try {
       // Use a very large limit so that backend pagination does not truncate the result set
       const MAX_VOTERS_LIMIT = 10000;
-      console.log(
-        '[VoterContext] Requesting voters from /users with large limit for client-side pagination',
-        { limit: MAX_VOTERS_LIMIT }
-      );
       const response = await api.get(`/users?limit=${MAX_VOTERS_LIMIT}`);
-      console.log('[VoterContext] Response:', response);
 
       const raw =
         response?.data?.data ||
@@ -123,17 +115,6 @@ export const VoterProvider = ({ children }) => {
       const singlePageSize = votersArray.length || 0;
       const totalPagesFromBackend = singlePageSize > 0 ? 1 : 0;
 
-      console.log(
-        '[VoterContext] Voters fetch success (client-side pagination)',
-        {
-          arrayLength: votersArray.length,
-          total: totalFromBackend,
-          page: 1,
-          pageSize: singlePageSize,
-          totalPages: totalPagesFromBackend,
-        }
-      );
-
       dispatch({
         type: 'FETCH_VOTERS_SUCCESS',
         payload: {
@@ -147,7 +128,6 @@ export const VoterProvider = ({ children }) => {
         },
       });
     } catch (error) {
-      console.error('Failed to fetch voters:', error);
       dispatch({
         type: 'FETCH_VOTERS_FAILURE',
         payload: error.message || 'Failed to load voters',
@@ -162,19 +142,10 @@ export const VoterProvider = ({ children }) => {
       !user ||
       (user.role !== 'admin' && user.role !== 'sysadmin')
     ) {
-      console.log('[VoterContext] Skipping fetchVoters for user/role', {
-        isAuthenticated,
-        hasUser: !!user,
-        role: user?.role,
-      });
       // Ensure loading state is cleared for public/non-admin views
       dispatch({ type: 'SET_LOADING', payload: false });
       return;
     }
-
-    console.log(
-      '[VoterContext] Authenticated admin/sysadmin detected, fetching voters'
-    );
     fetchVoters();
   }, [fetchVoters, isAuthenticated, user]);
 
@@ -190,6 +161,35 @@ export const VoterProvider = ({ children }) => {
       };
       dispatch({ type: 'ADD_VOTER', payload: newVoter });
       return newVoter;
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error.message });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  };
+
+  // Update only the voter's status (active/inactive)
+  const updateVoterStatus = async (id, isActive) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+
+      const newStatus = isActive ? 'active' : 'inactive';
+      const response = await api.patch(`/users/${id}`, { status: newStatus });
+
+      const raw =
+        response?.data?.data ||
+        response?.data?.user ||
+        response?.data ||
+        response;
+
+      const updatedVoter = {
+        ...raw,
+        status: newStatus,
+      };
+
+      dispatch({ type: 'UPDATE_VOTER', payload: updatedVoter });
+      return updatedVoter;
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
       throw error;
@@ -286,6 +286,7 @@ export const VoterProvider = ({ children }) => {
         fetchVoters,
         addVoter,
         updateVoter,
+        updateVoterStatus,
         deleteVoter,
         getVoterById,
         setCurrentVoter,

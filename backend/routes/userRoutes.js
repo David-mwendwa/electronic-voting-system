@@ -25,7 +25,7 @@ router
 router
   .route('/:id')
   .get(authenticate, authorizeRoles(['admin', 'sysadmin']), getUser)
-  .patch(authenticate, authorizeRoles(['sysadmin']), updateUser)
+  .patch(authenticate, authorizeRoles(['admin', 'sysadmin']), updateUser)
   .delete(authenticate, authorizeRoles(['sysadmin']), deleteUser);
 
 export default router;

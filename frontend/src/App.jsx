@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
 import Home from './pages/Home.jsx';
+import Elections from './pages/Elections.jsx';
 import CreateElection from './pages/CreateElection.jsx';
 import Vote from './pages/Vote.jsx';
 import Results from './pages/Results.jsx';
@@ -130,6 +131,7 @@ function App() {
                   <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
                     <Routes>
                       <Route path='/' element={<Home />} />
+                      <Route path='/elections' element={<Elections />} />
                       <Route path='/how-it-works' element={<HowItWorks />} />
                       <Route path='/vote/:electionId' element={<Vote />} />
                       <Route

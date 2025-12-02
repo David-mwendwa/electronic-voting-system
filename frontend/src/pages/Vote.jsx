@@ -171,7 +171,7 @@ const Vote = () => {
       <div className='max-w-3xl mx-auto px-3 sm:px-4 pb-8 sm:pb-12'>
         <div className='mb-4 sm:mb-6'>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/elections')}
             className='inline-flex items-center px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base font-medium text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded-lg transition-colors active:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-100'>
             <FiArrowLeft className='mr-1.5 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0' />
             <span className='truncate'>Back to Elections</span>

@@ -330,9 +330,9 @@ const Results = () => {
         {/* Header */}
         <div className='mb-4 sm:mb-6'>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/elections')}
             className='inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 mb-3 py-1.5'>
-            <FiArrowLeft className='mr-1.5 h-4 w-4' /> Back
+            <FiArrowLeft className='mr-1.5 h-4 w-4' /> Back to Elections
           </button>
 
           <div className='bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-4'>

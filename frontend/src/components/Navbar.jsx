@@ -77,6 +77,11 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Home', path: '/', icon: <FiHome className='mr-2' /> },
+    {
+      name: 'Elections',
+      path: '/elections',
+      icon: <FiCheckCircle className='mr-2' />,
+    },
   ];
 
   return (
@@ -124,23 +129,28 @@ const Navbar = () => {
             </button>
           </div>
 
-          {/* Desktop Navigation - Empty now that we've moved Home to the right */}
-          <div className='hidden md:flex md:items-center md:space-x-2 lg:space-x-4'>
-            {/* Navigation links would go here */}
+          {/* Desktop Navigation */}
+          <div className='hidden md:flex md:items-center md:space-x-4 lg:space-x-6'>
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                className={`${
+                  location.pathname === link.path
+                    ? 'text-primary-600 font-medium'
+                    : 'text-gray-600 hover:text-primary-600'
+                } inline-flex items-center text-sm font-medium transition-colors duration-200`}>
+                {link.name === 'Home' ? (
+                  <FiHome className='mr-1.5 h-5 w-5' />
+                ) : (
+                  <FiCheckCircle className='mr-1.5 h-5 w-5' />
+                )}
+                {link.name}
+              </Link>
+            ))}
           </div>
-          {/* Right-aligned items - Home and Auth */}
+          {/* Right-aligned items - Auth */}
           <div className='hidden md:flex md:items-center md:space-x-6'>
-            {/* Home Link - Moved to right */}
-            <Link
-              to='/'
-              className={`${
-                location.pathname === '/'
-                  ? 'text-primary-600 font-medium'
-                  : 'text-gray-600 hover:text-primary-600'
-              } inline-flex items-center text-sm font-medium transition-colors duration-200`}>
-              <FiHome className='mr-1.5 h-5 w-5' />
-              Home
-            </Link>
             {isAuthenticated ? (
               <div className='flex items-center'>
                 <div className='relative' ref={dropdownRef}>

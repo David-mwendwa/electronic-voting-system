@@ -174,17 +174,25 @@ const Home = () => {
         </div>
       )}
       {/* Hero Section */}
-      <div className='relative overflow-hidden bg-gradient-to-b from-gray-50 to-white'>
+      <div className='relative overflow-hidden bg-gradient-to-t from-gray-50 to-white'>
         <div className='py-16 md:py-20 lg:py-24'>
           <div className='text-center'>
             <h1 className='text-4xl md:text-6xl font-bold text-gray-900 mb-6'>
-              <span className='block'>Secure, Transparent</span>
-              <span className='text-primary-600'>Voting Solutions</span>
+              <span className='block'>Electronic Voting Made Easy</span>
+              <span className='text-primary-600'>
+                Secure, transparent, and convenient
+              </span>
             </h1>
 
             <p className='mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl'>
-              Empowering organizations with blockchain-based voting systems that
-              are secure, transparent, and accessible from anywhere.
+              Use EVS to participate in your organization's elections from
+              anywhere. Use the main action button
+              <span className='font-semibold text-gray-700'>
+                {' '}
+                (Login to Vote or View Elections){' '}
+              </span>
+              to see available elections, open active ballots, and review
+              results when voting is complete.
             </p>
             <div className='mt-10 flex flex-col sm:flex-row justify-center gap-4 px-4 sm:px-0'>
               <div className='relative group w-full sm:w-auto'>
@@ -193,13 +201,7 @@ const Home = () => {
 
                 {/* Main button */}
                 <button
-                  onClick={() => {
-                    if (!isAuthenticated) {
-                      setShowLoginModal(true);
-                    } else {
-                      setShowElectionModal(true);
-                    }
-                  }}
+                  onClick={() => navigate('/elections')}
                   className='relative w-full sm:w-auto flex items-center justify-center gap-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-lg px-8 py-3.5 border-2 border-primary-400/30 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-[1.02] transition-all duration-300 hover:from-primary-600 hover:to-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-400/20 focus:ring-offset-2 focus:ring-offset-white active:scale-95'>
                   <span className='relative flex items-center justify-center'>
                     <svg
@@ -223,7 +225,7 @@ const Home = () => {
                   </span>
                   <span className='font-semibold tracking-wide relative'>
                     <span className='relative z-10'>
-                      {isAuthenticated ? 'Vote Now' : 'Login to Vote'}
+                      {isAuthenticated ? 'View Elections' : 'Login to Vote'}
                     </span>
                     <span className='absolute -bottom-1 left-0 w-full h-0.5 bg-white/40 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left'></span>
                   </span>
@@ -336,11 +338,12 @@ const Home = () => {
                   </svg>
                 </div>
                 <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  Secure & Private
+                  Enterprise‑grade security
                 </h3>
                 <p className='text-gray-700'>
-                  Your vote is encrypted and anonymous. We use advanced security
-                  measures to protect your privacy.
+                  Every ballot is encrypted and anonymized to protect voter
+                  privacy. EVS applies strong authentication and modern security
+                  practices end‑to‑end.
                 </p>
               </div>
 
@@ -360,11 +363,12 @@ const Home = () => {
                   </svg>
                 </div>
                 <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  Fast & Easy
+                  Simple for voters and admins
                 </h3>
                 <p className='text-gray-700'>
-                  Vote from anywhere, on any device, in just a few clicks. No
-                  complicated steps or waiting in line.
+                  Voters cast ballots in a few guided steps, while
+                  administrators configure elections and monitor participation
+                  from an intuitive dashboard.
                 </p>
               </div>
 
@@ -384,11 +388,12 @@ const Home = () => {
                   </svg>
                 </div>
                 <h3 className='text-lg font-medium text-gray-900 mb-2'>
-                  Transparent Results
+                  Transparent, verifiable outcomes
                 </h3>
                 <p className='text-gray-700'>
-                  View real-time results and verify that your vote was counted
-                  correctly in the final tally.
+                  Track election status in real time and access clear, auditable
+                  results once voting closes, so every stakeholder can trust the
+                  final tally.
                 </p>
               </div>
             </div>

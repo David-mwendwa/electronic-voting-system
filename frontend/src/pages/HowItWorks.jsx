@@ -6,7 +6,7 @@ const HowItWorks = () => {
       number: '01',
       title: 'Sign in to EVS',
       description:
-        'Use the login link on the homepage and sign in with the credentials provided by the administrator. Your account determines whether you see the voter, admin, or system admin dashboard.',
+        'Use the "Login to Vote" option on the homepage and sign in with the credentials provided by your administrator. Your account determines whether you see the voter view, admin dashboard, or system admin dashboard.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -26,7 +26,7 @@ const HowItWorks = () => {
       number: '02',
       title: 'Go to the Elections page',
       description:
-        'From your dashboard, open the Elections section to see all elections you are allowed to participate in. Each election shows its status (upcoming, active, completed, or cancelled).',
+        'From the top navigation or the main action button on the homepage ("Login to Vote" for new users, or "View Elections" after you are signed in), open the Elections page. Here you will see all elections you are allowed to participate in, with clear status labels (upcoming, active, completed, or cancelled) and a "You voted" tag where you have already cast a vote.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -44,9 +44,9 @@ const HowItWorks = () => {
     },
     {
       number: '03',
-      title: 'Open an active election and vote',
+      title: 'Open an active election and cast your vote',
       description:
-        'When an election is active, open it to view the candidates. Select your preferred candidate and confirm your choice. Each eligible voter can only vote once per election.',
+        'When an election is active, click the "Open ballot" button to view the candidates. Select your preferred candidate and confirm your choice. Each eligible voter can only vote once per election, and after you vote the election card will show a "You voted" badge and change the action to "View results".',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -66,7 +66,7 @@ const HowItWorks = () => {
       number: '04',
       title: 'View results and track status',
       description:
-        'After voting, you will see a confirmation and the election status will update as it moves from upcoming and active to completed. When results are published, you can view them on the Results page.',
+        'As elections move from upcoming to active to completed or cancelled, their status is updated on the Elections page. For completed elections (or elections where you have already voted), use the "View results" button to see the final outcome. Cancelled elections are clearly labelled and their buttons are disabled so no new votes can be cast.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -144,7 +144,7 @@ const HowItWorks = () => {
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex justify-center'>
             <Link
-              to='/'
+              to='/elections'
               className='inline-flex items-center text-primary-700 hover:text-primary-800 font-medium transition-all duration-300 transform hover:translate-x-1 group'>
               <div className='relative'>
                 <div className='absolute h-8 w-8 -left-1.5 -top-1.5 rounded-full bg-primary-100 opacity-75 animate-ping'></div>
@@ -162,7 +162,7 @@ const HowItWorks = () => {
                 </svg>
               </div>
               <span className='border-b-2 border-transparent hover:border-primary-600 transition-colors duration-200'>
-                Back to Voting
+                Back to Elections
               </span>
             </Link>
           </div>

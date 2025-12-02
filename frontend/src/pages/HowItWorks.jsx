@@ -4,9 +4,9 @@ const HowItWorks = () => {
   const steps = [
     {
       number: '01',
-      title: 'Select an Election',
+      title: 'Sign in to EVS',
       description:
-        'Browse through the list of active elections and select the one you want to participate in.',
+        'Use the login link on the homepage and sign in with the credentials provided by the administrator. Your account determines whether you see the voter, admin, or system admin dashboard.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -24,9 +24,9 @@ const HowItWorks = () => {
     },
     {
       number: '02',
-      title: 'Verify Your Identity',
+      title: 'Go to the Elections page',
       description:
-        'Enter your voter ID and verify your identity to ensure a secure voting process.',
+        'From your dashboard, open the Elections section to see all elections you are allowed to participate in. Each election shows its status (upcoming, active, completed, or cancelled).',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -44,9 +44,9 @@ const HowItWorks = () => {
     },
     {
       number: '03',
-      title: 'Cast Your Vote',
+      title: 'Open an active election and vote',
       description:
-        'Select your preferred candidate and submit your vote. You can review your selection before final submission.',
+        'When an election is active, open it to view the candidates. Select your preferred candidate and confirm your choice. Each eligible voter can only vote once per election.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -64,9 +64,9 @@ const HowItWorks = () => {
     },
     {
       number: '04',
-      title: 'Get Confirmation',
+      title: 'View results and track status',
       description:
-        'Receive immediate confirmation that your vote has been successfully recorded in the system.',
+        'After voting, you will see a confirmation and the election status will update as it moves from upcoming and active to completed. When results are published, you can view them on the Results page.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'

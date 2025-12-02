@@ -131,8 +131,12 @@ function App() {
                   <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
                     <Routes>
                       <Route path='/' element={<Home />} />
-                      <Route path='/elections' element={<Elections />} />
                       <Route path='/how-it-works' element={<HowItWorks />} />
+                      {/* Protected voter routes */}
+                      <Route element={<ProtectedRoute unauthRedirectTo='/' />}>
+                        <Route path='/elections' element={<Elections />} />
+                      </Route>
+                      {/* Public voting result routes (can remain accessible by link) */}
                       <Route path='/vote/:electionId' element={<Vote />} />
                       <Route
                         path='/results/:electionId'

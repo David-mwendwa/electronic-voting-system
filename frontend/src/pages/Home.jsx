@@ -201,7 +201,13 @@ const Home = () => {
 
                 {/* Main button */}
                 <button
-                  onClick={() => navigate('/elections')}
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      setShowLoginModal(true);
+                    } else {
+                      navigate('/elections');
+                    }
+                  }}
                   className='relative w-full sm:w-auto flex items-center justify-center gap-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-lg px-8 py-3.5 border-2 border-primary-400/30 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-[1.02] transition-all duration-300 hover:from-primary-600 hover:to-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-400/20 focus:ring-offset-2 focus:ring-offset-white active:scale-95'>
                   <span className='relative flex items-center justify-center'>
                     <svg

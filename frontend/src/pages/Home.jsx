@@ -191,16 +191,8 @@ const Home = () => {
               and review results in real time.
             </p>
             <div className='mt-10 flex flex-col sm:flex-row justify-center gap-4 px-4 sm:px-0'>
-              <div className='relative group w-full sm:w-auto'>
-                {/* Animated background glow (more active when logged out) */}
-                <div
-                  className={`absolute -inset-0.5 sm:-inset-1 bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600 rounded-lg blur transition-all duration-500 overflow-hidden ${
-                    !isAuthenticated
-                      ? 'opacity-90 animate-pulse'
-                      : 'opacity-70 group-hover:opacity-100'
-                  }`}></div>
-
-                {/* Main button */}
+              <div className='w-full sm:w-auto'>
+                {/* Main button - simple, solid primary style */}
                 <button
                   onClick={() => {
                     if (!isAuthenticated) {
@@ -209,43 +201,14 @@ const Home = () => {
                       navigate('/elections');
                     }
                   }}
-                  className='relative w-full sm:w-auto flex items-center justify-center gap-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-lg px-8 py-3.5 border-2 border-primary-400/30 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-[1.02] transition-all duration-300 hover:from-primary-600 hover:to-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-400/20 focus:ring-offset-2 focus:ring-offset-white active:scale-95'>
-                  <span className='font-semibold tracking-wide relative'>
-                    <span className='relative z-10'>
-                      {isAuthenticated ? 'View Elections' : 'Login to Vote'}
-                    </span>
-                    <span className='absolute -bottom-1 left-0 w-full h-0.5 bg-white/40 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left'></span>
-                  </span>
-                  <span className='relative flex items-center justify-center'>
-                    <svg
-                      className={`w-5 h-5 text-white ${
-                        !isAuthenticated
-                          ? 'animate-pulse'
-                          : 'group-hover:animate-pulse'
-                      }`}
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                      style={{
-                        animationDuration: '0.5s',
-                        animationIterationCount: 'infinite',
-                        animationTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-                      }}>
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2.2'
-                        d='M5 12h14m-6-6l6 6-6 6'
-                      />
-                    </svg>
-                    <span className='absolute inset-0 w-full h-full bg-white/10 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300'></span>
-                  </span>
+                  className='w-full sm:w-auto inline-flex items-center justify-center text-sm sm:text-base font-medium px-7 sm:px-8 py-3 rounded-lg border border-primary-600 bg-primary-600 text-white shadow-sm hover:bg-primary-700 hover:border-primary-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-white'>
+                  {isAuthenticated ? 'Browse elections' : 'Sign in to EVS'}
                 </button>
               </div>
               <Link
                 to='/how-it-works'
-                className='btn btn-secondary text-lg px-8 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200'>
-                How It Works
+                className='inline-flex items-center justify-center text-sm sm:text-base font-medium px-7 sm:px-8 py-3 rounded-lg border border-gray-300 bg-white text-gray-800 shadow-sm hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:ring-offset-2 focus:ring-offset-white'>
+                Learn about EVS
               </Link>
             </div>
 
@@ -312,7 +275,7 @@ const Home = () => {
                     <div className='mt-6'>
                       <button
                         onClick={() => setShowElectionModal(false)}
-                        className='w-full btn btn-secondary py-2 px-4'>
+                        className='w-full inline-flex items-center justify-center px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-800 hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:ring-offset-2 focus:ring-offset-white'>
                         Cancel
                       </button>
                     </div>

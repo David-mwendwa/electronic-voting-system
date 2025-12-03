@@ -19,7 +19,7 @@ const Footer = () => {
           <span className='text-[11px] sm:text-xs md:text-sm text-gray-400'>
             © {year}
           </span>
-          <span className='text-[11px] sm:text-xs md:text-sm text-gray-400 hidden sm:inline'>
+          <span className='text-[11px] sm:text-xs md:text-sm text-gray-400'>
             Developed by{' '}
             <a
               href='https://techdave.netlify.app/'

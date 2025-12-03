@@ -66,7 +66,7 @@ const HowItWorks = () => {
       number: '04',
       title: 'View results and track status',
       description:
-        'As elections progress from upcoming to active and then to completed or cancelled, their status is updated on the Elections page. For completed elections (or those where you have already voted), use the "View results" button to see the final outcome. Cancelled elections are clearly labeled and their actions are disabled so no additional votes can be cast.',
+        'As elections progress from upcoming to active and then to completed or cancelled, their status is updated on the Elections page. Upcoming elections are clearly marked and their action buttons are disabled so you cannot open or vote in them early. For completed elections (or those where you have already voted), use the "View results" button to see the final outcome. Cancelled elections are clearly labeled and their actions are disabled so no additional votes can be cast.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'

@@ -6,27 +6,7 @@ const HowItWorks = () => {
       number: '01',
       title: 'Sign in to EVS',
       description:
-        'Use the "Login to Vote" option on the homepage and sign in with the credentials provided by your administrator. Your account determines whether you see the voter view, admin dashboard, or system admin dashboard.',
-      icon: (
-        <svg
-          className='w-8 h-8 text-primary-600'
-          fill='none'
-          stroke='currentColor'
-          viewBox='0 0 24 24'>
-          <path
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            strokeWidth='2'
-            d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
-          />
-        </svg>
-      ),
-    },
-    {
-      number: '02',
-      title: 'Go to the Elections page',
-      description:
-        'From the top navigation or the main action button on the homepage ("Login to Vote" for new users, or "View Elections" after you are signed in), open the Elections page. Here you will see all elections you are allowed to participate in, with clear status labels (upcoming, active, completed, or cancelled) and a "You voted" tag where you have already cast a vote.',
+        'From the homepage, select "Login to Vote" and sign in with the credentials provided by your institution. For demo and testing purposes, sample login credentials are listed on the login page. Your role determines whether you access the voter experience, the admin dashboard, or the system admin console.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -43,10 +23,30 @@ const HowItWorks = () => {
       ),
     },
     {
+      number: '02',
+      title: 'Go to the Elections page',
+      description:
+        'Use the top navigation or the main action button on the homepage ("Login to Vote" before signing in or "View Elections" afterwards) to open the Elections page. Here you will see all elections you are eligible for, along with clear status labels (upcoming, active, completed, or cancelled) and a "You voted" tag where you have already cast a ballot.',
+      icon: (
+        <svg
+          className='w-8 h-8 text-primary-600'
+          fill='none'
+          stroke='currentColor'
+          viewBox='0 0 24 24'>
+          <path
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            strokeWidth='2'
+            d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
+          />
+        </svg>
+      ),
+    },
+    {
       number: '03',
       title: 'Open an active election and cast your vote',
       description:
-        'When an election is active, click the "Open ballot" button to view the candidates. Select your preferred candidate and confirm your choice. Each eligible voter can only vote once per election, and after you vote the election card will show a "You voted" badge and change the action to "View results".',
+        'When an election becomes active, click the "Open ballot" button to review the candidates and cast your vote. Each eligible voter can vote only once per election. After you submit your ballot, the election card displays a "You voted" badge and the primary action changes to "View results" for convenient follow-up.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -66,7 +66,7 @@ const HowItWorks = () => {
       number: '04',
       title: 'View results and track status',
       description:
-        'As elections move from upcoming to active to completed or cancelled, their status is updated on the Elections page. For completed elections (or elections where you have already voted), use the "View results" button to see the final outcome. Cancelled elections are clearly labelled and their buttons are disabled so no new votes can be cast.',
+        'As elections progress from upcoming to active and then to completed or cancelled, their status is updated on the Elections page. For completed elections (or those where you have already voted), use the "View results" button to see the final outcome. Cancelled elections are clearly labeled and their actions are disabled so no additional votes can be cast.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -77,7 +77,7 @@ const HowItWorks = () => {
             strokeLinecap='round'
             strokeLinejoin='round'
             strokeWidth='2'
-            d='M5 13l4 4L19 7'
+            d='M13 10V3L4 14h7v7l9-11h-7z'
           />
         </svg>
       ),
@@ -93,12 +93,14 @@ const HowItWorks = () => {
             <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>
               <span className='block'>How It Works</span>
               <span className='block text-xl md:text-2xl font-semibold text-primary-600 mt-1'>
-                Voting made simple
+                A clear, secure voting experience
               </span>
             </h1>
             <p className='mt-3 max-w-2xl mx-auto text-sm sm:text-base md:text-base text-gray-600 md:mt-5'>
-              Learn the key steps for signing in, finding your elections,
-              casting a secure ballot, and reviewing results in EVS.
+              Understand the key steps for signing in, finding the elections you
+              are eligible for, casting a secure ballot, and reviewing results
+              in the Electronic Voting System (EVS) &mdash; designed for both
+              security and convenience.
             </p>
           </div>
         </div>
@@ -112,7 +114,7 @@ const HowItWorks = () => {
               Process
             </h2>
             <p className='mt-2 text-2xl md:text-3xl font-semibold tracking-tight text-gray-900'>
-              Simple steps to cast your vote
+              Steps to cast your vote securely
             </p>
           </div>
 

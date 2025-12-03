@@ -132,6 +132,7 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className='hidden md:flex md:items-center md:space-x-4 lg:space-x-6'>
             {navLinks.map((link) => {
+              if (!isAuthenticated && link.name === 'Home') return null;
               if (!isAuthenticated && link.name === 'Elections') return null;
 
               return (
@@ -205,6 +206,16 @@ const Navbar = () => {
             ) : (
               <div className='flex items-center'>
                 {/* No login button here - using the one in hero section */}
+                <Link
+                  to='/'
+                  className={`inline-flex items-center text-sm font-medium transition-colors duration-200 ${
+                    location.pathname === '/'
+                      ? 'text-primary-600 font-medium'
+                      : 'text-gray-600 hover:text-primary-600'
+                  }`}>
+                  <FiHome className='mr-1.5 h-5 w-5' />
+                  Home
+                </Link>
               </div>
             )}
           </div>

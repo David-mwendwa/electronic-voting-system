@@ -185,9 +185,10 @@ const Elections = () => {
                     </p>
                     <button
                       type='button'
-                      disabled={status === 'cancelled'}
+                      disabled={status === 'cancelled' || status === 'upcoming'}
                       onClick={() => {
-                        if (status === 'cancelled') return;
+                        if (status === 'cancelled' || status === 'upcoming')
+                          return;
                         if (hasVoted || isCompleted) {
                           navigate(`/results/${id}`);
                         } else {
@@ -195,7 +196,7 @@ const Elections = () => {
                         }
                       }}
                       className={`ml-4 inline-flex items-center px-3 py-2 text-xs font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 whitespace-nowrap ${
-                        status === 'cancelled'
+                        status === 'cancelled' || status === 'upcoming'
                           ? 'border-gray-200 text-gray-400 bg-gray-100 cursor-not-allowed focus:ring-gray-300'
                           : hasVoted
                             ? 'border-transparent text-white bg-green-600 hover:bg-green-700 focus:ring-green-500'
@@ -209,6 +210,11 @@ const Elections = () => {
                         <>
                           <FiEye className='mr-1.5 h-3.5 w-3.5' />
                           <span>Cancelled</span>
+                        </>
+                      ) : status === 'upcoming' ? (
+                        <>
+                          <FiEye className='mr-1.5 h-3.5 w-3.5' />
+                          <span>Not open yet</span>
                         </>
                       ) : hasVoted || isCompleted ? (
                         <>

@@ -25,6 +25,17 @@ import { SettingsProvider, useSettings } from './context/SettingsContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
 
+// Component to scroll to top on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
 // Component to handle maintenance mode redirection
 const MaintenanceRedirect = () => {
   const navigate = useNavigate();
@@ -127,6 +138,7 @@ function App() {
             <VoterProvider>
               <div className='min-h-screen bg-gray-50 flex flex-col'>
                 <Navbar />
+                <ScrollToTop />
                 <MaintenanceRedirect />
                 <main className='flex-1 pt-8 md:pt-12'>
                   <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>

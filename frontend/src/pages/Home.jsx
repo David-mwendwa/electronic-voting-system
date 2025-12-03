@@ -178,21 +178,17 @@ const Home = () => {
         <div className='py-16 md:py-20 lg:py-24'>
           <div className='text-center'>
             <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>
-              <span className='block'>Electronic Voting Made Easy</span>
+              <span className='block'>Electronic Voting System</span>
               <span className='block text-xl md:text-2xl font-semibold text-primary-600 mt-1'>
-                Secure, transparent, and convenient
+                Secure, transparent elections for modern institutions
               </span>
             </h1>
 
             <p className='mt-3 max-w-2xl mx-auto text-sm sm:text-base md:text-base text-gray-600 md:mt-5'>
-              Use EVS to participate in your organization's elections from
-              anywhere. Use the main action button
-              <span className='font-semibold text-gray-700'>
-                {' '}
-                (Login to Vote or View Elections){' '}
-              </span>
-              to see available elections, open active ballots, and review
-              results when voting is complete.
+              EVS is a web-based voting platform for universities and
+              organizations. Voters can securely participate in elections from
+              any device, while administrators manage ballots, monitor turnout,
+              and review results in real time.
             </p>
             <div className='mt-10 flex flex-col sm:flex-row justify-center gap-4 px-4 sm:px-0'>
               <div className='relative group w-full sm:w-auto'>

@@ -18,6 +18,7 @@ import Results from './pages/Results.jsx';
 import HowItWorks from './pages/HowItWorks.jsx';
 import Admin from './pages/Admin.jsx';
 import ElectionDetails from './pages/ElectionDetails.jsx';
+import Profile from './pages/Profile.jsx';
 import { ElectionProvider } from './context/ElectionContext.jsx';
 import { VoterProvider } from './context/VoterContext.jsx';
 import { SettingsProvider, useSettings } from './context/SettingsContext.jsx';
@@ -135,6 +136,7 @@ function App() {
                       {/* Protected voter routes */}
                       <Route element={<ProtectedRoute unauthRedirectTo='/' />}>
                         <Route path='/elections' element={<Elections />} />
+                        <Route path='/profile' element={<Profile />} />
                       </Route>
                       {/* Public voting result routes (can remain accessible by link) */}
                       <Route path='/vote/:electionId' element={<Vote />} />

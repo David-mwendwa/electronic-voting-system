@@ -62,15 +62,41 @@ const reducer = (state, action) => {
             : state.currentElection,
       };
 
-    case 'SUBMIT_VOTE':
+    case 'SUBMIT_VOTE': {
+      const { electionId, results, voterId, updatedElection } = action.payload;
+
+      const updateOne = (election) => {
+        const sameId =
+          String(election._id) === String(electionId) ||
+          (election.id && String(election.id) === String(electionId));
+        if (!sameId) return election;
+
+        const base = updatedElection || election;
+
+        const baseVoters = Array.isArray(base.voters) ? base.voters : [];
+        const existingVoters = baseVoters.map((v) => String(v));
+
+        const nextVoters =
+          voterId && !existingVoters.includes(String(voterId))
+            ? [...baseVoters, voterId]
+            : baseVoters;
+
+        return {
+          ...base,
+          results: results ?? base.results,
+          voters: nextVoters,
+          hasVotedForCurrentUser: !!voterId,
+        };
+      };
+
       return {
         ...state,
-        elections: state.elections.map((election) =>
-          election._id === action.payload.electionId
-            ? { ...election, results: action.payload.results }
-            : election
-        ),
+        elections: state.elections.map(updateOne),
+        currentElection: state.currentElection
+          ? updateOne(state.currentElection)
+          : state.currentElection,
       };
+    }
 
     default:
       return state;
@@ -193,7 +219,7 @@ export const ElectionProvider = ({ children }) => {
   };
 
   // Submit vote
-  const submitVote = async (electionId, candidateId) => {
+  const submitVote = async (electionId, candidateId, voterId) => {
     try {
       const response = await api.post(`/elections/${electionId}/vote`, {
         candidateId,
@@ -210,6 +236,8 @@ export const ElectionProvider = ({ children }) => {
         payload: {
           electionId,
           results: updatedElection.results,
+          voterId,
+          updatedElection,
         },
       });
       return updatedElection;

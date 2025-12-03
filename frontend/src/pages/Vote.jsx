@@ -106,7 +106,7 @@ const Vote = () => {
     setShowConfirmation(false);
 
     try {
-      await submitVote(electionId, selectedCandidate);
+      await submitVote(electionId, selectedCandidate, voterId);
       setHasVoted(true);
       toast.success('Your vote has been submitted successfully!');
     } catch (error) {

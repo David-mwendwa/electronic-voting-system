@@ -131,23 +131,27 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className='hidden md:flex md:items-center md:space-x-4 lg:space-x-6'>
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`${
-                  location.pathname === link.path
-                    ? 'text-primary-600 font-medium'
-                    : 'text-gray-600 hover:text-primary-600'
-                } inline-flex items-center text-sm font-medium transition-colors duration-200`}>
-                {link.name === 'Home' ? (
-                  <FiHome className='mr-1.5 h-5 w-5' />
-                ) : (
-                  <FiCheckCircle className='mr-1.5 h-5 w-5' />
-                )}
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              if (!isAuthenticated && link.name === 'Elections') return null;
+
+              return (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={`${
+                    location.pathname === link.path
+                      ? 'text-primary-600 font-medium'
+                      : 'text-gray-600 hover:text-primary-600'
+                  } inline-flex items-center text-sm font-medium transition-colors duration-200`}>
+                  {link.name === 'Home' ? (
+                    <FiHome className='mr-1.5 h-5 w-5' />
+                  ) : (
+                    <FiCheckCircle className='mr-1.5 h-5 w-5' />
+                  )}
+                  {link.name}
+                </Link>
+              );
+            })}
           </div>
           {/* Right-aligned items - Auth */}
           <div className='hidden md:flex md:items-center md:space-x-6'>
@@ -213,22 +217,26 @@ const Navbar = () => {
           isOpen ? 'block' : 'hidden'
         } md:hidden bg-white border-t border-gray-200`}>
         <div className='pt-2 pb-3 space-y-1'>
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.path}
-              onClick={() => setIsOpen(false)}
-              className={`${
-                location.pathname === link.path
-                  ? 'bg-primary-50 text-primary-700 border-l-4 border-primary-500'
-                  : 'text-gray-700 hover:bg-gray-50 hover:border-l-4 hover:border-gray-200'
-              } block pl-3 pr-4 py-2 text-base font-medium`}>
-              <div className='flex items-center'>
-                {link.icon}
-                {link.name}
-              </div>
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            if (!isAuthenticated && link.name === 'Elections') return null;
+
+            return (
+              <Link
+                key={link.name}
+                to={link.path}
+                onClick={() => setIsOpen(false)}
+                className={`${
+                  location.pathname === link.path
+                    ? 'bg-primary-50 text-primary-700 border-l-4 border-primary-500'
+                    : 'text-gray-700 hover:bg-gray-50 hover:border-l-4 hover:border-gray-200'
+                } block pl-3 pr-4 py-2 text-base font-medium`}>
+                <div className='flex items-center'>
+                  {link.icon}
+                  {link.name}
+                </div>
+              </Link>
+            );
+          })}
         </div>
         <div className='pt-4 pb-3 border-t border-gray-200'>
           {isAuthenticated ? (

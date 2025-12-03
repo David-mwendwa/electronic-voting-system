@@ -85,18 +85,20 @@ const HowItWorks = () => {
   ];
 
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen bg-gray-50'>
       {/* Hero Section */}
       <div className='bg-white'>
         <div className='py-16 md:py-20 lg:py-24'>
           <div className='text-center'>
-            <h1 className='text-4xl md:text-6xl font-bold text-gray-900 mb-6'>
+            <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>
               <span className='block'>How It Works</span>
-              <span className='text-primary-600'>Voting Made Simple</span>
+              <span className='block text-xl md:text-2xl font-semibold text-primary-600 mt-1'>
+                Voting made simple
+              </span>
             </h1>
-            <p className='mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl'>
-              Our secure online voting system makes it easy for you to
-              participate in elections from anywhere, at any time.
+            <p className='mt-3 max-w-2xl mx-auto text-sm sm:text-base md:text-base text-gray-600 md:mt-5'>
+              Learn the key steps for signing in, finding your elections,
+              casting a secure ballot, and reviewing results in EVS.
             </p>
           </div>
         </div>
@@ -106,28 +108,28 @@ const HowItWorks = () => {
       <div className='py-12 bg-white'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='lg:text-center'>
-            <h2 className='text-base text-primary-600 font-semibold tracking-wide uppercase'>
+            <h2 className='text-xs font-semibold tracking-wide text-primary-600 uppercase'>
               Process
             </h2>
-            <p className='mt-2 text-3xl leading-8 font-semibold tracking-tight text-gray-900 sm:text-4xl'>
-              Simple Steps to Cast Your Vote
+            <p className='mt-2 text-2xl md:text-3xl font-semibold tracking-tight text-gray-900'>
+              Simple steps to cast your vote
             </p>
           </div>
 
-          <div className='mt-10'>
-            <div className='space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10'>
-              {steps.map((step, index) => (
+          <div className='mt-8 md:mt-10'>
+            <div className='space-y-8 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-10 md:gap-y-10'>
+              {steps.map((step) => (
                 <div key={step.number} className='relative'>
-                  <div className='flex items-center'>
-                    <div className='flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white'>
+                  <div className='flex items-start'>
+                    <div className='flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white flex-shrink-0'>
                       {step.icon}
                     </div>
                     <div className='ml-4'>
-                      <h3 className='text-lg leading-6 font-medium text-gray-900'>
+                      <h3 className='text-base sm:text-lg font-semibold text-gray-900'>
                         <span className='text-primary-600'>{step.number}.</span>{' '}
                         {step.title}
                       </h3>
-                      <p className='mt-2 text-base text-gray-500'>
+                      <p className='mt-2 text-sm text-gray-600'>
                         {step.description}
                       </p>
                     </div>

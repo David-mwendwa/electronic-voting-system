@@ -124,7 +124,7 @@ const Elections = () => {
                   className='bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col h-full'>
                   <div className='p-5 flex-1 flex flex-col'>
                     <div className='mb-2'>
-                      <h2 className='text-lg font-semibold text-gray-900 mr-2 line-clamp-2'>
+                      <h2 className='text-base sm:text-lg font-semibold text-gray-900 mr-2 line-clamp-2'>
                         {election.title || 'Untitled Election'}
                       </h2>
                     </div>

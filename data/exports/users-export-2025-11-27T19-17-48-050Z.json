@@ -2,7 +2,7 @@
   {
     "_id": "691dee34ef1bd8deec238ebb",
     "name": "David Voter",
-    "email": "david@evs.ke",
+    "email": "david.voter@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-19T16:20:04.221Z",
@@ -1432,7 +1432,7 @@
   {
     "_id": "6927d2dd56688a091fbccacb",
     "name": "Voter",
-    "email": "voter@evs.ke",
+    "email": "voter.user@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T04:26:05.388Z",
@@ -2959,7 +2959,7 @@
   {
     "_id": "6927db06546f6c4ac5a45238",
     "name": "Philip Kipkemoi",
-    "email": "philip_kipkemoi60@evs.ke",
+    "email": "philip.kipkemoi60@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-05-27T03:45:51.778Z",
@@ -2974,7 +2974,7 @@
   {
     "_id": "6927db08546f6c4ac5a4523b",
     "name": "Jennifer Mwende",
-    "email": "jennifer_mwende@evs.ke",
+    "email": "jennifer.mwende@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-03-23T11:45:00.450Z",
@@ -3004,7 +3004,7 @@
   {
     "_id": "6927db09546f6c4ac5a4523d",
     "name": "Muriel Wairimu",
-    "email": "muriel_wairimu@evs.ke",
+    "email": "muriel.wairimu@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-05-21T22:47:45.166Z",
@@ -3019,7 +3019,7 @@
   {
     "_id": "6927db0b546f6c4ac5a45241",
     "name": "Ollie Kipruto",
-    "email": "ollie_kipruto@evs.ke",
+    "email": "ollie.kipruto@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-09-05T14:25:27.700Z",
@@ -3064,7 +3064,7 @@
   {
     "_id": "6927db0e546f6c4ac5a45247",
     "name": "Larry Omondi",
-    "email": "larry_omondi@evs.ke",
+    "email": "larry.omondi@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2024-12-20T10:14:11.337Z",
@@ -3079,7 +3079,7 @@
   {
     "_id": "6927db12546f6c4ac5a4524d",
     "name": "Jenny Ndungu",
-    "email": "jenny_ndungu@evs.ke",
+    "email": "jenny.ndungu@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-06-28T19:12:08.199Z",
@@ -3109,7 +3109,7 @@
   {
     "_id": "6927db13546f6c4ac5a45250",
     "name": "Martha Mathenge",
-    "email": "martha_mathenge@evs.ke",
+    "email": "martha.mathenge@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-15T09:42:26.036Z",
@@ -3124,7 +3124,7 @@
   {
     "_id": "6927db0f546f6c4ac5a4524a",
     "name": "Clayton Odhiambo",
-    "email": "clayton_odhiambo88@evs.ke",
+    "email": "clayton.odhiambo88@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-02T01:30:41.061Z",
@@ -3169,7 +3169,7 @@
   {
     "_id": "6927db15546f6c4ac5a45252",
     "name": "Abraham Njeri",
-    "email": "abraham_njeri76@evs.ke",
+    "email": "abraham.njeri76@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-02-22T12:56:28.061Z",
@@ -3184,7 +3184,7 @@
   {
     "_id": "6927db19546f6c4ac5a4525b",
     "name": "Noel Mungai",
-    "email": "noel_mungai@evs.ke",
+    "email": "noel.mungai@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-04-24T05:19:44.414Z",
@@ -3229,7 +3229,7 @@
   {
     "_id": "6927db19546f6c4ac5a4525d",
     "name": "Conrad Omondi",
-    "email": "conrad_omondi@evs.ke",
+    "email": "conrad.omondi@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-06-25T03:34:46.494Z",
@@ -3259,7 +3259,7 @@
   {
     "_id": "6927db1b546f6c4ac5a45261",
     "name": "Ramon Kipsang",
-    "email": "ramon_kipsang49@evs.ke",
+    "email": "ramon.kipsang49@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-02-26T11:58:54.668Z",
@@ -3289,7 +3289,7 @@
   {
     "_id": "6927db1b546f6c4ac5a45262",
     "name": "Arturo Kosgei",
-    "email": "arturo_kosgei@evs.ke",
+    "email": "arturo.kosgei@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-08-19T20:23:04.931Z",
@@ -3304,7 +3304,7 @@
   {
     "_id": "6927db1b546f6c4ac5a45264",
     "name": "Kellie Otieno",
-    "email": "kellie_otieno@evs.ke",
+    "email": "kellie.otieno@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-07T09:57:47.084Z",
@@ -3319,7 +3319,7 @@
   {
     "_id": "6927db1b546f6c4ac5a45265",
     "name": "Marianne Onyango",
-    "email": "marianne_onyango29@evs.ke",
+    "email": "marianne.onyango29@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-23T00:47:14.636Z",
@@ -3364,7 +3364,7 @@
   {
     "_id": "6927db1e546f6c4ac5a4526c",
     "name": "Ted Naliaka",
-    "email": "ted_naliaka31@evs.ke",
+    "email": "ted.naliaka31@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-09-22T10:36:52.207Z",
@@ -3409,7 +3409,7 @@
   {
     "_id": "6927db20546f6c4ac5a45271",
     "name": "Laurie Muthoni",
-    "email": "laurie_muthoni24@evs.ke",
+    "email": "laurie.muthoni24@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2024-12-15T11:30:25.195Z",
@@ -3424,7 +3424,7 @@
   {
     "_id": "6927db20546f6c4ac5a45272",
     "name": "Amy Kosgei",
-    "email": "amy_kosgei@evs.ke",
+    "email": "amy.kosgei@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-09-21T21:36:00.141Z",
@@ -3439,7 +3439,7 @@
   {
     "_id": "6927db21546f6c4ac5a45279",
     "name": "Evan Kiprop",
-    "email": "evan_kiprop@evs.ke",
+    "email": "evan.kiprop@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-03-10T09:15:26.416Z",
@@ -3469,7 +3469,7 @@
   {
     "_id": "6927db21546f6c4ac5a45278",
     "name": "Emily Ouma",
-    "email": "emily_ouma46@evs.ke",
+    "email": "emily.ouma46@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-04-25T05:05:38.561Z",
@@ -3499,7 +3499,7 @@
   {
     "_id": "6927db23546f6c4ac5a45282",
     "name": "Rafael Mutai",
-    "email": "rafael_mutai72@evs.ke",
+    "email": "rafael.mutai72@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-08-17T17:44:46.862Z",
@@ -3514,7 +3514,7 @@
   {
     "_id": "6927db23546f6c4ac5a45281",
     "name": "Pauline Wambui",
-    "email": "pauline_wambui@evs.ke",
+    "email": "pauline.wambui@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-05-04T23:45:33.799Z",
@@ -3529,7 +3529,7 @@
   {
     "_id": "6927db23546f6c4ac5a45280",
     "name": "Gordon Omondi",
-    "email": "gordon_omondi4@evs.ke",
+    "email": "gordon.omondi4@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-24T15:57:44.763Z",
@@ -3574,7 +3574,7 @@
   {
     "_id": "6927db24546f6c4ac5a45286",
     "name": "Elsie Wairimu",
-    "email": "elsie_wairimu@evs.ke",
+    "email": "elsie.wairimu@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-04-15T03:56:35.832Z",
@@ -3619,7 +3619,7 @@
   {
     "_id": "6927db24546f6c4ac5a4528f",
     "name": "Aubrey Omondi",
-    "email": "aubrey_omondi53@evs.ke",
+    "email": "aubrey.omondi53@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2024-12-07T17:49:36.567Z",
@@ -3634,7 +3634,7 @@
   {
     "_id": "6927db0e546f6c4ac5a45248",
     "name": "Jody Kipchirchir",
-    "email": "jody_kipchirchir90@evs.ke",
+    "email": "jody.kipchirchir90@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-13T02:13:33.776Z",
@@ -3664,7 +3664,7 @@
   {
     "_id": "6927db25546f6c4ac5a45299",
     "name": "Woodrow Onyancha",
-    "email": "woodrow_onyancha@evs.ke",
+    "email": "woodrow.onyancha@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-20T23:01:27.692Z",
@@ -3679,7 +3679,7 @@
   {
     "_id": "6927db25546f6c4ac5a4529a",
     "name": "Brent Kipchirchir",
-    "email": "brent_kipchirchir@evs.ke",
+    "email": "brent.kipchirchir@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-05T00:41:12.811Z",
@@ -3739,7 +3739,7 @@
   {
     "_id": "6927db2e546f6c4ac5a45303",
     "name": "Henrietta Naliaka",
-    "email": "henrietta_naliaka42@evs.ke",
+    "email": "henrietta.naliaka42@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-09-26T13:05:58.928Z",
@@ -3769,7 +3769,7 @@
   {
     "_id": "6927db34546f6c4ac5a4530a",
     "name": "Lee Korir",
-    "email": "lee_korir81@evs.ke",
+    "email": "lee.korir81@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-12T00:17:22.893Z",
@@ -3799,7 +3799,7 @@
   {
     "_id": "6927db34546f6c4ac5a45309",
     "name": "Cary Kiprotich",
-    "email": "cary_kiprotich41@evs.ke",
+    "email": "cary.kiprotich41@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-11T23:10:49.768Z",
@@ -3814,7 +3814,7 @@
   {
     "_id": "6927db31546f6c4ac5a45307",
     "name": "Kimberly Ochieng",
-    "email": "kimberly_ochieng7@evs.ke",
+    "email": "kimberly.ochieng7@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-05-12T00:05:19.108Z",
@@ -3829,7 +3829,7 @@
   {
     "_id": "6927db34546f6c4ac5a4530b",
     "name": "Willis Kiprop",
-    "email": "willis_kiprop@evs.ke",
+    "email": "willis.kiprop@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-03-27T12:58:43.547Z",
@@ -3889,7 +3889,7 @@
   {
     "_id": "6927db3c546f6c4ac5a45313",
     "name": "Antonio Njeri",
-    "email": "antonio_njeri44@evs.ke",
+    "email": "antonio.njeri44@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-07-27T01:11:58.228Z",
@@ -3934,7 +3934,7 @@
   {
     "_id": "6927db40546f6c4ac5a4531b",
     "name": "Lindsey Nyokabi",
-    "email": "lindsey_nyokabi@evs.ke",
+    "email": "lindsey.nyokabi@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-03-22T18:34:56.694Z",
@@ -3964,7 +3964,7 @@
   {
     "_id": "6927db40546f6c4ac5a4531d",
     "name": "Kendra Korir",
-    "email": "kendra_korir@evs.ke",
+    "email": "kendra.korir@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-08-21T02:31:52.026Z",
@@ -4069,7 +4069,7 @@
   {
     "_id": "6927db43546f6c4ac5a45327",
     "name": "Valerie Wambui",
-    "email": "valerie_wambui88@evs.ke",
+    "email": "valerie.wambui88@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-08-01T21:42:57.000Z",
@@ -4084,7 +4084,7 @@
   {
     "_id": "6927db43546f6c4ac5a45326",
     "name": "Eula Onyango",
-    "email": "eula_onyango@evs.ke",
+    "email": "eula.onyango@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-08-30T15:13:35.591Z",
@@ -4099,7 +4099,7 @@
   {
     "_id": "6927db43546f6c4ac5a45325",
     "name": "Boyd Wambui",
-    "email": "boyd_wambui@evs.ke",
+    "email": "boyd.wambui@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-06-17T23:18:12.026Z",
@@ -4114,7 +4114,7 @@
   {
     "_id": "6927db45546f6c4ac5a4532e",
     "name": "Shirley Mutai",
-    "email": "shirley_mutai@evs.ke",
+    "email": "shirley.mutai@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-02-03T08:36:30.893Z",
@@ -4129,7 +4129,7 @@
   {
     "_id": "6927db45546f6c4ac5a45330",
     "name": "Mike Owuor",
-    "email": "mike_owuor@evs.ke",
+    "email": "mike.owuor@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-07T23:07:26.224Z",
@@ -4159,7 +4159,7 @@
   {
     "_id": "6927db45546f6c4ac5a4532d",
     "name": "Dixie Oduor",
-    "email": "dixie_oduor80@evs.ke",
+    "email": "dixie.oduor80@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-25T16:33:27.034Z",
@@ -4189,7 +4189,7 @@
   {
     "_id": "6927db45546f6c4ac5a45333",
     "name": "Marie Kiprotich",
-    "email": "marie_kiprotich@evs.ke",
+    "email": "marie.kiprotich@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-03-02T11:05:33.316Z",
@@ -4234,7 +4234,7 @@
   {
     "_id": "6927db45546f6c4ac5a45335",
     "name": "Todd Korir",
-    "email": "todd_korir86@evs.ke",
+    "email": "todd.korir86@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-09-29T04:32:17.164Z",
@@ -4264,7 +4264,7 @@
   {
     "_id": "6927db47546f6c4ac5a4533f",
     "name": "Lonnie Oduor",
-    "email": "lonnie_oduor66@evs.ke",
+    "email": "lonnie.oduor66@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-25T06:16:19.150Z",
@@ -4294,7 +4294,7 @@
   {
     "_id": "6927db47546f6c4ac5a45340",
     "name": "Doug Ochieng",
-    "email": "doug_ochieng38@evs.ke",
+    "email": "doug.ochieng38@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-08-04T23:19:27.037Z",
@@ -4339,7 +4339,7 @@
   {
     "_id": "6927db47546f6c4ac5a45343",
     "name": "Julia Njoroge",
-    "email": "julia_njoroge72@evs.ke",
+    "email": "julia.njoroge72@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-06-29T19:08:14.223Z",
@@ -4354,7 +4354,7 @@
   {
     "_id": "6927db47546f6c4ac5a4533e",
     "name": "Katie Kipngetich",
-    "email": "katie_kipngetich70@evs.ke",
+    "email": "katie.kipngetich70@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-04-08T12:07:38.436Z",
@@ -4384,7 +4384,7 @@
   {
     "_id": "6927db47546f6c4ac5a45346",
     "name": "Thomas Njoki",
-    "email": "thomas_njoki@evs.ke",
+    "email": "thomas.njoki@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-30T15:40:07.799Z",
@@ -4414,7 +4414,7 @@
   {
     "_id": "6927db49546f6c4ac5a45362",
     "name": "Kathryn Mathenge",
-    "email": "kathryn_mathenge@evs.ke",
+    "email": "kathryn.mathenge@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-08-30T00:59:26.245Z",
@@ -4444,7 +4444,7 @@
   {
     "_id": "6927db51546f6c4ac5a453c9",
     "name": "Gilbert Ochieng",
-    "email": "gilbert_ochieng@evs.ke",
+    "email": "gilbert.ochieng@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-05T05:47:26.619Z",
@@ -4474,7 +4474,7 @@
   {
     "_id": "6927db55546f6c4ac5a453ca",
     "name": "Leah Kipkemoi",
-    "email": "leah_kipkemoi35@evs.ke",
+    "email": "leah.kipkemoi35@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2024-12-25T20:49:47.495Z",
@@ -4489,7 +4489,7 @@
   {
     "_id": "6927db55546f6c4ac5a453cf",
     "name": "Tami Kosgei",
-    "email": "tami_kosgei@evs.ke",
+    "email": "tami.kosgei@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-03-18T03:30:46.078Z",
@@ -4549,7 +4549,7 @@
   {
     "_id": "6927db59546f6c4ac5a453d1",
     "name": "Yvette Mutai",
-    "email": "yvette_mutai32@evs.ke",
+    "email": "yvette.mutai32@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2024-12-14T11:55:58.757Z",
@@ -4579,7 +4579,7 @@
   {
     "_id": "6927db59546f6c4ac5a453d4",
     "name": "Kevin Maina",
-    "email": "kevin_maina@evs.ke",
+    "email": "kevin.maina@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-04-29T19:27:00.858Z",
@@ -4594,7 +4594,7 @@
   {
     "_id": "6927db59546f6c4ac5a453d2",
     "name": "Madeline Onyango",
-    "email": "madeline_onyango85@evs.ke",
+    "email": "madeline.onyango85@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2024-12-26T20:01:16.807Z",
@@ -4669,7 +4669,7 @@
   {
     "_id": "6927db60546f6c4ac5a453e1",
     "name": "Nichole Maina",
-    "email": "nichole_maina@evs.ke",
+    "email": "nichole.maina@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-10-20T14:03:03.803Z",
@@ -4684,7 +4684,7 @@
   {
     "_id": "6927db60546f6c4ac5a453e3",
     "name": "Joyce Kiprotich",
-    "email": "joyce_kiprotich@evs.ke",
+    "email": "joyce.kiprotich@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-07-24T02:36:03.313Z",
@@ -4714,7 +4714,7 @@
   {
     "_id": "6927db60546f6c4ac5a453e4",
     "name": "Alvin Muthoni",
-    "email": "alvin_muthoni@evs.ke",
+    "email": "alvin.muthoni@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-05-29T16:21:11.402Z",
@@ -4729,7 +4729,7 @@
   {
     "_id": "6927db60546f6c4ac5a453df",
     "name": "Louis Ngugi",
-    "email": "louis_ngugi@evs.ke",
+    "email": "louis.ngugi@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-07-02T15:44:55.856Z",
@@ -4744,7 +4744,7 @@
   {
     "_id": "6927db60546f6c4ac5a453e2",
     "name": "Elmer Omondi",
-    "email": "elmer_omondi9@evs.ke",
+    "email": "elmer.omondi9@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-09-07T08:13:26.192Z",
@@ -4789,7 +4789,7 @@
   {
     "_id": "6927db60546f6c4ac5a453e6",
     "name": "Amelia Okoth",
-    "email": "amelia_okoth6@evs.ke",
+    "email": "amelia.okoth6@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-04-28T19:57:51.175Z",
@@ -4834,7 +4834,7 @@
   {
     "_id": "6927db60546f6c4ac5a453e7",
     "name": "Rolando Nyokabi",
-    "email": "rolando_nyokabi3@evs.ke",
+    "email": "rolando.nyokabi3@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-07-30T19:33:09.648Z",
@@ -4849,7 +4849,7 @@
   {
     "_id": "6927db63546f6c4ac5a453f3",
     "name": "Johnnie Onyango",
-    "email": "johnnie_onyango50@evs.ke",
+    "email": "johnnie.onyango50@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-03-03T00:51:41.649Z",
@@ -4864,7 +4864,7 @@
   {
     "_id": "6927db63546f6c4ac5a453f2",
     "name": "Charlene Kiprotich",
-    "email": "charlene_kiprotich47@evs.ke",
+    "email": "charlene.kiprotich47@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-02-17T18:30:59.592Z",
@@ -4879,7 +4879,7 @@
   {
     "_id": "6927db63546f6c4ac5a453f7",
     "name": "Rex Langat",
-    "email": "rex_langat57@evs.ke",
+    "email": "rex.langat57@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-04-23T23:45:24.215Z",
@@ -4909,7 +4909,7 @@
   {
     "_id": "6927db63546f6c4ac5a453f0",
     "name": "Carolyn Kipsang",
-    "email": "carolyn_kipsang48@evs.ke",
+    "email": "carolyn.kipsang48@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-05-17T01:56:49.048Z",
@@ -4939,7 +4939,7 @@
   {
     "_id": "6927db63546f6c4ac5a453f4",
     "name": "Loretta Odhiambo",
-    "email": "loretta_odhiambo95@evs.ke",
+    "email": "loretta.odhiambo95@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-14T09:54:40.531Z",
@@ -4954,7 +4954,7 @@
   {
     "_id": "6927db63546f6c4ac5a453f8",
     "name": "Lucy Owuor",
-    "email": "lucy_owuor36@evs.ke",
+    "email": "lucy.owuor36@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-03-30T16:18:07.121Z",
@@ -4984,7 +4984,7 @@
   {
     "_id": "6927db66546f6c4ac5a453fc",
     "name": "Mario Kiprop",
-    "email": "mario_kiprop@evs.ke",
+    "email": "mario.kiprop@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-01-20T17:02:46.044Z",
@@ -6484,7 +6484,7 @@
   {
     "_id": "6927db9a546f6c4ac5a4556d",
     "name": "Ira Korir",
-    "email": "ira_korir@evs.ke",
+    "email": "ira.korir@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-03-13T11:18:00.272Z",
@@ -6499,7 +6499,7 @@
   {
     "_id": "6927db9a546f6c4ac5a4556f",
     "name": "Dustin Kosgei",
-    "email": "dustin_kosgei@evs.ke",
+    "email": "dustin.kosgei@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-21T01:13:52.915Z",
@@ -6544,7 +6544,7 @@
   {
     "_id": "6927e7965a0da5f6918bc3b5",
     "name": "Robert Kamau",
-    "email": "carlee.ortiz90@evs.ke",
+    "email": "robert.kamau@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:17.064Z",
@@ -6559,7 +6559,7 @@
   {
     "_id": "6927e7965a0da5f6918bc3b7",
     "name": "John Odhiambo",
-    "email": "abby.goodwin@evs.ke",
+    "email": "john.odhiambo@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:17.633Z",
@@ -6574,7 +6574,7 @@
   {
     "_id": "6927e7965a0da5f6918bc3b9",
     "name": "Joseph Njoroge",
-    "email": "nicklaus.oberbrunner32@evs.ke",
+    "email": "joseph.njoroge@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:18.401Z",
@@ -6589,7 +6589,7 @@
   {
     "_id": "6927e7975a0da5f6918bc3bb",
     "name": "Brian Onyango",
-    "email": "roderick_krajcik@evs.ke",
+    "email": "brian.onyango@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:19.173Z",
@@ -6604,7 +6604,7 @@
   {
     "_id": "6927e7985a0da5f6918bc3bd",
     "name": "David Kipchoge",
-    "email": "gilberto_wisozk@evs.ke",
+    "email": "david.kipchoge@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:19.639Z",
@@ -6619,7 +6619,7 @@
   {
     "_id": "6927e7985a0da5f6918bc3bf",
     "name": "Edward Kamau",
-    "email": "alan.wilkinson@evs.ke",
+    "email": "edward.kamau@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:20.081Z",
@@ -6634,7 +6634,7 @@
   {
     "_id": "6927e7985a0da5f6918bc3c1",
     "name": "Daniel Kamau",
-    "email": "madaline81@evs.ke",
+    "email": "daniel.kamau@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:20.537Z",
@@ -6649,7 +6649,7 @@
   {
     "_id": "6927e7995a0da5f6918bc3c3",
     "name": "Joseph Kariuki",
-    "email": "jonatan_daniel@evs.ke",
+    "email": "joseph.kariuki@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:20.965Z",
@@ -6664,7 +6664,7 @@
   {
     "_id": "6927e7995a0da5f6918bc3c5",
     "name": "Edward Okoth",
-    "email": "gavin.emard@evs.ke",
+    "email": "edward.okoth@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:21.407Z",
@@ -6679,7 +6679,7 @@
   {
     "_id": "6927e7995a0da5f6918bc3c7",
     "name": "Joseph Waweru",
-    "email": "zula_keebler97@evs.ke",
+    "email": "joseph.waweru@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:21.847Z",
@@ -6694,7 +6694,7 @@
   {
     "_id": "6927e79a5a0da5f6918bc3c9",
     "name": "James Wambui",
-    "email": "kamille58@evs.ke",
+    "email": "james.wambui@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:22.302Z",
@@ -6709,7 +6709,7 @@
   {
     "_id": "6927e79a5a0da5f6918bc3cb",
     "name": "Justin Maina",
-    "email": "tiffany_schroeder11@evs.ke",
+    "email": "justin.maina@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:22.751Z",
@@ -6724,7 +6724,7 @@
   {
     "_id": "6927e79a5a0da5f6918bc3cd",
     "name": "Michael Maina",
-    "email": "jovanny36@evs.ke",
+    "email": "michael.maina@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:23.228Z",
@@ -6739,7 +6739,7 @@
   {
     "_id": "6927e79b5a0da5f6918bc3cf",
     "name": "Jacob Okoth",
-    "email": "brendon97@evs.ke",
+    "email": "jacob.okoth@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:23.683Z",
@@ -6754,7 +6754,7 @@
   {
     "_id": "6927e79b5a0da5f6918bc3d1",
     "name": "Jason Waweru",
-    "email": "tyrese_okuneva66@evs.ke",
+    "email": "jason.waweru@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:24.116Z",
@@ -6769,7 +6769,7 @@
   {
     "_id": "6927e79b5a0da5f6918bc3d3",
     "name": "Mark Odhiambo",
-    "email": "myra.volkman52@evs.ke",
+    "email": "mark.odhiambo@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:24.572Z",
@@ -6784,7 +6784,7 @@
   {
     "_id": "6927e79c5a0da5f6918bc3d5",
     "name": "Robert Kipchoge",
-    "email": "rosemary22@evs.ke",
+    "email": "robert.kipchoge@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:25.029Z",
@@ -6799,7 +6799,7 @@
   {
     "_id": "6927e79c5a0da5f6918bc3d7",
     "name": "Jason Omondi",
-    "email": "ignacio_mayert@evs.ke",
+    "email": "jason.omondi@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:25.524Z",
@@ -6814,7 +6814,7 @@
   {
     "_id": "6927e79d5a0da5f6918bc3d9",
     "name": "Brandon Njoroge",
-    "email": "selena.klein54@evs.ke",
+    "email": "brandon.njoroge@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:26.013Z",
@@ -6829,7 +6829,7 @@
   {
     "_id": "6927e79d5a0da5f6918bc3db",
     "name": "Thomas Njoroge",
-    "email": "kamron.larson98@evs.ke",
+    "email": "thomas.njoroge@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:26.494Z",
@@ -6844,7 +6844,7 @@
   {
     "_id": "6927e79d5a0da5f6918bc3dd",
     "name": "Mark Wambui",
-    "email": "alene_waelchi@evs.ke",
+    "email": "mark.wambui@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:26.938Z",
@@ -6859,7 +6859,7 @@
   {
     "_id": "6927e79e5a0da5f6918bc3df",
     "name": "Justin Ochieng",
-    "email": "jakayla.bogan72@evs.ke",
+    "email": "justin.ochieng@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:27.372Z",
@@ -6874,7 +6874,7 @@
   {
     "_id": "6927e79e5a0da5f6918bc3e1",
     "name": "Scott Waweru",
-    "email": "jovan.steuber7@evs.ke",
+    "email": "scott.waweru@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:27.820Z",
@@ -6889,7 +6889,7 @@
   {
     "_id": "6927e79e5a0da5f6918bc3e3",
     "name": "Paul Kariuki",
-    "email": "heidi.bernier36@evs.ke",
+    "email": "paul.kariuki@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:28.453Z",
@@ -6904,7 +6904,7 @@
   {
     "_id": "6927e79f5a0da5f6918bc3e5",
     "name": "Larry Mugo",
-    "email": "vance.stark88@evs.ke",
+    "email": "larry.mugo@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:28.911Z",
@@ -6919,7 +6919,7 @@
   {
     "_id": "6927e79f5a0da5f6918bc3e7",
     "name": "Jeffrey Maina",
-    "email": "anastasia.will24@evs.ke",
+    "email": "jeffrey.maina@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:29.340Z",
@@ -6934,7 +6934,7 @@
   {
     "_id": "6927e79f5a0da5f6918bc3e9",
     "name": "Brandon Mugo",
-    "email": "enrico_wolff91@evs.ke",
+    "email": "brandon.mugo@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:29.771Z",
@@ -6949,7 +6949,7 @@
   {
     "_id": "6927e7a05a0da5f6918bc3eb",
     "name": "Joseph Ochieng",
-    "email": "hollie_marvin30@evs.ke",
+    "email": "joseph.ochieng@evs.ke",
     "role": "user",
     "status": "active",
     "createdAt": "2025-11-27T05:54:30.181Z",

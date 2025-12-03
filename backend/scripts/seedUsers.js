@@ -45,7 +45,7 @@ const seedUsers = async () => {
     // Read users data from JSON file
     const usersData = JSON.parse(
       await readFile(
-        path.join(__dirname, '../../frontend/src/data/additional-voters.json'),
+        path.join(__dirname, '../../frontend/src/data/voters.ignore.json'),
         'utf-8'
       )
     );

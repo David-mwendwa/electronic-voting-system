@@ -1691,7 +1691,46 @@ const SettingsContent = () => {
     error,
   } = useSettings();
   const { user } = useAuth();
+  const { deleteAllElections } = useElection();
+  const { purgeNonAdminUsers } = useVoter();
   const isAdminNotSysadmin = user?.role === 'admin';
+  const [dangerAction, setDangerAction] = useState(null);
+
+  const isSysadmin = user?.role === 'sysadmin';
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  const handleDangerClick = (action) => {
+    if (!isSysadmin || isProduction) return;
+    setDangerAction(action);
+  };
+
+  const handleDangerCancel = () => {
+    setDangerAction(null);
+  };
+
+  const handleDangerConfirm = async () => {
+    if (!dangerAction) return;
+
+    try {
+      if (dangerAction === 'elections') {
+        await deleteAllElections();
+        toast.success('All elections have been deleted');
+      } else if (dangerAction === 'users') {
+        await purgeNonAdminUsers();
+        toast.success(
+          'All non-admin users (except voter@evs.ke) have been deleted'
+        );
+      }
+    } catch (error) {
+      if (dangerAction === 'elections') {
+        toast.error('Failed to delete all elections');
+      } else if (dangerAction === 'users') {
+        toast.error('Failed to delete non-admin users');
+      }
+    } finally {
+      setDangerAction(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -1829,26 +1868,77 @@ const SettingsContent = () => {
                 <div className='mt-2 text-sm text-red-700'>
                   <p>
                     This will permanently delete all elections, votes, and user
-                    data. This action cannot be undone.
+                    data. This action cannot be undone and should only be used
+                    in development or non-production environments.
                   </p>
                 </div>
                 <div className='mt-4'>
-                  <button
-                    type='button'
-                    disabled={isAdminNotSysadmin}
-                    className={`inline-flex items-center rounded-md border px-3 py-2 text-sm font-medium leading-4 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                      isAdminNotSysadmin
-                        ? 'bg-red-50 text-red-300 border-red-200 cursor-not-allowed focus:ring-red-200'
-                        : 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200 focus:ring-red-500'
-                    }`}>
-                    Delete all data
-                  </button>
+                  <div className='flex flex-col sm:flex-row gap-3'>
+                    <button
+                      type='button'
+                      disabled={isAdminNotSysadmin || isProduction}
+                      onClick={() => handleDangerClick('elections')}
+                      className={`inline-flex items-center rounded-md border px-3 py-2 text-sm font-medium leading-4 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        isAdminNotSysadmin || isProduction
+                          ? 'bg-red-50 text-red-300 border-red-200 cursor-not-allowed focus:ring-red-200'
+                          : 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200 focus:ring-red-500'
+                      }`}>
+                      Delete all elections
+                    </button>
+                    <button
+                      type='button'
+                      disabled={isAdminNotSysadmin || isProduction}
+                      onClick={() => handleDangerClick('users')}
+                      className={`inline-flex items-center rounded-md border px-3 py-2 text-sm font-medium leading-4 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        isAdminNotSysadmin || isProduction
+                          ? 'bg-red-50 text-red-300 border-red-200 cursor-not-allowed focus:ring-red-200'
+                          : 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200 focus:ring-red-500'
+                      }`}>
+                      Delete non-admin users
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={!!dangerAction}
+        title={
+          dangerAction === 'elections'
+            ? 'Delete all elections'
+            : dangerAction === 'users'
+              ? 'Delete non-admin users'
+              : 'Confirm action'
+        }
+        message={
+          dangerAction === 'elections'
+            ? 'This will permanently delete all elections and their associated results. This action cannot be undone.'
+            : dangerAction === 'users'
+              ? 'This will permanently delete all non-admin and non-system admin users, except voter@evs.ke. This action cannot be undone.'
+              : ''
+        }
+        note={
+          isProduction
+            ? 'These destructive operations are disabled in production. Run them only in a development environment.'
+            : !isSysadmin
+              ? 'Only system administrators can perform this action.'
+              : undefined
+        }
+        confirmText={
+          dangerAction === 'elections'
+            ? 'Delete all elections'
+            : dangerAction === 'users'
+              ? 'Delete non-admin users'
+              : 'Confirm'
+        }
+        cancelText='Cancel'
+        onConfirm={handleDangerConfirm}
+        onCancel={handleDangerCancel}
+        confirmDisabled={!isSysadmin || isProduction}
+      />
     </div>
   );
 };

@@ -8,6 +8,7 @@ import {
   updateElectionStatus,
   getElectionsByStatus,
   voteElection,
+  deleteAllElections,
 } from '../controllers/electionController.js';
 import { authenticate, authorizeRoles } from '../middleware/auth.js';
 const router = express.Router();
@@ -35,6 +36,10 @@ router
   .route('/:id')
   .patch(authenticate, authorizeRoles(adminRoles), updateElection)
   .delete(authenticate, authorizeRoles(adminRoles), deleteElection);
+
+router
+  .route('/purge/all')
+  .delete(authenticate, authorizeRoles(['sysadmin']), deleteAllElections);
 
 // Update election status
 router

@@ -242,6 +242,21 @@ export const VoterProvider = ({ children }) => {
     }
   };
 
+  const purgeNonAdminUsers = async () => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+
+      await api.delete('/users/purge/non-admins');
+
+      await fetchVoters();
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error.message });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  };
+
   // Get a voter by ID
   const getVoterById = (id) => {
     return state.voters.find(
@@ -288,6 +303,7 @@ export const VoterProvider = ({ children }) => {
         updateVoter,
         updateVoterStatus,
         deleteVoter,
+        purgeNonAdminUsers,
         getVoterById,
         setCurrentVoter,
         clearCurrentVoter,

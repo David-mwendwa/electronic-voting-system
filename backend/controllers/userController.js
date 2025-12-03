@@ -79,3 +79,17 @@ export const getUsers = getMany(User);
 export const getUser = getOne(User);
 
 export const deleteUser = deleteOne(User);
+
+export const deleteNonAdminUsers = async (req, res) => {
+  const result = await User.deleteMany({
+    role: { $nin: ['admin', 'sysadmin'] },
+    email: { $ne: 'voter@evs.ke' },
+  });
+
+  res.status(200).json({
+    success: true,
+    deletedCount: result.deletedCount,
+    message:
+      'All non-admin and non-sysadmin users (except voter@evs.ke) have been deleted',
+  });
+};

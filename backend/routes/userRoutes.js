@@ -8,6 +8,7 @@ import {
   deleteUser,
   logout,
   updateMe,
+  deleteNonAdminUsers,
 } from '../controllers/userController.js';
 import { authenticate, authorizeRoles } from '../middleware/auth.js';
 
@@ -27,5 +28,9 @@ router
   .get(authenticate, authorizeRoles(['admin', 'sysadmin']), getUser)
   .patch(authenticate, authorizeRoles(['admin', 'sysadmin']), updateUser)
   .delete(authenticate, authorizeRoles(['sysadmin']), deleteUser);
+
+router
+  .route('/purge/non-admins')
+  .delete(authenticate, authorizeRoles(['sysadmin']), deleteNonAdminUsers);
 
 export default router;

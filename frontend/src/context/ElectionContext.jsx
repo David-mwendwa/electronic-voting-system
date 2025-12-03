@@ -98,6 +98,14 @@ const reducer = (state, action) => {
       };
     }
 
+    case 'DELETE_ALL_ELECTIONS': {
+      return {
+        ...state,
+        elections: [],
+        currentElection: null,
+      };
+    }
+
     default:
       return state;
   }
@@ -218,6 +226,16 @@ export const ElectionProvider = ({ children }) => {
     }
   };
 
+  const deleteAllElections = async () => {
+    try {
+      await api.delete('/elections/purge/all');
+      dispatch({ type: 'DELETE_ALL_ELECTIONS' });
+    } catch (error) {
+      console.error('Failed to delete all elections:', error);
+      throw error;
+    }
+  };
+
   // Submit vote
   const submitVote = async (electionId, candidateId, voterId) => {
     try {
@@ -259,6 +277,7 @@ export const ElectionProvider = ({ children }) => {
         updateElection,
         updateElectionStatus,
         deleteElection,
+        deleteAllElections,
         submitVote,
         getElectionById,
         setCurrentElection,

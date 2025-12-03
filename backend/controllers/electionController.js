@@ -146,6 +146,16 @@ export const getElectionsByStatus = async (req, res, next) => {
 // Delete election (admin only)
 export const deleteElection = deleteOne(Election);
 
+export const deleteAllElections = async (req, res) => {
+  const result = await Election.deleteMany({});
+
+  res.status(200).json({
+    success: true,
+    deletedCount: result.deletedCount,
+    message: 'All elections have been deleted',
+  });
+};
+
 // Cast a vote in an election (authenticated user)
 export const voteElection = async (req, res) => {
   const { id } = req.params;

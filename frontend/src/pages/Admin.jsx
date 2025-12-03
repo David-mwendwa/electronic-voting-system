@@ -49,7 +49,9 @@ import VoterModal from '../components/VoterModal';
 import CreateElection from './CreateElection';
 
 const Admin = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : true
+  );
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -124,6 +126,10 @@ const Admin = () => {
 
       const pendingVoters = voters.filter((voter) => !voter.isApproved).length;
 
+      const draftElections = elections.filter(
+        (election) => (election.status || '').toLowerCase() === 'draft'
+      ).length;
+
       const formatDate = (dateString) => {
         return format(parseISO(dateString), 'MMMM d, yyyy');
       };
@@ -152,14 +158,14 @@ const Admin = () => {
           changeType: 'info',
         },
         {
-          name: 'Pending Approvals',
-          value: pendingVoters,
-          icon: <FiUserCheck className='h-6 w-6 text-yellow-500' />,
+          name: 'Draft Elections',
+          value: draftElections,
+          icon: <FiClock className='h-6 w-6 text-yellow-500' />,
           change:
-            pendingVoters > 0
-              ? `${pendingVoters} pending`
-              : 'No pending approvals',
-          changeType: pendingVoters > 0 ? 'decrease' : 'neutral',
+            draftElections > 0
+              ? `${draftElections} drafts in progress`
+              : 'No drafts at the moment',
+          changeType: 'info',
         },
         {
           name: 'System Status',
@@ -393,7 +399,7 @@ const Admin = () => {
         </header>
 
         {/* Page content */}
-        <main className='flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6 mt-0 lg:mt-16'>
+        <main className='flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6 mt-0'>
           {activeTab === 'dashboard' ? (
             <DashboardContent
               stats={stats}

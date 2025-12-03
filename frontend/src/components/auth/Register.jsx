@@ -87,13 +87,14 @@ const Register = ({ onClose, onSwitchToLogin }) => {
       const result = await register(userData);
 
       if (result.success) {
-        const user = result.data?.user;
-        const token = result.data?.token;
-
-        if (user && token) {
-          // Log the user in automatically with token so AuthContext can persist it
-          login({ ...user, token });
-        }
+        // Automatically authenticate the user with the same credentials
+        await login(
+          {
+            email: formData.email,
+            password: formData.password,
+          },
+          false
+        );
 
         // Close the modal
         if (onClose) onClose();

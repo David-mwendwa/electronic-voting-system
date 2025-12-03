@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiX } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -19,6 +19,7 @@ const Login = ({ onClose, onSwitchToRegister }) => {
     password: false,
   });
   const { login, rememberMe, setRememberMe } = useAuth();
+  const navigate = useNavigate();
 
   // Test credentials for different user roles
   const testCredentials = [
@@ -91,7 +92,12 @@ const Login = ({ onClose, onSwitchToRegister }) => {
 
     try {
       // Call unified login (backend + session) with the form data
-      await login(formData, rememberMe);
+      const data = await login(formData, rememberMe);
+
+      const role = data?.user?.role;
+      if (role === 'admin' || role === 'sysadmin') {
+        navigate('/admin');
+      }
 
       toast.success('Welcome back! You are now logged in.');
       if (onClose) onClose();

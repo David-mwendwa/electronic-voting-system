@@ -183,6 +183,21 @@ export const voteElection = async (req, res) => {
     throw new ForbiddenError('You must be authenticated to vote');
   }
 
+  // Ensure only active users can vote
+  const voter = await User.findById(userId).select('status role');
+
+  if (!voter) {
+    throw new ForbiddenError(
+      'Your account could not be found. Please contact support.'
+    );
+  }
+
+  if (String(voter.status).toLowerCase() !== 'active') {
+    throw new ForbiddenError(
+      'Your account is not active. Inactive users cannot cast votes.'
+    );
+  }
+
   // Prevent admin and sysadmin accounts from voting in elections
   if (userRole === 'admin' || userRole === 'sysadmin') {
     throw new ForbiddenError(

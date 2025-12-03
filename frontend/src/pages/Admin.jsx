@@ -1393,8 +1393,8 @@ const VotersContent = () => {
                         </div>
                         <div
                           className='text-xs text-gray-500 font-mono'
-                          title={voter.id}>
-                          ID: {voter.id}
+                          title={voter._id || voter.id}>
+                          ID: {voter._id || voter.id}
                         </div>
                       </div>
                     </div>

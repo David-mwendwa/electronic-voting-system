@@ -132,12 +132,20 @@ const Register = ({ onClose, onSwitchToLogin }) => {
         aria-hidden='true'
       />
       {/* Modal panel */}
-      <div className='bg-white rounded-lg shadow-xl transform transition-all w-full max-w-md overflow-hidden'>
-        <div className='px-6 py-4 border-b border-gray-200'>
-          <div className='flex items-center justify-between'>
-            <h3 className='text-lg font-medium text-gray-900 text-left'>
-              Create Your Voting Account
-            </h3>
+      <div className='bg-white rounded-xl shadow-xl transform transition-all w-full max-w-md overflow-hidden'>
+        <div className='px-6 py-4 border-b border-gray-100'>
+          <div className='flex items-start justify-between'>
+            <div className='flex-1 text-center px-6'>
+              <h3 className='text-lg sm:text-xl font-semibold text-gray-900'>
+                Create Your Voting Account
+              </h3>
+              <p className='mt-1 text-[11px] sm:text-xs text-gray-500 leading-snug'>
+                For this demo environment, you may register with sample details
+                (name, email, etc.). Use an email address that looks valid, for
+                example
+                <span className='ml-1 font-mono'>test.user@example.com</span>.
+              </p>
+            </div>
             <button
               onClick={onClose}
               className='text-gray-400 hover:text-gray-500 focus:outline-none'>
@@ -149,28 +157,21 @@ const Register = ({ onClose, onSwitchToLogin }) => {
         <div className='px-6 py-4'>
           {/* Error Message */}
           {error && (
-            <div className='p-3 mb-3 text-sm text-red-700 bg-red-100 rounded-md text-left'>
+            <div className='p-3 mb-4 text-xs sm:text-sm text-red-700 bg-red-50 border border-red-100 rounded-md text-left'>
               <div className='flex items-center'>
-                <FiX className='w-5 h-5 mr-2' />
+                <FiX className='w-4 h-4 mr-2' />
                 <span>{error}</span>
               </div>
             </div>
           )}
 
-          {/* Info: test with dummy details */}
-          <div className='mb-4 text-xs sm:text-sm text-blue-700 bg-blue-50 border border-blue-100 rounded-md px-3 py-2 text-left'>
-            For testing this demo, you can use dummy details (name, email,
-            etc.). Just make sure the email looks valid, e.g.{' '}
-            <span className='font-mono'>test.user@example.com</span>.
-          </div>
-
           {/* Registration Form */}
-          <form onSubmit={handleSubmit} className='space-y-4'>
+          <form onSubmit={handleSubmit} className='space-y-5'>
             {/* Name Field */}
             <div className='text-left'>
               <label
                 htmlFor='name'
-                className='block text-sm font-medium text-gray-700 mb-1 text-left'>
+                className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 text-left'>
                 Full Name <span className='text-red-500'>*</span>
               </label>
               <div className='relative mt-1 rounded-md shadow-sm'>
@@ -239,7 +240,7 @@ const Register = ({ onClose, onSwitchToLogin }) => {
               <div className='text-left'>
                 <label
                   htmlFor='dateOfBirth'
-                  className='block text-sm font-medium text-gray-700 mb-1 text-left'>
+                  className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 text-left'>
                   Date of Birth
                 </label>
                 <div className='relative mt-1 rounded-md shadow-sm'>
@@ -270,7 +271,7 @@ const Register = ({ onClose, onSwitchToLogin }) => {
               <div className='text-left'>
                 <label
                   htmlFor='gender'
-                  className='block text-sm font-medium text-gray-700 mb-1 text-left'>
+                  className='block text-xs sm:text-sm font-medium text-gray-700 mb-1 text-left'>
                   Gender
                 </label>
                 <div className='relative mt-1 rounded-md shadow-sm'>

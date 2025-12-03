@@ -13,7 +13,7 @@ const Login = ({ onClose, onSwitchToRegister }) => {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showTestCredentials, setShowTestCredentials] = useState(false);
+  const [showTestCredentials, setShowTestCredentials] = useState(true);
   const [touched, setTouched] = useState({
     email: false,
     password: false,
@@ -40,7 +40,7 @@ const Login = ({ onClose, onSwitchToRegister }) => {
       name: 'Voter',
       email: 'voter@evs.ke',
       password: 'voter123',
-      description: 'View active elections and cast your vote.',
+      description: 'View elections and cast your vote.',
       role: 'user',
     },
   ];
@@ -118,12 +118,18 @@ const Login = ({ onClose, onSwitchToRegister }) => {
         aria-hidden='true'
       />
       {/* Modal panel */}
-      <div className='bg-white rounded-lg shadow-xl transform transition-all w-full max-w-md'>
-        <div className='px-6 py-4 border-b border-gray-200'>
+      <div className='bg-white rounded-xl shadow-xl transform transition-all w-full max-w-md'>
+        <div className='px-6 py-4 border-b border-gray-100'>
           <div className='flex items-center justify-between'>
-            <h3 className='text-lg font-medium text-gray-900'>
-              Log in to vote
-            </h3>
+            <div>
+              <h3 className='text-lg sm:text-xl font-semibold text-gray-900'>
+                Log in to EVS
+              </h3>
+              <p className='mt-0.5 text-[11px] sm:text-xs text-gray-500 leading-snug'>
+                Use the demo accounts below, or sign in with the account you
+                registered with or one provided by your administrator.
+              </p>
+            </div>
             <button
               onClick={onClose}
               className='text-gray-400 hover:text-gray-500 focus:outline-none'>
@@ -134,9 +140,9 @@ const Login = ({ onClose, onSwitchToRegister }) => {
         <div className='px-6 py-4'>
           {/* Error Message */}
           {error && (
-            <div className='p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-md'>
+            <div className='p-3 mb-4 text-xs sm:text-sm text-red-700 bg-red-50 border border-red-100 rounded-md'>
               <div className='flex items-center'>
-                <FiX className='w-5 h-5 mr-2' />
+                <FiX className='w-4 h-4 mr-2' />
                 <span>{error}</span>
               </div>
             </div>
@@ -149,7 +155,7 @@ const Login = ({ onClose, onSwitchToRegister }) => {
               <div className='text-left'>
                 <label
                   htmlFor='email'
-                  className='block text-sm font-medium text-gray-700 mb-1'>
+                  className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
                   Email Address
                 </label>
               </div>
@@ -189,7 +195,7 @@ const Login = ({ onClose, onSwitchToRegister }) => {
               <div className='flex items-center justify-between'>
                 <label
                   htmlFor='password'
-                  className='block text-sm font-medium text-gray-700 mb-1'>
+                  className='block text-xs sm:text-sm font-medium text-gray-700 mb-1'>
                   Password
                 </label>
               </div>
@@ -304,16 +310,16 @@ const Login = ({ onClose, onSwitchToRegister }) => {
             <button
               type='button'
               onClick={() => setShowTestCredentials(!showTestCredentials)}
-              className='w-full text-center text-sm font-medium text-primary-600 hover:text-primary-500 focus:outline-none'>
+              className='w-full text-center text-sm font-semibold text-primary-700 hover:text-primary-600 outline-none focus:outline-none focus-visible:outline-none focus:ring-0'>
               {showTestCredentials
-                ? 'Hide Test Credentials'
-                : 'Need test credentials?'}
+                ? 'Hide demo login accounts'
+                : 'Need demo login accounts for testing?'}
             </button>
 
             {showTestCredentials && (
-              <div className='mt-3 p-4 bg-gray-50 rounded-lg border border-gray-200'>
-                <h4 className='text-sm font-medium text-gray-900 mb-2'>
-                  Test Accounts
+              <div className='mt-3 p-4 bg-primary-50 rounded-lg border border-primary-100'>
+                <h4 className='text-sm font-semibold text-gray-900 mb-2'>
+                  Demo accounts for testing
                 </h4>
                 <p className='text-xs text-gray-500 mb-3'>
                   Click any account to auto-fill credentials

@@ -181,7 +181,18 @@ function App() {
                   </div>
                 </main>
                 <Footer />
-                <ToastContainer position='top-right' autoClose={3000} />
+                <ToastContainer
+                  position='top-right'
+                  autoClose={3500}
+                  hideProgressBar={false}
+                  newestOnTop
+                  closeOnClick
+                  pauseOnFocusLoss={false}
+                  pauseOnHover
+                  draggable
+                  theme='colored'
+                  limit={3}
+                />
               </div>
             </VoterProvider>
           </ElectionProvider>

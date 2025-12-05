@@ -129,7 +129,7 @@ const Login = ({ onClose, onSwitchToRegister }) => {
           <div className='flex items-center justify-between'>
             <div>
               <h3 className='text-lg sm:text-xl font-semibold text-gray-900'>
-                Log in to EVS
+                Sign in to EVS
               </h3>
               <p className='mt-0.5 text-[11px] sm:text-xs text-gray-500 leading-snug'>
                 Use the demo accounts below, or sign in with the account you

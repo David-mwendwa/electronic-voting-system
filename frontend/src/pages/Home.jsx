@@ -293,7 +293,7 @@ const Home = () => {
         <div className='bg-gray-100 rounded-xl p-8 shadow-sm mx-auto'>
           <div className='text-center'>
             <h2 className='text-xl md:text-2xl font-semibold text-gray-900'>
-              Why Choose Our Voting Platform?
+              Why Institutions Choose EVS
             </h2>
             <div className='mt-10 grid gap-8 md:grid-cols-3'>
               <div className='bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow'>

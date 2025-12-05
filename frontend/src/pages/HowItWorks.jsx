@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const HowItWorks = () => {
+  const { isAuthenticated } = useAuth();
   const steps = [
     {
       number: '01',
       title: 'Sign in to EVS',
       description:
-        'From the homepage, use the "Sign in to EVS" button and sign in with the credentials provided by your institution. For demo and testing purposes, sample login credentials are listed on the login page. Your role determines whether you access the voter experience, the admin dashboard, or the system admin console.',
+        'From the homepage, use the "Sign in to EVS" button and sign in with the credentials provided by your institution or the account you signed up with. For demo and testing purposes, sample login credentials are listed on the login page. Your role determines whether you access the voter experience, the admin dashboard, or the system admin console.',
       icon: (
         <svg
           className='w-8 h-8 text-primary-600'
@@ -143,12 +145,12 @@ const HowItWorks = () => {
         </div>
       </div>
 
-      {/* Back to Voting Link */}
+      {/* Back link (variant depends on auth state) */}
       <div className='bg-gray-50 py-6 border-t border-gray-200'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex justify-center'>
             <Link
-              to='/elections'
+              to={isAuthenticated ? '/elections' : '/'}
               className='inline-flex items-center text-primary-700 hover:text-primary-800 font-medium transition-all duration-300 transform hover:translate-x-1 group'>
               <div className='relative'>
                 <div className='absolute h-8 w-8 -left-1.5 -top-1.5 rounded-full bg-primary-100 opacity-75 animate-ping'></div>
@@ -166,7 +168,7 @@ const HowItWorks = () => {
                 </svg>
               </div>
               <span className='border-b-2 border-transparent hover:border-primary-600 transition-colors duration-200'>
-                Back to Elections
+                {isAuthenticated ? 'Back to Elections' : 'Back to homepage'}
               </span>
             </Link>
           </div>
